@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Fanfou</string>
+    <string name="label_splash">闪屏</string>
+    <string name="label_home">主页</string>
+    <string name="label_sign">注册/登入</string>
+    <string name="action_close">关闭</string>
+</resources>

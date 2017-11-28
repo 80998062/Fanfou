@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "com.sinyuk.fanfou"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    kapt {
+        correctErrorTypes = true
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "com.android.support:appcompat-v7:27.0.1"
+    implementation "com.android.support:design:27.0.1"
+    implementation "com.android.support:recyclerview-v7:27.0.1"
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.21'
+
+    implementation "android.arch.lifecycle:extensions:$rootProject.ext.archLifecycleVersion"
+    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.archLifecycleVersion"
+    implementation project(':domain')
+
+    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
+    implementation("io.reactivex.rxjava2:rxandroid:2.0.1") {
+        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
+        exclude group: 'org.reactivestreams', module: 'reactive-streams'
+    }
+
+    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
+    implementation("com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion") {
+        exclude group: 'com.android.support'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+    }
+    kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
+
+
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+
+    //
+    implementation 'com.github.80998062:MyUtils:2.0.2'
+
+    implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
+
+}

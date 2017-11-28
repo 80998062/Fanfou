@@ -1,0 +1,63 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    kapt {
+        correctErrorTypes = true
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
+    kapt "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
+    implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
+
+
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+    implementation("com.squareup.retrofit2:retrofit:2.3.0") {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    implementation("com.squareup.retrofit2:adapter-rxjava2:2.3.0") {
+        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
+    implementation("io.reactivex.rxjava2:rxandroid:2.0.1") {
+        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
+        exclude group: 'org.reactivestreams', module: 'reactive-streams'
+    }
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+
+    implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
+
+}

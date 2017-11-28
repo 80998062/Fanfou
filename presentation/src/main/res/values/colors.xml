@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimaryDark">#ffffff</color>
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorAccent">#F56368</color>
+
+
+    <color name="pink">#F56368</color>
+    <color name="cyan">#68c5b3</color>
+
+    <color name="textColorPrimary">#333333</color>
+    <color name="textColorSecondary">#888888</color>
+    <color name="textColorHint">#cccccc</color>
+
+    <color name="textColorPrimaryInverse">#fafbfc</color>
+    <color name="textColorSecondaryInverse">#e0e0e0</color>
+    <color name="textColorHintInverse">#bdbdbd</color>
+
+    <color name="textLink">#6665ff</color>
+
+    <color name="windowBackground">#f5f5f5</color>
+    <color name="windowBackgroundInverse">#757575</color>
+
+    <color name="divider_color">#eeeeee</color>
+
+    <color name="colorControlNormal">#666666</color>
+    <color name="colorControlActivated">#232d31</color>
+    <color name="colorControlHighlight">@color/colorAccent</color>
+
+    <color name="colorControlDisable">#cccccc</color>
+
+    <color name="colorControlNormalInverse">#c6336074</color>
+    <color name="colorControlActivatedInverse">#fcfcfc</color>
+    <color name="colorControlHighlightInverse">@color/colorAccent</color>
+
+    <eat-comment />
+    <color name="cardBackground">#fdfdf9</color>
+    <color name="toolbar_scrim">#0d414243</color>
+    <color name="loading_scrim">#26212121</color>
+    <color name="gif_badge_light">#b3ffffff</color>
+    <color name="gif_badge_dark">#68202020</color>
+
+    <color name="scrim">#7d4e4e4e</color>
+    <color name="outline_color">#ccc</color>
+    <color name="indicator_color">#ffffff</color>
+    <color name="vipCard">#ffbb02</color>
+
+
+    <color name="dragScrim">#c1c1c1</color>
+
+</resources>
