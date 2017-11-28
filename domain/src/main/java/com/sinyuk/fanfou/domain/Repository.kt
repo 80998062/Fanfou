@@ -49,7 +49,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                 onAuthorize(authorization)
                 return@flatMap remoteTasks.updateProfile(sortedMapOf())
                         .map {
-                            preferences.getString(UID).set(it.id)
+                            preferences.getString(UNIQUE_ID).set(it.uniqueId)
                             localTasks.saveAccount(it, account, authorization, Date(System.currentTimeMillis()))
                             it
                         }
@@ -57,7 +57,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
 
 
     fun currentAccount(): LiveData<User> {
-        return localTasks.queryAccount(preferences.getString(UID).get())
+        return localTasks.queryAccount(preferences.getString(UNIQUE_ID).get())
     }
 
     fun allAccounts(): LiveData<List<User>> = localTasks.allAccounts()

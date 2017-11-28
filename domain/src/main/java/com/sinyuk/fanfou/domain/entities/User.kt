@@ -38,9 +38,9 @@ import java.util.Date
 @Entity(tableName = "accounts", indices = arrayOf(Index("name"), Index("screenName")))
 @TypeConverters(DateConverter::class)
 data class User @JvmOverloads constructor(
-        @PrimaryKey @NonNull @SerializedName("id") var id: String = "",
-        @SerializedName("unique_id")
+        @PrimaryKey @NonNull @SerializedName("unique_id")
         var uniqueId: String = "",
+        @SerializedName("id") var id: String = "",
         @SerializedName("name")
         var name: String = "",
         @SerializedName("screen_name")

@@ -33,5 +33,5 @@ const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道�
  * preferences
  */
 const val TYPE_GLOBAL: String = "prefs_global"
-const val UID: String = "user_id"
+const val UNIQUE_ID: String = "unique_id"
 

@@ -26,7 +26,7 @@ import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
-import com.sinyuk.fanfou.domain.UID
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.User
 import com.sinyuk.fanfou.lives.SingleLiveEvent
 import javax.inject.Inject
@@ -45,13 +45,10 @@ class AccountViewModel @Inject constructor(
     internal val allAccounts = repository.allAccounts()
 
     init {
-        preferences.getString(UID).asObservable().subscribe { it ->
+        preferences.getString(UNIQUE_ID).asObservable().subscribe { it ->
             Log.d("AccountViewModel", "切换用户: " + it)
         }
     }
-
-
-    internal val loadAccountevent = SingleLiveEvent<User>()
 
 
     fun login(account: String, password: String) = repository.signIn(account, password)

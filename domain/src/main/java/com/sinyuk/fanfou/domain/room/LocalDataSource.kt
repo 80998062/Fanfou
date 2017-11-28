@@ -32,7 +32,7 @@ import java.util.*
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
     override fun allAccounts(): LiveData<List<User>> = database.accountDao().queryAll()
 
-    override fun queryAccount(id: String) = database.accountDao().query(id)
+    override fun queryAccount(uniqueId: String) = database.accountDao().query(uniqueId)
 
     override fun saveAccount(user: User, account: String, authorization: Authorization, loggedAt: Date): Long {
         user.account = account

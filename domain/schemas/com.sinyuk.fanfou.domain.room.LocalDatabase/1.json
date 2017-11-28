@@ -2,21 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db837cd84fcd3a278c01d5b94102320f",
+    "identityHash": "e8ccaf0830e9b2f971fdb198ce303f7f",
     "entities": [
       {
         "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `uniqueId` TEXT NOT NULL, `name` TEXT NOT NULL, `screenName` TEXT NOT NULL, `location` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthday` TEXT NOT NULL, `description` TEXT NOT NULL, `profileImageUrl` TEXT NOT NULL, `profileImageUrlLarge` TEXT NOT NULL, `url` TEXT NOT NULL, `protectedX` INTEGER NOT NULL, `followersCount` INTEGER NOT NULL, `friendsCount` INTEGER NOT NULL, `favouritesCount` INTEGER NOT NULL, `statusesCount` INTEGER NOT NULL, `photoCount` INTEGER NOT NULL, `following` INTEGER NOT NULL, `notifications` INTEGER NOT NULL, `createdAt` INTEGER, `loggedAt` INTEGER, `account` TEXT NOT NULL, `token` TEXT NOT NULL, `secret` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `screenName` TEXT NOT NULL, `location` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthday` TEXT NOT NULL, `description` TEXT NOT NULL, `profileImageUrl` TEXT NOT NULL, `profileImageUrlLarge` TEXT NOT NULL, `url` TEXT NOT NULL, `protectedX` INTEGER NOT NULL, `followersCount` INTEGER NOT NULL, `friendsCount` INTEGER NOT NULL, `favouritesCount` INTEGER NOT NULL, `statusesCount` INTEGER NOT NULL, `photoCount` INTEGER NOT NULL, `following` INTEGER NOT NULL, `notifications` INTEGER NOT NULL, `createdAt` INTEGER, `loggedAt` INTEGER, `account` TEXT NOT NULL, `token` TEXT NOT NULL, `secret` TEXT NOT NULL, PRIMARY KEY(`uniqueId`))",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "uniqueId",
+            "columnName": "uniqueId",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "uniqueId",
-            "columnName": "uniqueId",
+            "fieldPath": "id",
+            "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -155,7 +155,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "uniqueId"
           ],
           "autoGenerate": false
         },
@@ -182,7 +182,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"db837cd84fcd3a278c01d5b94102320f\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e8ccaf0830e9b2f971fdb198ce303f7f\")"
     ]
   }
 }

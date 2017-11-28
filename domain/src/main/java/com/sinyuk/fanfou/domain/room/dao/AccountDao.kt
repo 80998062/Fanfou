@@ -45,6 +45,6 @@ interface AccountDao {
     @Query("SELECT * FROM accounts WHERE token IS NOT NULL AND secret IS NOT NULL ORDER BY loggedAt DESC")
     fun queryLogged(): LiveData<List<User>>
 
-    @Query("SELECT * FROM accounts WHERE id = :id ORDER BY loggedAt DESC")
-    fun query(id: String): LiveData<User>
+    @Query("SELECT * FROM accounts WHERE uniqueId = :uniqueId ORDER BY loggedAt DESC")
+    fun query(uniqueId: String): LiveData<User>
 }

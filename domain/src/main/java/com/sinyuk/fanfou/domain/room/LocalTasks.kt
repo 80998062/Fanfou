@@ -29,7 +29,7 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 interface LocalTasks {
-    fun queryAccount(id: String): LiveData<User>
+    fun queryAccount(uniqueId: String): LiveData<User>
 
     fun allAccounts(): LiveData<List<User>>
 
