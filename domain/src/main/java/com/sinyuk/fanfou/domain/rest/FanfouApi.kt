@@ -58,22 +58,6 @@ object FanfouApi {
      */
     @JvmStatic
     val RANDOM_LENGTH = 8
-    /**
-     * The constant SUCCEED_CODE.
-     */
-    @JvmStatic
-    val SUCCEED_CODE = 200
-
-    /**
-     * The constant OAUTH_TOKEN_KEY.
-     */
-    @JvmStatic
-    val OAUTH_TOKEN_KEY = "oauth_token"
-    /**
-     * The constant OAUTH_SECRET_KEY.
-     */
-    @JvmStatic
-    val OAUTH_SECRET_KEY = "oauth_token_secret"
 
 
     /**
@@ -131,7 +115,7 @@ object FanfouApi {
     }
 
     /**
-     * The interface User path.
+     * The interface Player path.
      */
     interface UserPath {
         companion object {

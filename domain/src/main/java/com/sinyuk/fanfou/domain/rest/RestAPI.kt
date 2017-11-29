@@ -21,7 +21,7 @@
 package com.sinyuk.fanfou.domain.rest
 
 import android.support.annotation.NonNull
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.GET
@@ -35,9 +35,9 @@ import java.util.*
 interface RestAPI {
 
     @GET("users/show.json?mode=lite&format=html")
-    fun user_show(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<User>>
+    fun user_show(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
 
 
     @POST("account/update_profile.json?mode=lite&format=html")
-    fun update_profile(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<User>>
+    fun update_profile(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
 }

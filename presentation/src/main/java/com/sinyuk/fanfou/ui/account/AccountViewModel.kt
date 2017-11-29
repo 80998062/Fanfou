@@ -38,19 +38,18 @@ class AccountViewModel @Inject constructor(
         private val repository: Repository,
         @Named(TYPE_GLOBAL) private val preferences: RxSharedPreferences) : AndroidViewModel(context) {
 
-    internal val loggedAccount = repository.currentAccount()
-
-    internal val allLogged = repository.allLogged()
-
     init {
         preferences.getString(UNIQUE_ID).asObservable().subscribe { it ->
             Log.d("AccountViewModel", "切换用户: " + it)
         }
     }
 
+    internal val admin = repository.admin()
+
+    internal val admins = repository.admins()
+
+    internal val currentRegistration = repository.registration()
 
     fun login(account: String, password: String) = repository.signIn(account, password)
-
-    fun switchAccount(uniqueId: String) = repository.switchAccount(uniqueId)
 
 }

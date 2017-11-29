@@ -22,7 +22,8 @@ package com.sinyuk.fanfou.domain.room
 
 import android.app.Application
 import android.arch.lifecycle.LiveData
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.domain.entities.Registration
 import com.sinyuk.fanfou.domain.rest.Authorization
 import java.util.*
 
@@ -30,28 +31,17 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
-    override fun updateAccount(user: User): Int = database.accountDao().update(user)
+    override fun queryRegistration(uniqueId: String): LiveData<Registration> = database.registrationDao().query(uniqueId)
 
-    override fun updateAccounts(users: List<User>): Int = database.accountDao().updateAll(users)
+    override fun queryPlayer(uniqueId: String): LiveData<Player> = database.playerDao().query(uniqueId)
 
-    override fun switchAccount(oldId: String?, newId: String): User? {
-        return queryAccount(newId).value?.apply {
-            loggedAt = Date(System.currentTimeMillis())
-            updateAccount(this)
-        }
-    }
+    override fun queryAdmins(): LiveData<List<Player>> = database.playerDao().admins()
 
-    override fun allLogged(): LiveData<List<User>> = database.accountDao().allLogged()
+    override fun insertRegistration(uniqueId: String, account: String, password: String, authorization: Authorization): Long = database.registrationDao().insert(
+                    Registration(uniqueId, account, password, Date(System.currentTimeMillis()), authorization.token!!, authorization.secret!!))
 
-    override fun queryAccount(uniqueId: String) = database.accountDao().query(uniqueId)
+    override fun insertPlayer(player: Player): Long = database.playerDao().insert(player)
 
-    override fun saveAccount(user: User, account: String, authorization: Authorization): Long {
-        user.account = account
-        user.secret = authorization.secret!!
-        user.token = authorization.token!!
-        user.loggedAt = Date(System.currentTimeMillis())
-        return database.accountDao().insert(user)
-    }
-
+    override fun insertPlayers(players: List<Player>): Int = database.playerDao().insertAll(players)
 
 }

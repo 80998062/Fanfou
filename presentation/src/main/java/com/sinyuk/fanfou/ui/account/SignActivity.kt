@@ -25,7 +25,6 @@ import android.content.Intent
 import android.os.Bundle
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
-import com.sinyuk.fanfou.ui.HomeActivity
 import com.sinyuk.fanfou.utils.addFragmentInActivity
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
@@ -37,8 +36,9 @@ import javax.inject.Inject
 class SignActivity : AbstractActivity() {
     companion object {
         @JvmStatic
-        fun start(context: Context) {
+        fun start(context: Context, flags: Int?) {
             val intent = Intent(context, SignActivity::class.java)
+            flags?.let { intent.flags = flags }
             context.startActivity(intent)
         }
     }

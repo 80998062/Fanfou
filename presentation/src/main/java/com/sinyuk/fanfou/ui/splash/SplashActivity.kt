@@ -25,7 +25,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Registration
 import com.sinyuk.fanfou.ui.HomeActivity
 import com.sinyuk.fanfou.ui.account.AccountViewModel
 import com.sinyuk.fanfou.ui.account.SignActivity
@@ -49,11 +49,11 @@ class SplashActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            loggedAccount.observe(this@SplashActivity, accountOB)
+            currentRegistration.observe(this@SplashActivity, registrationOB)
         }
     }
 
-    private val accountOB: Observer<User> = Observer { t ->
+    private val registrationOB: Observer<Registration> = Observer { t ->
         if (t == null) {
             toSign()
         } else {
@@ -62,7 +62,8 @@ class SplashActivity : AbstractActivity() {
     }
 
     private fun toSign() {
-        SignActivity.start(this)
+        SignActivity.start(this, Intent.FLAG_ACTIVITY_NEW_TASK)
+        finish()
     }
 
     private fun prepareLaunch() {

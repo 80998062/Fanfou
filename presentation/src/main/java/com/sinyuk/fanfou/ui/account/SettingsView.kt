@@ -25,7 +25,7 @@ import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractFragment
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
@@ -46,7 +46,7 @@ class SettingsView : AbstractFragment(), Injectable {
         super.onViewCreated(view, savedInstanceState)
 
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            loggedAccount.observe(this@SettingsView, accountOB)
+            admin.observe(this@SettingsView, adminOB)
         }
 
         switchAccount.setOnClickListener({
@@ -57,7 +57,7 @@ class SettingsView : AbstractFragment(), Injectable {
         })
     }
 
-    private val accountOB: Observer<User> = Observer { t ->
+    private val adminOB: Observer<Player> = Observer { t ->
         t?.let {
             screenName.text = t.screenName
         }

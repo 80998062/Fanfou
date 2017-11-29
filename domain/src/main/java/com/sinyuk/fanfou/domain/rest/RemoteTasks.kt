@@ -20,7 +20,7 @@
 
 package com.sinyuk.fanfou.domain.rest
 
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 import io.reactivex.Single
 import java.util.*
 
@@ -30,7 +30,7 @@ import java.util.*
 interface RemoteTasks {
     fun requestToken(account: String, password: String): Single<Authorization?>
 
-    fun updateProfile(params: SortedMap<String, Any>): Single<User>
+    fun updateProfile(params: SortedMap<String, Any>): Single<Player>
 
-    fun showUser(params: SortedMap<String, Any>): Single<User>
+    fun fetchPlayer(params: SortedMap<String, Any>): Single<Player>
 }

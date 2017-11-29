@@ -37,7 +37,7 @@ import com.daimajia.swipe.SimpleSwipeListener
 import com.daimajia.swipe.SwipeLayout
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstracBottomSheetFragment
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.lives.AutoClearedValue
 import com.sinyuk.fanfou.utils.QuickSwipeAdapter
@@ -64,7 +64,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
 
         initListView()
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { allLogged.observe(this@AccountBottomSheet, accountsOB) }
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { admins.observe(this@AccountBottomSheet, accountsOB) }
     }
 
     private lateinit var adapter: AutoClearedValue<AccountAdapter>
@@ -97,7 +97,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     }
 
     private fun addNewAccount() {
-        context?.let { SignActivity.start(context!!) }
+        context?.let { SignActivity.start(context!!, null) }
         dismissAllowingStateLoss()
     }
 
@@ -109,23 +109,23 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
         val item = adapter.get()?.getItem(position)
         Log.d("选择了: ", item?.screenName)
         item?.let {
-            accountViewModel.switchAccount(item.uniqueId)
+            //            accountViewModel.switchAccount(item.uniqueId)
         }
         dismissAllowingStateLoss()
     }
 
     @Suppress("SENSELESS_COMPARISON")
-    private val accountsOB: Observer<List<User>> = Observer { t ->
+    private val accountsOB: Observer<List<Player>> = Observer { t ->
         // TODO: 要求当前登录用户在第一位
         if (adapter.get() != null) {
             adapter.get()!!.setNewData(t)
         }
     }
 
-    class AccountAdapter constructor(res: Int, data: List<User>?) : QuickSwipeAdapter<User, BaseViewHolder>(res, data) {
+    class AccountAdapter constructor(res: Int, data: List<Player>?) : QuickSwipeAdapter<Player, BaseViewHolder>(res, data) {
         override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
-        override fun convert(helper: BaseViewHolder, item: User?) {
+        override fun convert(helper: BaseViewHolder, item: Player?) {
             helper.setText(R.id.id, item?.id)
             helper.setText(R.id.screenName, "@" + item?.screenName)
             helper.getView<AppCompatRadioButton>(R.id.checkbox).isChecked = checkedPosition == helper.adapterPosition

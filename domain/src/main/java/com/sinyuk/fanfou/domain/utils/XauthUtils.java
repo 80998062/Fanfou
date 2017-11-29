@@ -62,8 +62,6 @@ public class XauthUtils {
     private String password;
 
 
-    private static XauthUtils instance;
-
     /**
      * New instance x auth factory.
      *
@@ -71,17 +69,8 @@ public class XauthUtils {
      * @param password the password
      * @return the x auth factory
      */
-    public static XauthUtils getInstance(String username, String password) {
-
-        if (instance == null) {
-            synchronized (XauthUtils.class) {
-                if (instance == null) {
-                    instance = new XauthUtils(username, password);
-                }
-            }
-
-        }
-        return instance;
+    public static XauthUtils newInstance(String username, String password) {
+        return new XauthUtils(username, password);
     }
 
     private XauthUtils(String username, String password) {

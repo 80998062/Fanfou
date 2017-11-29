@@ -27,7 +27,7 @@
         android:id="@+id/accountEt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="user" />
+        android:hint="player" />
 
     <EditText
         android:id="@+id/passwordEt"

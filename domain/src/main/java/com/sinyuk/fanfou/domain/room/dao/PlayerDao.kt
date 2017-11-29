@@ -22,32 +22,29 @@ package com.sinyuk.fanfou.domain.room.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 
 
 /**
  * Created by sinyuk on 2017/11/27.
  */
 @Dao
-interface AccountDao {
+interface PlayerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(user: User): Long
+    fun insert(player: Player): Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAll(users: List<User>): Int
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(user: User): Int
+    fun insertAll(players: List<Player>): Int
 
     @Delete
-    fun delete(user: User): Int
+    fun delete(player: Player): Int
 
-    @Query("SELECT * FROM accounts ORDER BY loggedAt ASC")
-    fun all(): LiveData<List<User>>
+    @Query("SELECT * FROM players WHERE admin = 1")
+    fun admins(): LiveData<List<Player>>
 
-    @Query("SELECT * FROM accounts WHERE loggedAt IS NOT NULL ORDER BY loggedAt ASC")
-    fun allLogged(): LiveData<List<User>>
+    @Query("SELECT * FROM players WHERE friend = 1")
+    fun friends(): LiveData<List<Player>>
 
-    @Query("SELECT * FROM accounts WHERE uniqueId = :uniqueId")
-    fun query(uniqueId: String): LiveData<User>
+    @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
+    fun query(uniqueId: String): LiveData<Player>
 }

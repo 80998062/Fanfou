@@ -25,6 +25,14 @@ package com.sinyuk.fanfou.domain
  */
 
 /**
+ * player's flags
+ */
+
+const val FLAG_NO_IDENTITY = 0x00000000
+const val FLAG_ADMIN = 0x00000001
+const val FLAG_FRIEND = 0x00000002
+
+/**
  * message
  */
 const val AUTHOR_FAILED_MSG = "获取第三方应用授权失败"

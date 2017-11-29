@@ -22,22 +22,27 @@
 
 package com.sinyuk.fanfou.domain.entities
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Index
+import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.TypeConverters
 import android.support.annotation.NonNull
-
 import com.google.gson.annotations.SerializedName
+import com.sinyuk.fanfou.domain.FLAG_ADMIN
+import com.sinyuk.fanfou.domain.FLAG_FRIEND
+import com.sinyuk.fanfou.domain.FLAG_NO_IDENTITY
 import com.sinyuk.fanfou.domain.room.DateConverter
+import java.util.*
 
-import java.util.Date
 
 /**
  * Created by sinyuk on 2017/11/27.
  *
  */
 
-@Entity(tableName = "accounts", indices = arrayOf(Index("name"), Index("screenName")))
+@Entity(tableName = "players", indices = arrayOf(Index("uniqueId"), Index("name")))
 @TypeConverters(DateConverter::class)
-data class User @JvmOverloads constructor(
+data class Player @JvmOverloads constructor(
         @PrimaryKey @NonNull @SerializedName("unique_id")
         var uniqueId: String = "",
         @SerializedName("id") var id: String = "",
@@ -77,10 +82,31 @@ data class User @JvmOverloads constructor(
         var notifications: Boolean = false,
         @SerializedName("created_at")
         var createdAt: Date? = null,
+        // for identify player
+        var flags: Int = FLAG_NO_IDENTITY,
+        var friend: Boolean = false,
+        var admin: Boolean = false
+) {
+    fun addFlags(t: Int) {
+        flags = t
+        validate()
+    }
 
-        var loggedAt: Date? = null,
-        var account: String = "",
-        var token: String = "",
-        var secret: String = ""
+//    fun addFlags(t: Int) {
+//        flags = flags or t
+//        validate()
+//    }
 
-)
+    fun removeFlags(t: Int) {
+        flags = flags and t.inv()
+        validate()
+    }
+
+
+    private fun validate() {
+        friend = (flags and FLAG_FRIEND) != 0
+        admin = (flags and FLAG_ADMIN) != 0
+    }
+
+
+}

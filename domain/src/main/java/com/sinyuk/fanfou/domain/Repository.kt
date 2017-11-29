@@ -21,8 +21,10 @@
 package com.sinyuk.fanfou.domain
 
 import android.arch.lifecycle.LiveData
+import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.domain.entities.Registration
 import com.sinyuk.fanfou.domain.rest.Authorization
 import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteTasks
@@ -38,7 +40,15 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                              private val preferences: RxSharedPreferences) {
 
     init {
-
+        preferences.getString(UNIQUE_ID).asObservable()
+                .subscribe { it ->
+                    Log.d("Repository: ", "配置中的uid改变 -> " + it)
+                    if (it == null) {
+                        onDeauthorize()
+                    } else {
+                        onAuthorize(Authorization(registration(it).value?.token, registration(it).value?.secret))
+                    }
+                }
     }
 
 
@@ -48,32 +58,29 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                 return@flatMap remoteTasks.updateProfile(sortedMapOf())
                         .map {
                             preferences.getString(UNIQUE_ID).set(it.uniqueId)
-                            localTasks.saveAccount(it, account, authorization)
+                            it.addFlags(FLAG_ADMIN)
+                            localTasks.insertPlayer(it)
+                            localTasks.insertRegistration(it.uniqueId, account, password, authorization)
                             it
                         }
             }.toCompletable()
 
 
-    fun allLogged(): LiveData<List<User>> = localTasks.allLogged()
+    /**
+     *  获取登录信息
+     */
+    fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()): LiveData<Registration> = localTasks.queryRegistration(uniqueId)
 
+    /**
+     *  获取所有用户
+     */
+    fun admins(): LiveData<List<Player>> = localTasks.queryAdmins()
 
-    fun currentAccount(): LiveData<User> {
-        return localTasks.queryAccount(preferences.getString(UNIQUE_ID).get())
-    }
+    /**
+     *  获取登录的用户
+     */
+    fun admin(): LiveData<Player> = localTasks.queryPlayer(preferences.getString(UNIQUE_ID).get())
 
-    fun updateAccount(user: User) {
-        remoteTasks.updateProfile(sortedMapOf())
-                .map({ it ->
-                })
-    }
-
-    fun switchAccount(uniqueId: String) {
-        val oldId = preferences.getString(UNIQUE_ID).get()
-        localTasks.switchAccount(oldId, uniqueId)?.apply {
-            preferences.getString(UNIQUE_ID).set(uniqueId)
-            onAuthorize(Authorization(token, secret))
-        }
-    }
 
     private fun onAuthorize(authorization: Authorization) {
         interceptor.authenticator(authorization)

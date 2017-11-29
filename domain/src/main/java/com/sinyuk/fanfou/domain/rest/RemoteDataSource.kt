@@ -24,33 +24,32 @@ import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.sinyuk.fanfou.domain.AUTHOR_FAILED_MSG
-import com.sinyuk.fanfou.domain.BuildConfig
-import com.sinyuk.fanfou.domain.entities.User
+import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.utils.XauthUtils
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import okhttp3.*
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import okhttp3.logging.HttpLoggingInterceptor
 
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
 class RemoteDataSource constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) : RemoteTasks {
-    override fun updateProfile(params: SortedMap<String, Any>): Single<User> = restAPI.update_profile(params).map(ErrorCheckFunction(gson))
+    override fun updateProfile(params: SortedMap<String, Any>): Single<Player> = restAPI.update_profile(params).map(ErrorCheckFunction(gson))
 
     @Throws(IOException::class)
-    override fun showUser(params: SortedMap<String, Any>): Single<User> = restAPI.user_show(params).map(ErrorCheckFunction(gson))
+    override fun fetchPlayer(params: SortedMap<String, Any>): Single<Player> = restAPI.user_show(params).map(ErrorCheckFunction(gson))
 
 
     override fun requestToken(account: String, password: String): Single<Authorization?> = Single.fromCallable({
-        val url: HttpUrl = XauthUtils.getInstance(account, password).url()
+        val url: HttpUrl = XauthUtils.newInstance(account, password).url()
         val request = Request.Builder().url(url).build()
 
         val response: Response = okHttpClient.newCall(request).execute()
@@ -96,7 +95,6 @@ class RemoteDataSource constructor(application: Application, endpoint: Endpoint,
                 .addInterceptor(interceptor)
                 .addNetworkInterceptor(interceptor)
                 .addInterceptor(logging)
-//                .addNetworkInterceptor { it -> it.proceed(it.request().newBuilder().header("User-Agent", generateUA()).build()) }
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
@@ -113,7 +111,4 @@ class RemoteDataSource constructor(application: Application, endpoint: Endpoint,
 
         restAPI = adapter.create(RestAPI::class.java)
     }
-
-
-    private fun generateUA(): String = "Fanfou_Android_" + BuildConfig.BUILD_TYPE + "_" + BuildConfig.VERSION_NAME + "_" + BuildConfig.FLAVOR
 }

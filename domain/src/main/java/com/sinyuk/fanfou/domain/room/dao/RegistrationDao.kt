@@ -18,26 +18,28 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.room
+package com.sinyuk.fanfou.domain.room.dao
 
 import android.arch.lifecycle.LiveData
-import com.sinyuk.fanfou.domain.entities.Player
+import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.entities.Registration
-import com.sinyuk.fanfou.domain.rest.Authorization
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/11/29.
  */
-interface LocalTasks {
-    fun queryRegistration(uniqueId: String): LiveData<Registration>
+@Dao
+interface RegistrationDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(registration: Registration): Long
 
-    fun queryPlayer(uniqueId: String): LiveData<Player>
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(registrations: List<Registration>): Int
 
-    fun queryAdmins(): LiveData<List<Player>>
+    @Delete
+    fun delete(registration: Registration): Int
 
-    fun insertRegistration(uniqueId: String, account: String, password: String, authorization: Authorization): Long
+    @Query("SELECT * FROM registrations WHERE uniqueId = :uniqueId")
+    fun query(uniqueId: String): LiveData<Registration>
 
-    fun insertPlayer(player: Player): Long
 
-    fun insertPlayers(players: List<Player>): Int
 }

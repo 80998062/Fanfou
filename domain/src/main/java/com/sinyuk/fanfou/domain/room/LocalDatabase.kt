@@ -25,16 +25,19 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
-import com.sinyuk.fanfou.domain.entities.User
-import com.sinyuk.fanfou.domain.room.dao.AccountDao
+import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.domain.entities.Registration
+import com.sinyuk.fanfou.domain.room.dao.PlayerDao
+import com.sinyuk.fanfou.domain.room.dao.RegistrationDao
 
 
 /**
  * Created by sinyuk on 2017/11/27.
  */
-@Database(entities = arrayOf(User::class), version = BuildConfig.VERSION_CODE)
+@Database(entities = arrayOf(Player::class, Registration::class), version = BuildConfig.VERSION_CODE)
 abstract class LocalDatabase : RoomDatabase() {
-    abstract fun accountDao(): AccountDao
+    abstract fun playerDao(): PlayerDao
+    abstract fun registrationDao(): RegistrationDao
 
     companion object {
 
