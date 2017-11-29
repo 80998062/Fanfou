@@ -27,8 +27,10 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractFragment
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
+import com.sinyuk.fanfou.utils.CompletableHandler
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.settings_view.*
 import javax.inject.Inject
 
@@ -42,12 +44,17 @@ class SettingsView : AbstractFragment(), Injectable {
 
     private lateinit var accountViewModel: AccountViewModel
 
+//    @Inject
+//    @Named(TYPE_GLOBAL) lateinit var preferences: RxSharedPreferences
+
+    @Inject lateinit var toast: ToastUtils
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            admin.observe(this@SettingsView, adminOB)
-        }
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
+
+        accountViewModel.admin.observe(this@SettingsView, adminOB)
 
         switchAccount.setOnClickListener({
             activity?.let {
@@ -55,6 +62,18 @@ class SettingsView : AbstractFragment(), Injectable {
                 sheet.show(activity!!.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
             }
         })
+
+        testButton.setOnClickListener {
+            accountViewModel.updateProfile().subscribeWith(object : CompletableHandler(toast) {
+                override fun onComplete() {
+                    super.onComplete()
+                }
+            })
+        }
+
+        clearButton.setOnClickListener {
+//            preferences.getString(UNIQUE_ID).delete()
+        }
     }
 
     private val adminOB: Observer<Player> = Observer { t ->

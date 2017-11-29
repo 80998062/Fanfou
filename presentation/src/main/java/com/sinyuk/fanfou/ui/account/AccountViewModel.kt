@@ -44,12 +44,16 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    internal val admin = repository.admin()
+    internal val admin = repository.admin() // 获取用户资料
 
     internal val admins = repository.admins()
 
     internal val currentRegistration = repository.registration()
 
     fun login(account: String, password: String) = repository.signIn(account, password)
+
+    fun updateProfile() = repository.updateProfile(null)
+
+    fun deleteRegistration(uniqueId: String) = repository.deleteRegistration(uniqueId)
 
 }

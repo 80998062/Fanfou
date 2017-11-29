@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.ui.splash
 import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
 import com.sinyuk.fanfou.domain.entities.Registration
@@ -57,6 +58,8 @@ class SplashActivity : AbstractActivity() {
         if (t == null) {
             toSign()
         } else {
+            Log.d("Splash: ", "配置: " + t.toString())
+
             prepareLaunch()
         }
     }

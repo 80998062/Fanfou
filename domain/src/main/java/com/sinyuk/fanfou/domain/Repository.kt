@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.domain
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
 import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.entities.Player
@@ -30,6 +31,7 @@ import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteTasks
 import com.sinyuk.fanfou.domain.room.LocalTasks
 import io.reactivex.Completable
+import java.util.*
 
 /**
  * Created by sinyuk on 2017/11/27.
@@ -37,16 +39,18 @@ import io.reactivex.Completable
 class Repository constructor(private val remoteTasks: RemoteTasks,
                              private val localTasks: LocalTasks,
                              private val interceptor: Oauth1SigningInterceptor,
-                             private val preferences: RxSharedPreferences) {
+                             private val preferences: RxSharedPreferences) : Observer<Registration> {
+
+    override fun onChanged(t: Registration?) { onAuthorize(Authorization(t?.token, t?.secret)) }
+
+    private var registrationData: LiveData<Registration>? = null
 
     init {
         preferences.getString(UNIQUE_ID).asObservable()
                 .subscribe { it ->
-                    Log.d("Repository: ", "配置中的uid改变 -> " + it)
-                    if (it == null) {
-                        onDeauthorize()
-                    } else {
-                        onAuthorize(Authorization(registration(it).value?.token, registration(it).value?.secret))
+                    registrationData?.removeObserver(this@Repository)
+                    registrationData = registration(it).apply {
+                        observeForever(this@Repository)
                     }
                 }
     }
@@ -71,6 +75,8 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
      */
     fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()): LiveData<Registration> = localTasks.queryRegistration(uniqueId)
 
+    fun deleteRegistration(uniqueId: String) = localTasks.deleteRegistration(uniqueId)
+
     /**
      *  获取所有用户
      */
@@ -81,13 +87,28 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
      */
     fun admin(): LiveData<Player> = localTasks.queryPlayer(preferences.getString(UNIQUE_ID).get())
 
-
-    private fun onAuthorize(authorization: Authorization) {
-        interceptor.authenticator(authorization)
+    /**
+     * 更新用户资料
+     */
+    fun updateProfile(player: Player?): Completable {
+        val params: SortedMap<String, Any> = sortedMapOf()
+        player?.let {
+            // convert player to map
+        }
+        return remoteTasks.updateProfile(params)
+                .map { it ->
+                    it.addFlags(FLAG_ADMIN)
+                    localTasks.insertPlayer(it)
+                }
+                .toCompletable()
     }
 
-    private fun onDeauthorize() {
-        interceptor.authenticator(null)
+    /**
+     * authorize or deauthorize
+     */
+    private fun onAuthorize(authorization: Authorization) {
+        Log.d("Repository", "更新授权")
+        interceptor.authenticator(authorization)
     }
 
 

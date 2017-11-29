@@ -31,6 +31,8 @@ import com.sinyuk.fanfou.domain.rest.Authorization
 interface LocalTasks {
     fun queryRegistration(uniqueId: String): LiveData<Registration>
 
+    fun deleteRegistration(uniqueId: String): Int
+
     fun queryPlayer(uniqueId: String): LiveData<Player>
 
     fun queryAdmins(): LiveData<List<Player>>

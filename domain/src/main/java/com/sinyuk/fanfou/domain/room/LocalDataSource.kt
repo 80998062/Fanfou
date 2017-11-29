@@ -33,12 +33,14 @@ import java.util.*
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
     override fun queryRegistration(uniqueId: String): LiveData<Registration> = database.registrationDao().query(uniqueId)
 
+    override fun deleteRegistration(uniqueId: String): Int = database.registrationDao().delete(Registration(uniqueId))
+
     override fun queryPlayer(uniqueId: String): LiveData<Player> = database.playerDao().query(uniqueId)
 
     override fun queryAdmins(): LiveData<List<Player>> = database.playerDao().admins()
 
     override fun insertRegistration(uniqueId: String, account: String, password: String, authorization: Authorization): Long = database.registrationDao().insert(
-                    Registration(uniqueId, account, password, Date(System.currentTimeMillis()), authorization.token!!, authorization.secret!!))
+            Registration(uniqueId, account, password, Date(System.currentTimeMillis()), authorization.token!!, authorization.secret!!))
 
     override fun insertPlayer(player: Player): Long = database.playerDao().insert(player)
 

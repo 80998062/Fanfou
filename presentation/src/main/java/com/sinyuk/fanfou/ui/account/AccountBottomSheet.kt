@@ -64,7 +64,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
 
         initListView()
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { admins.observe(this@AccountBottomSheet, accountsOB) }
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { admins.observe(this@AccountBottomSheet, adminsOB) }
     }
 
     private lateinit var adapter: AutoClearedValue<AccountAdapter>
@@ -84,7 +84,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
                     }
 
                 }
-                R.id.deleteButton -> onDelete()
+                R.id.deleteButton -> onDelete(position)
             }
         }
         val footer: View = LayoutInflater.from(context).inflate(R.layout.account_selectable_list_footer, recyclerView, false)
@@ -101,21 +101,24 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
         dismissAllowingStateLoss()
     }
 
-    private fun onDelete() {
-
+    private fun onDelete(position: Int) {
+        val item = adapter.get()?.getItem(position)
+        Log.d("选择了: ", item?.screenName)
+        item?.let {
+            accountViewModel.deleteRegistration(item.uniqueId)
+        }
     }
 
     private fun onSwitch(position: Int) {
         val item = adapter.get()?.getItem(position)
         Log.d("选择了: ", item?.screenName)
         item?.let {
-            //            accountViewModel.switchAccount(item.uniqueId)
+
         }
-        dismissAllowingStateLoss()
     }
 
     @Suppress("SENSELESS_COMPARISON")
-    private val accountsOB: Observer<List<Player>> = Observer { t ->
+    private val adminsOB: Observer<List<Player>> = Observer { t ->
         // TODO: 要求当前登录用户在第一位
         if (adapter.get() != null) {
             adapter.get()!!.setNewData(t)
