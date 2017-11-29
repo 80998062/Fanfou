@@ -17,18 +17,26 @@
   ~  * limitations under the License.
   ~  */
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+    android:paddingLeft="@dimen/gap_8"
+    android:paddingRight="@dimen/gap_8">
 
-    <include
-        android:id="@+id/listHeader"
-        layout="@layout/account_selectable_list_header" />
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="@dimen/gap_8"
+        android:text="@string/label_account"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="@dimen/text_14" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        android:layout_height="@dimen/divider_size"
+        android:layout_gravity="bottom"
+        android:background="@color/divider_color" />
+</FrameLayout>

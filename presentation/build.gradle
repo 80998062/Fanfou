@@ -60,5 +60,8 @@ dependencies {
     implementation 'com.github.80998062:MyUtils:2.0.2'
 
     implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
+    implementation "com.daimajia.swipelayout:library:1.2.0@aar"
+    implementation 'com.daimajia.androidanimations:library:2.3@aar'
+
 
 }

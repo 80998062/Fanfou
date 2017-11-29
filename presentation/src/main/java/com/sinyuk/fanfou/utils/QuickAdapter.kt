@@ -41,8 +41,12 @@ abstract class QuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
         if (payloads == null || payloads.isEmpty()) {
             onBindViewHolder(holder, position)
         } else {
-
+            throw TODO("Bind viewholder with payloads not implement")
         }
+    }
+
+    override fun onBindViewHolder(holder: K, positions: Int) {
+        super.onBindViewHolder(holder, positions)
     }
 
     protected fun swapData(data: List<T>) {

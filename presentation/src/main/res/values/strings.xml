@@ -4,4 +4,10 @@
     <string name="label_home">主页</string>
     <string name="label_sign">注册/登入</string>
     <string name="action_close">关闭</string>
+    <string name="action_switch">切换</string>
+    <string name="label_account">账号</string>
+    <string name="action_logout">登出</string>
+    <string name="name_new_account">新账号</string>
+    <string name="hint_add_new_account_emoji">( •̀ .̫ •́ )✧</string>
+    <string name="action_add">添加</string>
 </resources>

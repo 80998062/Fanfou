@@ -35,4 +35,5 @@
     <dimen name="text_16">16sp</dimen>
     <dimen name="text_18">18sp</dimen>
     <dimen name="text_30">30sp</dimen>
+    <dimen name="divider_size">0.8dp</dimen>
 </resources>
