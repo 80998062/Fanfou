@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.room.dao
 
-import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.entities.Registration
 
@@ -39,7 +38,7 @@ interface RegistrationDao {
     fun delete(registration: Registration): Int
 
     @Query("SELECT * FROM registrations WHERE uniqueId = :uniqueId")
-    fun query(uniqueId: String): LiveData<Registration>
+    fun query(uniqueId: String): Registration?
 
 
 }

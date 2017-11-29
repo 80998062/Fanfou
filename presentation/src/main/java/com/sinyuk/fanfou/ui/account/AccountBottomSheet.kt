@@ -35,8 +35,11 @@ import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.daimajia.swipe.SimpleSwipeListener
 import com.daimajia.swipe.SwipeLayout
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstracBottomSheetFragment
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.lives.AutoClearedValue
@@ -46,6 +49,7 @@ import com.sinyuk.fanfou.viewmodels.ViewModelFactory
 import kotlinx.android.synthetic.main.account_bottomsheet.*
 import kotlinx.android.synthetic.main.account_selectable_list_footer.view.*
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -58,6 +62,9 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     @Inject lateinit var factory: ViewModelFactory
 
     private lateinit var accountViewModel: AccountViewModel
+
+    @field:[Inject Named(TYPE_GLOBAL)]
+    lateinit var preferences: RxSharedPreferences
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -113,7 +120,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
         val item = adapter.get()?.getItem(position)
         Log.d("选择了: ", item?.screenName)
         item?.let {
-
+            preferences.getString(UNIQUE_ID).set(item.uniqueId)
         }
     }
 

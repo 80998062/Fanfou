@@ -21,7 +21,6 @@
 package com.sinyuk.fanfou.domain
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.entities.Player
@@ -31,6 +30,9 @@ import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteTasks
 import com.sinyuk.fanfou.domain.room.LocalTasks
 import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -39,20 +41,25 @@ import java.util.*
 class Repository constructor(private val remoteTasks: RemoteTasks,
                              private val localTasks: LocalTasks,
                              private val interceptor: Oauth1SigningInterceptor,
-                             private val preferences: RxSharedPreferences) : Observer<Registration> {
-
-    override fun onChanged(t: Registration?) { onAuthorize(Authorization(t?.token, t?.secret)) }
-
-    private var registrationData: LiveData<Registration>? = null
+                             private val preferences: RxSharedPreferences) {
 
     init {
         preferences.getString(UNIQUE_ID).asObservable()
-                .subscribe { it ->
-                    registrationData?.removeObserver(this@Repository)
-                    registrationData = registration(it).apply {
-                        observeForever(this@Repository)
-                    }
+                .onErrorReturn {
+                    it.printStackTrace()
+                    ""
                 }
+                .subscribe { it ->
+                    Log.d("Repository", "切换用户: " + it)
+                    registration(it)
+                            .subscribeOn(Schedulers.computation())
+                            .onErrorReturn {
+                                it.printStackTrace()
+                                Registration()
+                            }
+                            .subscribe(Consumer { onAuthorize(Authorization(it?.token, it?.secret)) })
+                }
+
     }
 
 
@@ -73,7 +80,8 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取登录信息
      */
-    fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()): LiveData<Registration> = localTasks.queryRegistration(uniqueId)
+    fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()): Single<Registration?> =
+            Single.fromCallable { localTasks.queryRegistration(uniqueId) }.subscribeOn(Schedulers.io())
 
     fun deleteRegistration(uniqueId: String) = localTasks.deleteRegistration(uniqueId)
 

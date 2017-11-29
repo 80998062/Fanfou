@@ -23,8 +23,11 @@ package com.sinyuk.fanfou.ui.account
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.view.View
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractFragment
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.utils.CompletableHandler
@@ -33,6 +36,7 @@ import com.sinyuk.fanfou.viewmodels.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.settings_view.*
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -44,8 +48,8 @@ class SettingsView : AbstractFragment(), Injectable {
 
     private lateinit var accountViewModel: AccountViewModel
 
-//    @Inject
-//    @Named(TYPE_GLOBAL) lateinit var preferences: RxSharedPreferences
+    @field:[Inject Named(TYPE_GLOBAL)]
+    lateinit var preferences: RxSharedPreferences
 
     @Inject lateinit var toast: ToastUtils
 
@@ -72,7 +76,7 @@ class SettingsView : AbstractFragment(), Injectable {
         }
 
         clearButton.setOnClickListener {
-//            preferences.getString(UNIQUE_ID).delete()
+            preferences.getString(UNIQUE_ID).delete()
         }
     }
 

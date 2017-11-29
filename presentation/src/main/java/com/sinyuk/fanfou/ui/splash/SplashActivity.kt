@@ -20,18 +20,18 @@
 
 package com.sinyuk.fanfou.ui.splash
 
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
-import com.sinyuk.fanfou.domain.entities.Registration
 import com.sinyuk.fanfou.ui.HomeActivity
 import com.sinyuk.fanfou.ui.account.AccountViewModel
 import com.sinyuk.fanfou.ui.account.SignActivity
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
 import javax.inject.Inject
 
 /**
@@ -50,19 +50,21 @@ class SplashActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            currentRegistration.observe(this@SplashActivity, registrationOB)
+            currentRegistration
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError({ toSign() })
+                    .subscribe(Consumer {
+                        if (it == null) {
+                            toSign()
+                        } else {
+                            Log.d("Splash: ", "配置: " + currentRegistration.toString())
+                            prepareLaunch()
+                        }
+                    })
+
         }
     }
 
-    private val registrationOB: Observer<Registration> = Observer { t ->
-        if (t == null) {
-            toSign()
-        } else {
-            Log.d("Splash: ", "配置: " + t.toString())
-
-            prepareLaunch()
-        }
-    }
 
     private fun toSign() {
         SignActivity.start(this, Intent.FLAG_ACTIVITY_NEW_TASK)

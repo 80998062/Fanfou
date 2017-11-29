@@ -29,7 +29,7 @@ import com.sinyuk.fanfou.domain.rest.Authorization
  * Created by sinyuk on 2017/11/28.
  */
 interface LocalTasks {
-    fun queryRegistration(uniqueId: String): LiveData<Registration>
+    fun queryRegistration(uniqueId: String): Registration?
 
     fun deleteRegistration(uniqueId: String): Int
 

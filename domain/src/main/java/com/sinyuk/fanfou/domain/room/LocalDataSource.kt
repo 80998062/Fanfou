@@ -31,7 +31,7 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
-    override fun queryRegistration(uniqueId: String): LiveData<Registration> = database.registrationDao().query(uniqueId)
+    override fun queryRegistration(uniqueId: String): Registration? = database.registrationDao().query(uniqueId)
 
     override fun deleteRegistration(uniqueId: String): Int = database.registrationDao().delete(Registration(uniqueId))
 
