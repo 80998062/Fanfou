@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.ui.splash
 
 import android.arch.lifecycle.Observer
+import android.content.Intent
 import android.os.Bundle
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
@@ -69,6 +70,7 @@ class SplashActivity : AbstractActivity() {
     }
 
     private fun toHome() {
-        HomeActivity.start(this)
+        HomeActivity.start(this, Intent.FLAG_ACTIVITY_NEW_TASK)
+        finish()
     }
 }

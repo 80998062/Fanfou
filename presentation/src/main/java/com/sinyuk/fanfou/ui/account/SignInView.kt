@@ -20,8 +20,8 @@
 
 package com.sinyuk.fanfou.ui.account
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractFragment
@@ -31,11 +31,8 @@ import com.sinyuk.fanfou.utils.CompletableHandler
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
-import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.signin_view.*;
+import kotlinx.android.synthetic.main.signin_view.*
 import javax.inject.Inject
 
 /**
@@ -57,12 +54,8 @@ class SignInView : AbstractFragment(), Injectable {
 
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
 
-
-
         loginButton.setOnClickListener({
-            val account = accountEt.text.toString()
-            val password = passwordEt.text.toString()
-            val d = accountViewModel.login("80998062@qq.com", "rabbit7run")
+            val d = accountViewModel.login(accountEt.text.toString(), passwordEt.text.toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(object : CompletableHandler(toast) {
                         override fun onComplete() {
@@ -76,7 +69,7 @@ class SignInView : AbstractFragment(), Injectable {
 
     private fun toHome() {
         context?.let {
-            HomeActivity.start(context!!)
+            HomeActivity.start(context!!, Intent.FLAG_ACTIVITY_CLEAR_TOP)
             activity!!.finish()
         }
     }

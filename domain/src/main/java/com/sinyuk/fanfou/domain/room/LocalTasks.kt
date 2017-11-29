@@ -23,7 +23,6 @@ package com.sinyuk.fanfou.domain.room
 import android.arch.lifecycle.LiveData
 import com.sinyuk.fanfou.domain.entities.User
 import com.sinyuk.fanfou.domain.rest.Authorization
-import java.util.*
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -31,7 +30,14 @@ import java.util.*
 interface LocalTasks {
     fun queryAccount(uniqueId: String): LiveData<User>
 
-    fun allAccounts(): LiveData<List<User>>
+    fun allLogged(): LiveData<List<User>>
 
-    fun saveAccount(user: User, account: String, authorization: Authorization, loggedAt: Date): Long
+    fun switchAccount(oldId: String?, newId: String): User?
+
+    fun saveAccount(user: User, account: String, authorization: Authorization): Long
+
+    fun updateAccount(user: User): Int
+
+    fun updateAccounts(users: List<User>): Int
+
 }

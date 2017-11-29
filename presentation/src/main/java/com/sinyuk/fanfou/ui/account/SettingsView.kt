@@ -20,10 +20,12 @@
 
 package com.sinyuk.fanfou.ui.account
 
+import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractFragment
+import com.sinyuk.fanfou.domain.entities.User
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
@@ -40,17 +42,25 @@ class SettingsView : AbstractFragment(), Injectable {
 
     private lateinit var accountViewModel: AccountViewModel
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
+            loggedAccount.observe(this@SettingsView, accountOB)
+        }
 
         switchAccount.setOnClickListener({
             activity?.let {
-                val bottomsheet = AccountBottomSheet()
-                bottomsheet.show(activity!!.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
+                val sheet = AccountBottomSheet()
+                sheet.show(activity!!.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
             }
         })
     }
+
+    private val accountOB: Observer<User> = Observer { t ->
+        t?.let {
+            screenName.text = t.screenName
+        }
+    }
+
 }

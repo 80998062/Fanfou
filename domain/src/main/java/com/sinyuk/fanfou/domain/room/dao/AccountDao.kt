@@ -33,18 +33,21 @@ interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(user: User): Long
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateAll(users: List<User>): Int
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(user: User): Int
 
     @Delete
     fun delete(user: User): Int
 
-    @Query("SELECT * FROM accounts ORDER BY loggedAt DESC")
-    fun queryAll(): LiveData<List<User>>
+    @Query("SELECT * FROM accounts ORDER BY loggedAt ASC")
+    fun all(): LiveData<List<User>>
 
-    @Query("SELECT * FROM accounts WHERE token IS NOT NULL AND secret IS NOT NULL ORDER BY loggedAt DESC")
-    fun queryLogged(): LiveData<List<User>>
+    @Query("SELECT * FROM accounts WHERE loggedAt IS NOT NULL ORDER BY loggedAt ASC")
+    fun allLogged(): LiveData<List<User>>
 
-    @Query("SELECT * FROM accounts WHERE uniqueId = :uniqueId ORDER BY loggedAt DESC")
+    @Query("SELECT * FROM accounts WHERE uniqueId = :uniqueId")
     fun query(uniqueId: String): LiveData<User>
 }

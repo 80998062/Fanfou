@@ -30,7 +30,6 @@ import com.sinyuk.fanfou.ui.account.SettingsView
 import com.sinyuk.fanfou.utils.addFragmentInActivity
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
-import kotlinx.android.synthetic.main.home_activity.*
 import javax.inject.Inject
 
 /**
@@ -39,8 +38,9 @@ import javax.inject.Inject
 class HomeActivity : AbstractActivity() {
     companion object {
         @JvmStatic
-        fun start(context: Context) {
+        fun start(context: Context, flags: Int?) {
             val intent = Intent(context, HomeActivity::class.java)
+            flags?.let { intent.flags = flags }
             context.startActivity(intent)
         }
     }

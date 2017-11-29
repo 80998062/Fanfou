@@ -26,6 +26,7 @@ import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.widget.AppCompatRadioButton
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -63,7 +64,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
 
         initListView()
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { allAccounts.observe(this@AccountBottomSheet, accountsOB) }
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply { allLogged.observe(this@AccountBottomSheet, accountsOB) }
     }
 
     private lateinit var adapter: AutoClearedValue<AccountAdapter>
@@ -76,7 +77,13 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
         val accountAdapter = AccountAdapter(R.layout.account_selectable_list_item, null)
         accountAdapter.onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { _, view, position ->
             when (view.id) {
-                R.id.checkbox -> adapter.get()?.checkedPosition = position
+                R.id.checkbox -> {
+                    if (adapter.get()?.checkedPosition != position) {
+                        onSwitch(position)
+                        adapter.get()?.checkedPosition = position
+                    }
+
+                }
                 R.id.deleteButton -> onDelete()
             }
         }
@@ -90,11 +97,21 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     }
 
     private fun addNewAccount() {
-
+        context?.let { SignActivity.start(context!!) }
+        dismissAllowingStateLoss()
     }
 
     private fun onDelete() {
 
+    }
+
+    private fun onSwitch(position: Int) {
+        val item = adapter.get()?.getItem(position)
+        Log.d("选择了: ", item?.screenName)
+        item?.let {
+            accountViewModel.switchAccount(item.uniqueId)
+        }
+        dismissAllowingStateLoss()
     }
 
     @Suppress("SENSELESS_COMPARISON")
@@ -117,7 +134,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
             helper.getView<SwipeLayout>(R.id.swipeLayout).addSwipeListener(object : SimpleSwipeListener() {
                 override fun onOpen(layout: SwipeLayout?) {
                     layout?.findViewById<View>(R.id.deleteIcon)?.apply {
-                        YoYo.with(Techniques.Tada).interpolate(FastOutSlowInInterpolator()).duration(500).delay(500).playOn(this)
+                        YoYo.with(Techniques.Tada).interpolate(FastOutSlowInInterpolator()).duration(500).delay(200).playOn(this)
                     }
                 }
             })

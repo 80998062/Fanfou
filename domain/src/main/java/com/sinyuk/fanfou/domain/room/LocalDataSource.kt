@@ -30,15 +30,26 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
-    override fun allAccounts(): LiveData<List<User>> = database.accountDao().queryAll()
+    override fun updateAccount(user: User): Int = database.accountDao().update(user)
+
+    override fun updateAccounts(users: List<User>): Int = database.accountDao().updateAll(users)
+
+    override fun switchAccount(oldId: String?, newId: String): User? {
+        return queryAccount(newId).value?.apply {
+            loggedAt = Date(System.currentTimeMillis())
+            updateAccount(this)
+        }
+    }
+
+    override fun allLogged(): LiveData<List<User>> = database.accountDao().allLogged()
 
     override fun queryAccount(uniqueId: String) = database.accountDao().query(uniqueId)
 
-    override fun saveAccount(user: User, account: String, authorization: Authorization, loggedAt: Date): Long {
+    override fun saveAccount(user: User, account: String, authorization: Authorization): Long {
         user.account = account
         user.secret = authorization.secret!!
         user.token = authorization.token!!
-        user.loggedAt = loggedAt
+        user.loggedAt = Date(System.currentTimeMillis())
         return database.accountDao().insert(user)
     }
 

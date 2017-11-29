@@ -27,8 +27,6 @@ import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
-import com.sinyuk.fanfou.domain.entities.User
-import com.sinyuk.fanfou.lives.SingleLiveEvent
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -42,7 +40,7 @@ class AccountViewModel @Inject constructor(
 
     internal val loggedAccount = repository.currentAccount()
 
-    internal val allAccounts = repository.allAccounts()
+    internal val allLogged = repository.allLogged()
 
     init {
         preferences.getString(UNIQUE_ID).asObservable().subscribe { it ->
@@ -52,4 +50,7 @@ class AccountViewModel @Inject constructor(
 
 
     fun login(account: String, password: String) = repository.signIn(account, password)
+
+    fun switchAccount(uniqueId: String) = repository.switchAccount(uniqueId)
+
 }

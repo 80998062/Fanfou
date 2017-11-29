@@ -21,15 +21,13 @@
 package com.sinyuk.fanfou.domain
 
 import android.arch.lifecycle.LiveData
-import android.content.SharedPreferences
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.entities.User
-import com.sinyuk.fanfou.domain.rest.*
+import com.sinyuk.fanfou.domain.rest.Authorization
+import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
+import com.sinyuk.fanfou.domain.rest.RemoteTasks
 import com.sinyuk.fanfou.domain.room.LocalTasks
 import io.reactivex.Completable
-import io.reactivex.Single
-import java.io.IOException
-import java.util.*
 
 /**
  * Created by sinyuk on 2017/11/27.
@@ -50,18 +48,32 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                 return@flatMap remoteTasks.updateProfile(sortedMapOf())
                         .map {
                             preferences.getString(UNIQUE_ID).set(it.uniqueId)
-                            localTasks.saveAccount(it, account, authorization, Date(System.currentTimeMillis()))
+                            localTasks.saveAccount(it, account, authorization)
                             it
                         }
             }.toCompletable()
+
+
+    fun allLogged(): LiveData<List<User>> = localTasks.allLogged()
 
 
     fun currentAccount(): LiveData<User> {
         return localTasks.queryAccount(preferences.getString(UNIQUE_ID).get())
     }
 
-    fun allAccounts(): LiveData<List<User>> = localTasks.allAccounts()
+    fun updateAccount(user: User) {
+        remoteTasks.updateProfile(sortedMapOf())
+                .map({ it ->
+                })
+    }
 
+    fun switchAccount(uniqueId: String) {
+        val oldId = preferences.getString(UNIQUE_ID).get()
+        localTasks.switchAccount(oldId, uniqueId)?.apply {
+            preferences.getString(UNIQUE_ID).set(uniqueId)
+            onAuthorize(Authorization(token, secret))
+        }
+    }
 
     private fun onAuthorize(authorization: Authorization) {
         interceptor.authenticator(authorization)
