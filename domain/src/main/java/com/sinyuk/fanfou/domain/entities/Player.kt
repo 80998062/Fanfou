@@ -46,22 +46,15 @@ data class Player @JvmOverloads constructor(
         @PrimaryKey @NonNull @SerializedName("unique_id")
         var uniqueId: String = "",
         @SerializedName("id") var id: String = "",
-        @SerializedName("name")
-        var name: String = "",
-        @SerializedName("screen_name")
-        var screenName: String = "",
-        @SerializedName("location")
-        var location: String = "",
-        @SerializedName("gender")
-        var gender: String = "",
+        @SerializedName("name") var name: String = "",
+        @SerializedName("screen_name") var screenName: String = "",
+        @SerializedName("location") var location: String = "",
+        @SerializedName("gender") var gender: String = "",
         @SerializedName("birthday")
         var birthday: String = "",
-        @SerializedName("description")
-        var description: String = "",
-        @SerializedName("profile_image_url")
-        var profileImageUrl: String = "",
-        @SerializedName("profile_image_url_large")
-        var profileImageUrlLarge: String = "",
+        @SerializedName("description") var description: String = "",
+        @SerializedName("profile_image_url") var profileImageUrl: String = "",
+        @SerializedName("profile_image_url_large") var profileImageUrlLarge: String = "",
         @SerializedName("url")
         var url: String = "",
         @SerializedName("protected")

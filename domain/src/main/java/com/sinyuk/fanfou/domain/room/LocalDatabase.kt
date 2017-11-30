@@ -29,6 +29,7 @@ import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Registration
 import com.sinyuk.fanfou.domain.room.dao.PlayerDao
 import com.sinyuk.fanfou.domain.room.dao.RegistrationDao
+import com.sinyuk.fanfou.domain.room.dao.StatusDao
 
 
 /**
@@ -38,6 +39,7 @@ import com.sinyuk.fanfou.domain.room.dao.RegistrationDao
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun registrationDao(): RegistrationDao
+    abstract fun statusDao(): StatusDao
 
     companion object {
 

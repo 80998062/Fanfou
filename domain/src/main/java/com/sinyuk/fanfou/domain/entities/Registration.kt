@@ -20,10 +20,7 @@
 
 package com.sinyuk.fanfou.domain.entities
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
+import android.arch.persistence.room.*
 import android.support.annotation.NonNull
 import com.sinyuk.fanfou.domain.room.DateConverter
 import java.util.*
@@ -32,13 +29,14 @@ import java.util.*
  * Created by sinyuk on 2017/11/29.
  */
 @Entity(tableName = "registrations",
-        indices = arrayOf(Index("uniqueId"), Index("account")))
+        indices = arrayOf(Index("uniqueId"), Index("account")),
+        foreignKeys = arrayOf(ForeignKey(onDelete = ForeignKey.CASCADE, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
 @TypeConverters(DateConverter::class)
 data class Registration constructor(
         @PrimaryKey @NonNull
         var uniqueId: String = "",
-        var account: String?  = "",
-        var password: String?  = "",
+        var account: String? = "",
+        var password: String? = "",
         var loggedAt: Date? = null,
         var token: String? = "",
         var secret: String? = ""
