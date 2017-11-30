@@ -27,6 +27,7 @@ import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Registration
+import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.domain.room.dao.PlayerDao
 import com.sinyuk.fanfou.domain.room.dao.RegistrationDao
 import com.sinyuk.fanfou.domain.room.dao.StatusDao
@@ -35,7 +36,7 @@ import com.sinyuk.fanfou.domain.room.dao.StatusDao
 /**
  * Created by sinyuk on 2017/11/27.
  */
-@Database(entities = arrayOf(Player::class, Registration::class), version = BuildConfig.VERSION_CODE)
+@Database(entities = arrayOf(Player::class, Registration::class, Status::class), version = BuildConfig.VERSION_CODE)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun registrationDao(): RegistrationDao

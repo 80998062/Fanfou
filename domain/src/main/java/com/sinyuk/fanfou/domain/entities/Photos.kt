@@ -26,6 +26,8 @@ import com.google.gson.annotations.SerializedName
  * Created by sinyuk on 2017/11/30.
  */
 data class Photos constructor(
+        @SerializedName("url")
+        var url: String? = null,
         @SerializedName("imageurl")
         var imageurl: String? = null,
         @SerializedName("thumburl")

@@ -39,11 +39,8 @@ interface PlayerDao {
     @Delete
     fun delete(player: Player): Int
 
-    @Query("SELECT * FROM players WHERE admin = 1")
+    @Query("SELECT * FROM players WHERE uniqueId IN (SELECT uniqueId FROM registrations)")
     fun admins(): LiveData<List<Player>>
-
-    @Query("SELECT * FROM players WHERE friend = 1")
-    fun friends(): LiveData<List<Player>>
 
     @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
     fun query(uniqueId: String?): LiveData<Player>

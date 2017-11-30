@@ -30,11 +30,10 @@ import java.util.*
  */
 @Entity(tableName = "registrations",
         indices = arrayOf(Index("uniqueId"), Index("account")),
-        foreignKeys = arrayOf(ForeignKey(onDelete = ForeignKey.CASCADE, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
+        foreignKeys = arrayOf(ForeignKey(onDelete = ForeignKey.NO_ACTION, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
 @TypeConverters(DateConverter::class)
 data class Registration constructor(
-        @PrimaryKey @NonNull
-        var uniqueId: String = "",
+        @PrimaryKey @NonNull var uniqueId: String = "",
         var account: String? = "",
         var password: String? = "",
         var loggedAt: Date? = null,

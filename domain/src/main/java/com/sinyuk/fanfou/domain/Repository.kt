@@ -69,11 +69,9 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                 onAuthorize(authorization)
                 return@flatMap remoteTasks.updateProfile(sortedMapOf())
                         .map {
-                            val rowId =
-                                    localTasks.insertRegistration(it.uniqueId, account, password, authorization)
-                            it.addFlags(FLAG_ADMIN)
+                            Log.d("Repository", "<======= Save Registration ======>")
                             localTasks.insertPlayer(it)
-                            Log.d("Repository", "保存登录信息: " + rowId)
+                            localTasks.insertRegistration(it.uniqueId, account, password, authorization)
                             preferences.getString(UNIQUE_ID).set(it.uniqueId)
                             it
                         }.subscribeOn(Schedulers.computation())
@@ -112,10 +110,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
             // convert player to map
         }
         return remoteTasks.updateProfile(params)
-                .map { it ->
-                    it.addFlags(FLAG_ADMIN)
-                    localTasks.insertPlayer(it)
-                }
+                .map { it -> localTasks.insertPlayer(it) }
                 .toCompletable()
     }
 
@@ -123,7 +118,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
      * authorize or deauthorize
      */
     private fun onAuthorize(authorization: Authorization) {
-        Log.d("Repository", "更新授权")
+        Log.d("Repository", "<======= Update Authorization ======>")
         interceptor.authenticator(authorization)
     }
 

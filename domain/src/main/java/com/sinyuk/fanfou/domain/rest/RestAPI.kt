@@ -26,6 +26,7 @@ import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.QueryMap
 import java.util.*
 
@@ -40,4 +41,8 @@ interface RestAPI {
 
     @POST("account/update_profile.json?mode=lite&format=html")
     fun update_profile(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
+
+
+    @GET("statuses/{type}.json?mode=lite&format=html")
+    fun fetch_statuses(@Path("type") type: String, @NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
 }

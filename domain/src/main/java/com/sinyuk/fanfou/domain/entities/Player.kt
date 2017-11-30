@@ -28,9 +28,6 @@ import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.TypeConverters
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
-import com.sinyuk.fanfou.domain.FLAG_ADMIN
-import com.sinyuk.fanfou.domain.FLAG_FRIEND
-import com.sinyuk.fanfou.domain.FLAG_NO_IDENTITY
 import com.sinyuk.fanfou.domain.room.DateConverter
 import java.util.*
 
@@ -43,8 +40,7 @@ import java.util.*
 @Entity(tableName = "players", indices = arrayOf(Index("uniqueId"), Index("name")))
 @TypeConverters(DateConverter::class)
 data class Player @JvmOverloads constructor(
-        @PrimaryKey @NonNull @SerializedName("unique_id")
-        var uniqueId: String = "",
+        @PrimaryKey @NonNull @SerializedName("unique_id") var uniqueId: String = "",
         @SerializedName("id") var id: String = "",
         @SerializedName("name") var name: String = "",
         @SerializedName("screen_name") var screenName: String = "",
@@ -55,51 +51,15 @@ data class Player @JvmOverloads constructor(
         @SerializedName("description") var description: String = "",
         @SerializedName("profile_image_url") var profileImageUrl: String = "",
         @SerializedName("profile_image_url_large") var profileImageUrlLarge: String = "",
-        @SerializedName("url")
-        var url: String = "",
-        @SerializedName("protected")
-        var protectedX: Boolean = false,
-        @SerializedName("followers_count")
-        var followersCount: Int = 0,
-        @SerializedName("friends_count")
-        var friendsCount: Int = 0,
-        @SerializedName("favourites_count")
-        var favouritesCount: Int = 0,
-        @SerializedName("statuses_count")
-        var statusesCount: Int = 0,
-        @SerializedName("photo_count")
-        var photoCount: Int = 0,
-        @SerializedName("following")
-        var following: Boolean = false,
-        @SerializedName("notifications")
-        var notifications: Boolean = false,
-        @SerializedName("created_at")
-        var createdAt: Date? = null,
-        // for identify player
-        var flags: Int = FLAG_NO_IDENTITY,
-        var friend: Boolean = false,
-        var admin: Boolean = false
-) {
-    fun addFlags(t: Int) {
-        flags = t
-        validate()
-    }
-
-//    fun addFlags(t: Int) {
-//        flags = flags or t
-//        validate()
-//    }
-
-    fun removeFlags(t: Int) {
-        flags = flags and t.inv()
-        validate()
-    }
-
-
-    private fun validate() {
-        friend = (flags and FLAG_FRIEND) != 0
-        admin = (flags and FLAG_ADMIN) != 0
-    }
-
-
-}
+        @SerializedName("url") var url: String = "",
+        @SerializedName("protected") var protectedX: Boolean = false,
+        @SerializedName("followers_count") var followersCount: Int = 0,
+        @SerializedName("friends_count") var friendsCount: Int = 0,
+        @SerializedName("favourites_count") var favouritesCount: Int = 0,
+        @SerializedName("statuses_count") var statusesCount: Int = 0,
+        @SerializedName("photo_count") var photoCount: Int = 0,
+        @SerializedName("following") var following: Boolean = false,
+        @SerializedName("notifications") var notifications: Boolean = false,
+        @SerializedName("created_at") var createdAt: Date? = null,
+        @SerializedName("profile_background_image_url") var profileBackgroundImageUrl:String?= ""
+)

@@ -21,9 +21,8 @@
 package com.sinyuk.fanfou.domain.entities
 
 import android.arch.persistence.room.*
-import android.arch.persistence.room.ForeignKey.SET_DEFAULT
+import android.arch.persistence.room.ForeignKey.NO_ACTION
 import android.support.annotation.NonNull
-
 import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.room.DateConverter
 import java.util.*
@@ -33,65 +32,26 @@ import java.util.*
  */
 
 @Entity(tableName = "statuses",
-        indices = arrayOf(Index("id")),
-        foreignKeys = arrayOf(ForeignKey(onDelete = SET_DEFAULT, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
+        indices = arrayOf(Index("id","uniqueId")),
+        foreignKeys = arrayOf(ForeignKey(onDelete = NO_ACTION, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
 @TypeConverters(DateConverter::class)
 data class Status constructor(
-        @SerializedName("created_at")
-        var createdAt: Date? = null,
-        @NonNull @PrimaryKey @SerializedName("id")
-        var id: String? = "",
-
-        @SerializedName("rawid")
-        var rawid: Int? = 0,
-
-        @SerializedName("text")
-        var text: String? = null,
-
-        @SerializedName("source")
-        var source: String? = null,
-
-        @SerializedName("in_reply_to_status_id")
-        var inReplyToStatusId: String? = null,
-
-        @SerializedName("in_reply_to_user_id")
-        var inReplyToUserId: String? = null,
-
-        @SerializedName("favorited")
-        var favorited: Boolean = false,
-
-        @SerializedName("in_reply_to_screen_name")
-        var inReplyToScreenName: String? = null,
-
-        @SerializedName("is_self")
-        var isSelf: Boolean = false,
-
-        @SerializedName("repost_user_id")
-        var repostUserId: String? = null,
-
-        @SerializedName("repost_screen_name")
-        var repostScreenName: String? = null,
-
-        @SerializedName("repost_status_id")
-        var repostStatusId: String? = null,
-
-        @SerializedName("location")
-        var location: String? = null,
-
-        @Ignore
-        @SerializedName("user")
-        var user: Player? = null,
-
-        @Embedded
-        var statusExtra: StatusExtra? = null,
-
-        @Embedded
-        @SerializedName("photo")
-        var photos: Photos? = null
-) {
-    init {
-        user?.apply {
-            statusExtra = StatusExtra(uniqueId, id, screenName, profileImageUrl, profileImageUrlLarge)
-        }
-    }
-}
+        @PrimaryKey @NonNull @SerializedName("id") var id: String = "",
+        @SerializedName("rawid") var rawid: Int? = 0,
+        @SerializedName("text") var text: String? = null,
+        @SerializedName("source") var source: String? = null,
+        @SerializedName("in_reply_to_status_id") var inReplyToStatusId: String? = null,
+        @SerializedName("in_reply_to_user_id") var inReplyToUserId: String? = null,
+        @SerializedName("favorited") var favorited: Boolean = false,
+        @SerializedName("in_reply_to_screen_name") var inReplyToScreenName: String? = null,
+        @SerializedName("is_self") var isSelf: Boolean = false,
+        @SerializedName("repost_user_id") var repostUserId: String? = null,
+        @SerializedName("repost_screen_name") var repostScreenName: String? = null,
+        @SerializedName("repost_status_id") var repostStatusId: String? = null,
+        @SerializedName("location") var location: String? = null,
+        @Ignore @SerializedName("user") var user: Player? = null,
+        @SerializedName("created_at") var createdAt: Date? = null,
+        var userJson: String? = null,
+        var uniqueId: String? = null,
+        @Embedded @SerializedName("photo") var photos: Photos? = null
+)
