@@ -26,7 +26,6 @@ import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.widget.AppCompatRadioButton
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -43,9 +42,11 @@ import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.lives.AutoClearedValue
+import com.sinyuk.fanfou.utils.CompletableHandler
 import com.sinyuk.fanfou.utils.QuickSwipeAdapter
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.account_bottomsheet.*
 import kotlinx.android.synthetic.main.account_selectable_list_footer.view.*
 import javax.inject.Inject
@@ -109,18 +110,20 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     }
 
     private fun onDelete(position: Int) {
-        val item = adapter.get()?.getItem(position)
-        Log.d("选择了: ", item?.screenName)
-        item?.let {
-            accountViewModel.deleteRegistration(item.uniqueId)
+        adapter.get()?.getItem(position)?.let {
+            val d: Disposable = accountViewModel.deleteRegistration(it.uniqueId)
+                    .subscribeWith(object : CompletableHandler() {
+                        override fun onComplete() {
+                            adapter.get()?.remove(position)
+                        }
+                    })
+            addDisposable(d)
         }
     }
 
     private fun onSwitch(position: Int) {
-        val item = adapter.get()?.getItem(position)
-        Log.d("选择了: ", item?.screenName)
-        item?.let {
-            preferences.getString(UNIQUE_ID).set(item.uniqueId)
+        adapter.get()?.getItem(position)?.let {
+            preferences.getString(UNIQUE_ID).set(it.uniqueId)
         }
     }
 

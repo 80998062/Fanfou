@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "03f70855453b96c2f298246059f9fe1b",
+    "identityHash": "d52178e38de6101b49ee9a53d329f817",
     "entities": [
       {
         "tableName": "players",
@@ -175,7 +175,7 @@
       },
       {
         "tableName": "registrations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT NOT NULL, `password` TEXT NOT NULL, `loggedAt` INTEGER, `token` TEXT NOT NULL, `secret` TEXT NOT NULL, PRIMARY KEY(`uniqueId`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT, `password` TEXT, `loggedAt` INTEGER, `token` TEXT, `secret` TEXT, PRIMARY KEY(`uniqueId`))",
         "fields": [
           {
             "fieldPath": "uniqueId",
@@ -187,13 +187,13 @@
             "fieldPath": "account",
             "columnName": "account",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "password",
             "columnName": "password",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "loggedAt",
@@ -205,13 +205,13 @@
             "fieldPath": "token",
             "columnName": "token",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "secret",
             "columnName": "secret",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -238,24 +238,12 @@
             "createSql": "CREATE  INDEX `index_registrations_account` ON `${TABLE_NAME}` (`account`)"
           }
         ],
-        "foreignKeys": [
-          {
-            "table": "players",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "uniqueId"
-            ],
-            "referencedColumns": [
-              "uniqueId"
-            ]
-          }
-        ]
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"03f70855453b96c2f298246059f9fe1b\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"d52178e38de6101b49ee9a53d329f817\")"
     ]
   }
 }

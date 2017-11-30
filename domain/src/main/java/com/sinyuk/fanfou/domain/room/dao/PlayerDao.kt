@@ -46,5 +46,5 @@ interface PlayerDao {
     fun friends(): LiveData<List<Player>>
 
     @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
-    fun query(uniqueId: String): LiveData<Player>
+    fun query(uniqueId: String?): LiveData<Player>
 }

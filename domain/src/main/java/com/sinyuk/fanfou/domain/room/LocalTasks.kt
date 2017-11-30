@@ -33,7 +33,7 @@ interface LocalTasks {
 
     fun deleteRegistration(uniqueId: String): Int
 
-    fun queryPlayer(uniqueId: String): LiveData<Player>
+    fun queryPlayer(uniqueId: String?): LiveData<Player>
 
     fun queryAdmins(): LiveData<List<Player>>
 

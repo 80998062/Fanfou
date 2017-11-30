@@ -45,6 +45,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
 
     init {
         preferences.getString(UNIQUE_ID).asObservable()
+                .subscribeOn(Schedulers.computation())
                 .onErrorReturn {
                     it.printStackTrace()
                     ""
@@ -68,22 +69,29 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                 onAuthorize(authorization)
                 return@flatMap remoteTasks.updateProfile(sortedMapOf())
                         .map {
-                            preferences.getString(UNIQUE_ID).set(it.uniqueId)
+                            val rowId =
+                                    localTasks.insertRegistration(it.uniqueId, account, password, authorization)
                             it.addFlags(FLAG_ADMIN)
                             localTasks.insertPlayer(it)
-                            localTasks.insertRegistration(it.uniqueId, account, password, authorization)
+                            Log.d("Repository", "保存登录信息: " + rowId)
+                            preferences.getString(UNIQUE_ID).set(it.uniqueId)
                             it
-                        }
+                        }.subscribeOn(Schedulers.computation())
             }.toCompletable()
 
 
     /**
      *  获取登录信息
      */
-    fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()): Single<Registration?> =
-            Single.fromCallable { localTasks.queryRegistration(uniqueId) }.subscribeOn(Schedulers.io())
+    fun registration(uniqueId: String): Single<Registration?> =
+            Single.fromCallable { localTasks.queryRegistration(uniqueId) }.subscribeOn(Schedulers.computation())
 
-    fun deleteRegistration(uniqueId: String) = localTasks.deleteRegistration(uniqueId)
+    /**
+     * 删除登录信息
+     */
+    fun deleteRegistration(uniqueId: String): Completable =
+            Completable.fromCallable { localTasks.deleteRegistration(uniqueId) }
+                    .subscribeOn(Schedulers.computation())
 
     /**
      *  获取所有用户
@@ -93,7 +101,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取登录的用户
      */
-    fun admin(): LiveData<Player> = localTasks.queryPlayer(preferences.getString(UNIQUE_ID).get())
+    fun admin(uniqueId: String?): LiveData<Player> = localTasks.queryPlayer(uniqueId)
 
     /**
      * 更新用户资料

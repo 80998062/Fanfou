@@ -22,11 +22,11 @@ package com.sinyuk.fanfou.ui.account
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
+import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -38,17 +38,11 @@ class AccountViewModel @Inject constructor(
         private val repository: Repository,
         @Named(TYPE_GLOBAL) private val preferences: RxSharedPreferences) : AndroidViewModel(context) {
 
-    init {
-        preferences.getString(UNIQUE_ID).asObservable().subscribe { it ->
-            Log.d("AccountViewModel", "切换用户: " + it)
-        }
-    }
-
-    internal val admin = repository.admin() // 获取用户资料
+    internal val accountRelay: PreferenceAwareLiveData<String> = PreferenceAwareLiveData(preferences.getString(UNIQUE_ID))
+    internal fun admin(uniqueId: String?) = repository.admin(uniqueId)
+    internal fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()) = repository.registration(uniqueId)
 
     internal val admins = repository.admins()
-
-    internal val currentRegistration = repository.registration()
 
     fun login(account: String, password: String) = repository.signIn(account, password)
 

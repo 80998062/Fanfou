@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.splash
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
 import com.sinyuk.fanfou.ui.HomeActivity
@@ -50,24 +49,22 @@ class SplashActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            currentRegistration
+            registration()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnError({ toSign() })
                     .subscribe(Consumer {
                         if (it == null) {
                             toSign()
                         } else {
-                            Log.d("Splash: ", "配置: " + currentRegistration.toString())
                             prepareLaunch()
                         }
                     })
-
         }
     }
 
 
     private fun toSign() {
-        SignActivity.start(this, Intent.FLAG_ACTIVITY_NEW_TASK)
+        SignActivity.start(this, Intent.FLAG_ACTIVITY_CLEAR_TASK)
         finish()
     }
 
@@ -76,7 +73,7 @@ class SplashActivity : AbstractActivity() {
     }
 
     private fun toHome() {
-        HomeActivity.start(this, Intent.FLAG_ACTIVITY_NEW_TASK)
+        HomeActivity.start(this, Intent.FLAG_ACTIVITY_CLEAR_TASK)
         finish()
     }
 }

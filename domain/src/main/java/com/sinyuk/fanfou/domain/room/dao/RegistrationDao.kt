@@ -31,9 +31,6 @@ interface RegistrationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(registration: Registration): Long
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(registrations: List<Registration>): Int
-
     @Delete
     fun delete(registration: Registration): Int
 

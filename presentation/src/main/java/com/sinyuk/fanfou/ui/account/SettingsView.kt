@@ -20,8 +20,10 @@
 
 package com.sinyuk.fanfou.ui.account
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.R
@@ -53,25 +55,28 @@ class SettingsView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
+    var adminLive: LiveData<Player>? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
 
-        accountViewModel.admin.observe(this@SettingsView, adminOB)
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
+            accountRelay.observe(this@SettingsView, Observer<String> {
+                Log.d("SettingsView", "UID改变")
+                adminLive?.removeObserver(adminOB)
+                adminLive = admin(it).apply { observe(this@SettingsView, adminOB) }
+            })
+        }
 
         switchAccount.setOnClickListener({
             activity?.let {
                 val sheet = AccountBottomSheet()
-                sheet.show(activity!!.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
+                sheet.show(it.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
             }
         })
 
         testButton.setOnClickListener {
             accountViewModel.updateProfile().subscribeWith(object : CompletableHandler(toast) {
-                override fun onComplete() {
-                    super.onComplete()
-                }
             })
         }
 
@@ -85,5 +90,4 @@ class SettingsView : AbstractFragment(), Injectable {
             screenName.text = t.screenName
         }
     }
-
 }
