@@ -20,16 +20,26 @@
 
 package com.sinyuk.fanfou.ui
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractActivity
+import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.ui.account.AccountBottomSheet
 import com.sinyuk.fanfou.ui.account.AccountViewModel
-import com.sinyuk.fanfou.ui.account.SettingsView
-import com.sinyuk.fanfou.utils.addFragmentInActivity
+import com.sinyuk.fanfou.ui.account.ProfileView
+import com.sinyuk.fanfou.ui.home.HomeView
+import com.sinyuk.fanfou.ui.home.RootPageAdapter
+import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.search.PublicView
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.home_activity.*
 import javax.inject.Inject
 
 /**
@@ -54,12 +64,47 @@ class HomeActivity : AbstractActivity() {
 
     private lateinit var accountViewModel: AccountViewModel
 
+    @Inject lateinit var toast: ToastUtils
+
+    var adminLive: LiveData<Player>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
+            accountRelay.observe(this@HomeActivity, Observer<String> {
+                adminLive?.removeObserver(adminOB)
+                adminLive = admin(it).apply { observe(this@HomeActivity, adminOB) }
+            })
+        }
 
-        addFragmentInActivity(SettingsView(), R.id.fragment_container, false)
+        setupViewPager()
+
+        setupActionBar()
+    }
+
+    private fun setupActionBar() {
+        avatar.setOnClickListener {
+            val sheet = AccountBottomSheet()
+            sheet.show(supportFragmentManager, AccountBottomSheet::class.java.simpleName)
+        }
+    }
+
+    private fun setupViewPager() {
+        val homePage = HomeView()
+        val publicPage = PublicView()
+        val messagePage = MessageView()
+        val profilePage = ProfileView()
+
+        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, publicPage, messagePage, profilePage))
+
+        viewPager.offscreenPageLimit = 4
+        viewPager.adapter = adapter
+    }
+
+    private val adminOB: Observer<Player> = Observer { t ->
+        t?.let {
+            Log.d(HomeActivity::class.java.simpleName, t.uniqueId)
+        }
     }
 }

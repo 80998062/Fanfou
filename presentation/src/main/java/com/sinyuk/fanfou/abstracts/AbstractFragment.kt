@@ -20,13 +20,12 @@
 
 package com.sinyuk.fanfou.abstracts
 
-import android.support.v4.app.Fragment
-import io.reactivex.disposables.CompositeDisposable
 import android.os.Bundle
-import android.support.annotation.Nullable
-import android.view.ViewGroup
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 
@@ -35,30 +34,9 @@ import io.reactivex.disposables.Disposable
  */
 abstract class AbstractFragment : Fragment() {
 
-    private val STATE_SAVE_IS_HIDDEN = "STATE_SAVE_IS_HIDDEN"
-
     private val mCompositeDisposable = CompositeDisposable()
 
     protected abstract fun layoutId(): Int?
-
-    override fun onCreate(@Nullable savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-        if (savedInstanceState != null) {
-            val isSupportHidden = savedInstanceState.getBoolean(STATE_SAVE_IS_HIDDEN)
-            fragmentManager?.let {
-                val ft = fragmentManager!!.beginTransaction()
-                if (isSupportHidden) {
-                    ft.hide(this)
-                } else {
-                    ft.show(this)
-                }
-                ft.commit()
-            }
-        }
-    }
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return if (layoutId() != null) {
@@ -68,9 +46,6 @@ abstract class AbstractFragment : Fragment() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(STATE_SAVE_IS_HIDDEN, isHidden)
-    }
 
     protected fun addDisposable(s: Disposable) {
         mCompositeDisposable.add(s)

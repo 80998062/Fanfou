@@ -20,11 +20,44 @@
 
 package com.sinyuk.fanfou.ui.account
 
-import android.support.v4.app.Fragment
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
+import android.util.Log
+import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
+import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
+import com.sinyuk.fanfou.utils.obtainViewModel
+import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.myutils.system.ToastUtils
+import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
-class ProfileView : Fragment(), Injectable {
+class ProfileView : AbstractLazyFragment(), Injectable {
+    override fun layoutId(): Int? = R.layout.profile_view
+
+    @Inject lateinit var factory: ViewModelFactory
+
+    private lateinit var accountViewModel: AccountViewModel
+
+    @Inject lateinit var toast: ToastUtils
+
+    var adminLive: LiveData<Player>? = null
+
+    override fun lazyDo() {
+        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
+            accountRelay.observe(this@ProfileView, Observer<String> {
+                adminLive?.removeObserver(adminOB)
+                adminLive = admin(it).apply { observe(this@ProfileView, adminOB) }
+            })
+        }
+    }
+
+    private val adminOB: Observer<Player> = Observer { t ->
+        t?.let {
+            Log.d(ProfileView::class.java.simpleName, t.uniqueId)
+        }
+    }
 }

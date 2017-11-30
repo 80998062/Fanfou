@@ -24,6 +24,9 @@ import com.sinyuk.fanfou.ui.account.AccountBottomSheet
 import com.sinyuk.fanfou.ui.account.ProfileView
 import com.sinyuk.fanfou.ui.account.SettingsView
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.home.HomeView
+import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.search.PublicView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -33,9 +36,6 @@ import dagger.android.ContributesAndroidInjector
  */
 @Module
 public abstract class FragmentBuildersModule {
-    @ContributesAndroidInjector
-    abstract fun ProfileView(): ProfileView
-
 
     @ContributesAndroidInjector
     abstract fun SignInView(): SignInView
@@ -45,4 +45,16 @@ public abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun SettingsView(): SettingsView
+
+    @ContributesAndroidInjector
+    abstract fun HomeView(): HomeView
+
+    @ContributesAndroidInjector
+    abstract fun PublicView(): PublicView
+
+    @ContributesAndroidInjector
+    abstract fun MessageView(): MessageView
+
+    @ContributesAndroidInjector
+    abstract fun ProfileView(): ProfileView
 }

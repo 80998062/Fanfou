@@ -18,28 +18,26 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.account
+package com.sinyuk.fanfou.ui.home
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import android.os.Bundle
-import android.view.View
+import android.util.Log
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractFragment
+import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
-import com.sinyuk.fanfou.utils.CompletableHandler
+import com.sinyuk.fanfou.ui.account.AccountViewModel
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
-import kotlinx.android.synthetic.main.settings_view.*
 import javax.inject.Inject
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/11/30.
  */
-class SettingsView : AbstractFragment(), Injectable {
-    override fun layoutId(): Int? = R.layout.settings_view
+class HomeView : AbstractLazyFragment(), Injectable {
+    override fun layoutId(): Int? = R.layout.home_view
 
     @Inject lateinit var factory: ViewModelFactory
 
@@ -48,34 +46,19 @@ class SettingsView : AbstractFragment(), Injectable {
     @Inject lateinit var toast: ToastUtils
 
     var adminLive: LiveData<Player>? = null
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
+    override fun lazyDo() {
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
-            accountRelay.observe(this@SettingsView, Observer<String> {
+            accountRelay.observe(this@HomeView, Observer<String> {
                 adminLive?.removeObserver(adminOB)
-                adminLive = admin(it).apply { observe(this@SettingsView, adminOB) }
+                adminLive = admin(it).apply { observe(this@HomeView, adminOB) }
             })
         }
-
-        switchAccount.setOnClickListener({
-            activity?.let {
-                val sheet = AccountBottomSheet()
-                sheet.show(it.supportFragmentManager, AccountBottomSheet::class.java.simpleName)
-            }
-        })
-
-        testButton.setOnClickListener {
-            accountViewModel.updateProfile().subscribeWith(object : CompletableHandler(toast) {
-            })
-        }
-
-
     }
 
     private val adminOB: Observer<Player> = Observer { t ->
         t?.let {
-            screenName.text = t.screenName
+            Log.d(HomeView::class.java.simpleName, t.uniqueId)
         }
     }
 }
