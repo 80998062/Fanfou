@@ -25,6 +25,8 @@ import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Registration
+import com.sinyuk.fanfou.domain.entities.Status
+import com.sinyuk.fanfou.domain.funcs.SaveStatusFunc
 import com.sinyuk.fanfou.domain.rest.Authorization
 import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteTasks
@@ -67,14 +69,17 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     fun signIn(account: String, password: String): Completable = remoteTasks.requestToken(account, password)
             .flatMap { authorization ->
                 onAuthorize(authorization)
-                return@flatMap remoteTasks.updateProfile(sortedMapOf())
+                return@flatMap remoteTasks.updateProfile()
+                        .doOnError({ Log.e("updateProfile", it.message) })
                         .map {
                             Log.d("Repository", "<======= Save Registration ======>")
                             localTasks.insertPlayer(it)
                             localTasks.insertRegistration(it.uniqueId, account, password, authorization)
                             preferences.getString(UNIQUE_ID).set(it.uniqueId)
                             it
-                        }.subscribeOn(Schedulers.computation())
+                        }
+                        .doOnError({ Log.e("Save Registration", it.message) })
+                        .subscribeOn(Schedulers.computation())
             }.toCompletable()
 
 
@@ -99,7 +104,7 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取登录的用户
      */
-    fun admin(uniqueId: String?): LiveData<Player> = localTasks.queryPlayer(uniqueId)
+    fun admin(uniqueId: String): LiveData<Player> = localTasks.queryPlayer(uniqueId)
 
     /**
      * 更新用户资料
@@ -109,10 +114,22 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
         player?.let {
             // convert player to map
         }
-        return remoteTasks.updateProfile(params)
+        return remoteTasks.updateProfile()
                 .map { it -> localTasks.insertPlayer(it) }
                 .toCompletable()
     }
+
+    /**
+     *  获取公共消息的缓存
+     */
+    fun homeTimeline(uniqueId: String) = localTasks.homeTimeline(uniqueId)
+
+    fun fetchTimeline(type: String, id: String, since: String?, max: String?): Single<List<Status>> {
+        return remoteTasks.fetchTimeline(type, id, since, max)
+                .map(SaveStatusFunc(localTasks, type, id))
+                .subscribeOn(Schedulers.computation())
+    }
+
 
     /**
      * authorize or deauthorize

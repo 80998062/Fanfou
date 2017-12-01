@@ -21,10 +21,12 @@
 package com.sinyuk.fanfou.domain.rest
 
 import android.app.Application
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.sinyuk.fanfou.domain.AUTHOR_FAILED_MSG
 import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.domain.utils.XauthUtils
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -33,8 +35,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -42,12 +42,15 @@ import java.util.concurrent.TimeUnit
  * Created by sinyuk on 2017/11/28.
  */
 class RemoteDataSource constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) : RemoteTasks {
-    override fun updateProfile(params: SortedMap<String, Any>): Single<Player> = restAPI.update_profile(params).map(ErrorCheckFunction(gson))
+    override fun fetchTimeline(type: String, target: String, since: String?, max: String?): Single<List<Status>> =
+            restAPI.fetch_statuses(type, target, since, max).map(ErrorCheckFunction(gson))
 
-    @Throws(IOException::class)
-    override fun fetchPlayer(params: SortedMap<String, Any>): Single<Player> = restAPI.user_show(params).map(ErrorCheckFunction(gson))
+    override fun updateProfile(): Single<Player> = restAPI.update_profile().map(ErrorCheckFunction(gson))
+
+    override fun fetchPlayer(uniqueId: String): Single<Player> = restAPI.user_show(uniqueId).map(ErrorCheckFunction(gson))
 
 
+    @Throws(VisibleThrowable::class)
     override fun requestToken(account: String, password: String): Single<Authorization?> = Single.fromCallable({
         val url: HttpUrl = XauthUtils.newInstance(account, password).url()
         val request = Request.Builder().url(url).build()
@@ -95,6 +98,7 @@ class RemoteDataSource constructor(application: Application, endpoint: Endpoint,
                 .addInterceptor(interceptor)
                 .addNetworkInterceptor(interceptor)
                 .addInterceptor(logging)
+                .addNetworkInterceptor(StethoInterceptor())
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)

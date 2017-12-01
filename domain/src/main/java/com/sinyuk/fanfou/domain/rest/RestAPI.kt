@@ -20,29 +20,31 @@
 
 package com.sinyuk.fanfou.domain.rest
 
-import android.support.annotation.NonNull
 import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.domain.entities.Status
 import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.QueryMap
-import java.util.*
+import retrofit2.http.Query
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
 interface RestAPI {
 
-    @GET("users/show.json?mode=lite&format=html")
-    fun user_show(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
+    @GET("users/show.json?format=html")
+    fun user_show(         @Query("id") uniqueId: String): Single<Response<Player>>
 
 
-    @POST("account/update_profile.json?mode=lite&format=html")
-    fun update_profile(@NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
+    @POST("account/update_profile.json")
+    fun update_profile(): Single<Response<Player>>
 
 
-    @GET("statuses/{type}.json?mode=lite&format=html")
-    fun fetch_statuses(@Path("type") type: String, @NonNull @QueryMap params: SortedMap<String, Any>): Single<Response<Player>>
+    @GET("statuses/{type}.json?count=60&format=html")
+    fun fetch_statuses(@Path("type") type: String,
+                       @Query("id") target: String,
+                       @Query("since_id") since: String?,
+                       @Query("max_id") max: String?): Single<Response<List<Status>>>
 }

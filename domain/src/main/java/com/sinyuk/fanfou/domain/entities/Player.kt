@@ -46,8 +46,7 @@ data class Player @JvmOverloads constructor(
         @SerializedName("screen_name") var screenName: String = "",
         @SerializedName("location") var location: String = "",
         @SerializedName("gender") var gender: String = "",
-        @SerializedName("birthday")
-        var birthday: String = "",
+        @SerializedName("birthday") var birthday: String = "",
         @SerializedName("description") var description: String = "",
         @SerializedName("profile_image_url") var profileImageUrl: String = "",
         @SerializedName("profile_image_url_large") var profileImageUrlLarge: String = "",

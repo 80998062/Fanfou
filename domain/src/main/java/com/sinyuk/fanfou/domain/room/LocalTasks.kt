@@ -21,8 +21,10 @@
 package com.sinyuk.fanfou.domain.room
 
 import android.arch.lifecycle.LiveData
+import android.arch.paging.LivePagedListProvider
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Registration
+import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.domain.rest.Authorization
 
 /**
@@ -33,7 +35,7 @@ interface LocalTasks {
 
     fun deleteRegistration(uniqueId: String): Int
 
-    fun queryPlayer(uniqueId: String?): LiveData<Player>
+    fun queryPlayer(uniqueId: String): LiveData<Player>
 
     fun queryAdmins(): LiveData<List<Player>>
 
@@ -42,4 +44,8 @@ interface LocalTasks {
     fun insertPlayer(player: Player): Long
 
     fun insertPlayers(players: List<Player>): Int
+
+    fun homeTimeline(uniqueId: String): LivePagedListProvider<Int, Status>
+
+    fun saveStatuses(statuses: List<Status>):List<Long>
 }

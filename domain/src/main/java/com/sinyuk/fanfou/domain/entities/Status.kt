@@ -32,7 +32,7 @@ import java.util.*
  */
 
 @Entity(tableName = "statuses",
-        indices = arrayOf(Index("id","uniqueId")),
+        indices = arrayOf(Index("id", "uniqueId")),
         foreignKeys = arrayOf(ForeignKey(onDelete = NO_ACTION, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("uniqueId"))))
 @TypeConverters(DateConverter::class)
 data class Status constructor(
@@ -51,7 +51,6 @@ data class Status constructor(
         @SerializedName("location") var location: String? = null,
         @Ignore @SerializedName("user") var user: Player? = null,
         @SerializedName("created_at") var createdAt: Date? = null,
-        var userJson: String? = null,
-        var uniqueId: String? = null,
+        @Embedded var playerExtracts: PlayerExtracts? = null,
         @Embedded @SerializedName("photo") var photos: Photos? = null
 )

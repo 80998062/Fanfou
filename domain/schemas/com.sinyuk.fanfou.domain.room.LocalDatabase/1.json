@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "65d67a6c73c750870b3d5a1736fdb002",
+    "identityHash": "7f0443016c8b2f7d53770419e06cabda",
     "entities": [
       {
         "tableName": "players",
@@ -242,7 +242,7 @@
       },
       {
         "tableName": "statuses",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToUserId` TEXT, `favorited` INTEGER NOT NULL, `inReplyToScreenName` TEXT, `isSelf` INTEGER NOT NULL, `repostUserId` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `userJson` TEXT, `uniqueId` TEXT, `url` TEXT, `imageurl` TEXT, `thumburl` TEXT, `largeurl` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToUserId` TEXT, `favorited` INTEGER NOT NULL, `inReplyToScreenName` TEXT, `isSelf` INTEGER NOT NULL, `repostUserId` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `uniqueId` TEXT, `playerId` TEXT, `playerScreenName` TEXT, `playerProfileImageUrl` TEXT, `playerProfileImageUrlLarge` TEXT, `playerProfileBackgroundImageUrl` TEXT, `url` TEXT, `imageurl` TEXT, `thumburl` TEXT, `largeurl` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -329,14 +329,38 @@
             "notNull": false
           },
           {
-            "fieldPath": "userJson",
-            "columnName": "userJson",
+            "fieldPath": "playerExtracts.uniqueId",
+            "columnName": "uniqueId",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "uniqueId",
-            "columnName": "uniqueId",
+            "fieldPath": "playerExtracts.playerId",
+            "columnName": "playerId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.playerScreenName",
+            "columnName": "playerScreenName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.playerProfileImageUrl",
+            "columnName": "playerProfileImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.playerProfileImageUrlLarge",
+            "columnName": "playerProfileImageUrlLarge",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.playerProfileBackgroundImageUrl",
+            "columnName": "playerProfileBackgroundImageUrl",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -399,7 +423,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"65d67a6c73c750870b3d5a1736fdb002\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7f0443016c8b2f7d53770419e06cabda\")"
     ]
   }
 }

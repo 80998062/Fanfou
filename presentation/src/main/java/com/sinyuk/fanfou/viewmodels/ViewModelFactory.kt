@@ -27,6 +27,7 @@ import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.ui.account.AccountViewModel
+import com.sinyuk.fanfou.ui.timeline.TimelineViewModel
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -42,6 +43,7 @@ class ViewModelFactory @Inject constructor(private val app: Application, private
             with(modelClass) {
                 when {
                     isAssignableFrom(AccountViewModel::class.java) -> AccountViewModel(app, repository, preferences)
+                    isAssignableFrom(TimelineViewModel::class.java) -> TimelineViewModel(app, repository, preferences)
                     else ->
                         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
                 }

@@ -8,9 +8,12 @@
     <color name="pink">#F56368</color>
     <color name="cyan">#68c5b3</color>
 
-    <color name="textColorPrimary">#333333</color>
+    <color name="textColorPrimary">#353535</color>
     <color name="textColorSecondary">#888888</color>
     <color name="textColorHint">#cccccc</color>
+    <color name="textStatusContent">#535353</color>
+
+
 
     <color name="textColorPrimaryInverse">#fafbfc</color>
     <color name="textColorSecondaryInverse">#e0e0e0</color>

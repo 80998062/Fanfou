@@ -20,12 +20,32 @@
 
 package com.sinyuk.fanfou.domain.room.dao
 
+import android.arch.paging.LivePagedListProvider
 import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy
+import android.arch.persistence.room.Query
+import com.sinyuk.fanfou.domain.entities.Status
+
 
 /**
  * Created by sinyuk on 2017/11/30.
  */
 @Dao
 interface StatusDao {
+    @Query("SELECT * from statuses ORDER BY id DESC LIMIT :limit")
+    fun initial(limit: Int): MutableList<Status>
 
+    @Query("SELECT * from statuses WHERE id < :key ORDER BY id DESC LIMIT :limit")
+    fun idLoadAfter(key: String, limit: Int): MutableList<Status>
+
+    @Query("SELECT * from statuses WHERE id > :key ORDER BY id ASC LIMIT :limit")
+    fun idLoadBefore(key: String, limit: Int): MutableList<Status>
+
+
+    @Query("SELECT * from statuses  WHERE uniqueId = :uniqueId ORDER BY createdAt DESC, id ASC")
+    fun queryById(uniqueId: String): LivePagedListProvider<Int, Status>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(statuses: List<Status>): List<Long>
 }

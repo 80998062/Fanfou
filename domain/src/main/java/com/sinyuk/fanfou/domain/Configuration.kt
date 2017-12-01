@@ -25,12 +25,50 @@ package com.sinyuk.fanfou.domain
  */
 
 /**
- * player's flags
+ * 显示指定用户及其好友的消息
+ */
+const val TIMELINE_HOME = "home_timeline"
+
+/**
+ * 显示指定用户及其好友的消息
+ */
+const val TIMELINE_PUBLIC = "public_timeline"
+
+/**
+ * 按照时间先后顺序显示消息上下文
+ */
+const val TIMELINE_CONTEXT = "context_timeline"
+/**
+ * 浏览指定用户已发送消息
+ */
+const val TIMELINE_USER = "user_timeline"
+
+/**
+ * 回复当前用户的20条消息
+ */
+const val TIMELINE_REPLIES = "replies"
+
+/**
+ * 回复/提到当前用户的20条消息
+ */
+const val TIMELINE_MENTIONS = "mentions"
+
+/**
+ * @ format
+ */
+const val LINK_FORMAT_HTML = "html"
+
+/**
+ * profile.mode
  */
 
-const val FLAG_NO_IDENTITY = 0x00000000
-const val FLAG_ADMIN = 0x00000001
-const val FLAG_FRIEND = 0x00000002
+const val PROFILE_MODE_DEFAULT = "default"
+const val PROFILE_MODE_LITE = "lite"
+
+/**
+ * page
+ */
+const val PAGE_SIZE = 60
 
 /**
  * message

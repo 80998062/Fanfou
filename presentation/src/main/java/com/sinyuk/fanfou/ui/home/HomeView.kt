@@ -25,9 +25,12 @@ import android.arch.lifecycle.Observer
 import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.ui.account.AccountViewModel
+import com.sinyuk.fanfou.ui.timeline.TimelineView
+import com.sinyuk.fanfou.utils.addFragmentInFragment
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
@@ -54,6 +57,10 @@ class HomeView : AbstractLazyFragment(), Injectable {
                 adminLive = admin(it).apply { observe(this@HomeView, adminOB) }
             })
         }
+
+        val f = TimelineView.newInstance(TIMELINE_HOME)
+        addFragmentInFragment(f, R.id.fragment_container, false)
+        f.userVisibleHint = true
     }
 
     private val adminOB: Observer<Player> = Observer { t ->

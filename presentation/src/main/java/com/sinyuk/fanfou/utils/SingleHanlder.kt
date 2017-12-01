@@ -18,22 +18,29 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.rest
+package com.sinyuk.fanfou.utils
 
-import com.sinyuk.fanfou.domain.entities.Player
-import com.sinyuk.fanfou.domain.entities.Status
-import io.reactivex.Single
+import com.sinyuk.fanfou.domain.UNHANDLE_VISIBLE_ERROR_MESSAGE
+import com.sinyuk.fanfou.domain.rest.VisibleThrowable
+import com.sinyuk.myutils.system.ToastUtils
+import io.reactivex.observers.DisposableSingleObserver
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/12/1.
  */
-interface RemoteTasks {
-    fun requestToken(account: String, password: String): Single<Authorization?>
+open class SingleHanlder<T> constructor(private val toast: ToastUtils?) : DisposableSingleObserver<T>() {
+    override fun onSuccess(t: T) {
+    }
 
-    fun updateProfile(): Single<Player>
+    constructor() : this(null)
 
-    fun fetchPlayer(uniqueId:String): Single<Player>
 
-    fun fetchTimeline(type: String, target: String, since: String?, max: String?): Single<List<Status>>
+    override fun onError(e: Throwable) {
+        if (e is VisibleThrowable) {
+            toast?.let {
+                toast.toastShort(e.message ?: UNHANDLE_VISIBLE_ERROR_MESSAGE)
+            }
+        }
+    }
 
 }

@@ -18,36 +18,43 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.account
+package com.sinyuk.fanfou.ui.timeline
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.LiveData
+import android.arch.paging.PagedList
 import com.f2prateek.rx.preferences2.RxSharedPreferences
+import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
+import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
 import javax.inject.Inject
 import javax.inject.Named
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/11/30.
  */
-class AccountViewModel @Inject constructor(
+class TimelineViewModel @Inject constructor(
         private val context: Application,
         private val repository: Repository,
         @Named(TYPE_GLOBAL) private val preferences: RxSharedPreferences) : AndroidViewModel(context) {
 
     internal val accountRelay: PreferenceAwareLiveData<String> = PreferenceAwareLiveData(preferences.getString(UNIQUE_ID))
-    internal fun admin(uniqueId: String?) = repository.admin(uniqueId!!)
-    internal fun registration(uniqueId: String = preferences.getString(UNIQUE_ID).get()) = repository.registration(uniqueId)
 
-    internal val admins = repository.admins()
 
-    fun login(account: String, password: String) = repository.signIn(account, password)
+    internal fun timeline(uniqueId: String): LiveData<PagedList<Status>> =
+            repository.homeTimeline(uniqueId).create(
+                    0,
+                    PagedList.Config.Builder()
+                            .setEnablePlaceholders(true)
+                            .setPageSize(PAGE_SIZE)
+                            .setPrefetchDistance(PAGE_SIZE)
+                            .build())
 
-    fun updateProfile() = repository.updateProfile(null)
+    fun fetchTimeline(type: String, id: String, since: String?, max: String?) = repository.fetchTimeline(type, id, since, max)
 
-    fun deleteRegistration(uniqueId: String) = repository.deleteRegistration(uniqueId)
 
 }

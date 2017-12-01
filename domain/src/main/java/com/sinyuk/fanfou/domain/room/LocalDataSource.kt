@@ -22,8 +22,10 @@ package com.sinyuk.fanfou.domain.room
 
 import android.app.Application
 import android.arch.lifecycle.LiveData
+import android.arch.paging.LivePagedListProvider
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Registration
+import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.domain.rest.Authorization
 import java.util.*
 
@@ -31,11 +33,15 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
+    override fun saveStatuses(statuses: List<Status>) = database.statusDao().insert(statuses)
+
+    override fun homeTimeline(uniqueId: String): LivePagedListProvider<Int, Status> = database.statusDao().queryById(uniqueId)
+
     override fun queryRegistration(uniqueId: String): Registration? = database.registrationDao().query(uniqueId)
 
     override fun deleteRegistration(uniqueId: String): Int = database.registrationDao().delete(Registration(uniqueId))
 
-    override fun queryPlayer(uniqueId: String?): LiveData<Player> = database.playerDao().query(uniqueId)
+    override fun queryPlayer(uniqueId: String): LiveData<Player> = database.playerDao().query(uniqueId)
 
     override fun queryAdmins(): LiveData<List<Player>> = database.playerDao().admins()
 

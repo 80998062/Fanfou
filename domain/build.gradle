@@ -39,7 +39,6 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
     implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
 
-
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
@@ -59,5 +58,8 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
 
     implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
+
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+
 
 }

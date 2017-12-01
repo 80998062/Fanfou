@@ -20,28 +20,21 @@
 
 package com.sinyuk.fanfou.domain.rest
 
+
 import android.text.TextUtils
 import android.util.Log
-
-
 import com.sinyuk.fanfou.domain.utils.UrlEscapeUtils
-
-import java.io.IOException
-import java.io.UnsupportedEncodingException
-import java.security.InvalidKeyException
-import java.security.NoSuchAlgorithmException
-import java.util.HashMap
-import java.util.Random
-import java.util.SortedMap
-import java.util.TreeMap
-
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
-
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okio.ByteString
+import java.io.IOException
+import java.io.UnsupportedEncodingException
+import java.security.InvalidKeyException
+import java.security.NoSuchAlgorithmException
+import java.util.*
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 /**
  * The type Oauth 1 signing interceptor.
@@ -182,6 +175,7 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
         val querySize = request.url().querySize()
 
         for (i in 0 until querySize) {
+            Log.d("参数们: ", httpUrl.queryParameterName(i) + ": " + httpUrl.queryParameterValue(i))
             queryParams.put(httpUrl.queryParameterName(i), UrlEscapeUtils.escape(httpUrl.queryParameterValue(i)))
         }
         params.putAll(parameters)
