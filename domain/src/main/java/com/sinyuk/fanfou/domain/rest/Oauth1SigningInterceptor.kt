@@ -126,19 +126,12 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
         }
 
         val parameters = TreeMap<String, String>()
-        //
         parameters.put(OAUTH_CONSUMER_KEY, consumerKeyValue)
-        //
         parameters.put(OAUTH_ACCESS_TOKEN, accessTokenValue!!)
-
         parameters.put(OAUTH_NONCE, oauthNonce)
-        //
         parameters.put(OAUTH_TIMESTAMP, oauthTimestamp)
-        //
         parameters.put(OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD_VALUE)
-        //
         parameters.put(OAUTH_VERSION, OAUTH_VERSION_VALUE)
-        //
         parameters.put(OAUTH_SIGNATURE, getSignature(parameters, request))
 
         val entrySet = parameters.entries
@@ -176,7 +169,7 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
 
         for (i in 0 until querySize) {
             Log.d("参数们: ", httpUrl.queryParameterName(i) + ": " + httpUrl.queryParameterValue(i))
-            queryParams.put(httpUrl.queryParameterName(i), UrlEscapeUtils.escape(httpUrl.queryParameterValue(i)))
+            queryParams.put(httpUrl.queryParameterName(i), httpUrl.queryParameterValue(i))
         }
         params.putAll(parameters)
         params.putAll(queryParams)
