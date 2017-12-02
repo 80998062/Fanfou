@@ -59,7 +59,9 @@ public final class UrlEscapeUtils {
      *                                  escaped for any other reason
      */
     public static String escape(String string) {
-        checkNotNull(string, string+"string == null");
+        if (string == null) {
+            return null;
+        }
         int slen = string.length();
         for (int index = 0; index < slen; index++) {
             char c = string.charAt(index);

@@ -31,6 +31,7 @@ import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -45,8 +46,8 @@ class TimelineViewModel @Inject constructor(
     internal val accountRelay: PreferenceAwareLiveData<String> = PreferenceAwareLiveData(preferences.getString(UNIQUE_ID))
 
 
-    internal fun timeline(uniqueId: String): LiveData<PagedList<Status>> =
-            repository.homeTimeline(uniqueId).create(
+    internal fun timeline(): LiveData<PagedList<Status>> =
+            repository.homeTimeline().create(
                     0,
                     PagedList.Config.Builder()
                             .setEnablePlaceholders(true)
@@ -54,7 +55,10 @@ class TimelineViewModel @Inject constructor(
                             .setPrefetchDistance(PAGE_SIZE)
                             .build())
 
-    fun fetchTimeline(type: String, id: String, since: String?, max: String?) = repository.fetchTimeline(type, id, since, max)
+    fun fetchTimeline(path: String, playerId: String?, since: String?, max: String?): Single<List<Status>> {
+
+        return repository.fetchTimeline(path, since, max)
+    }
 
 
 }

@@ -35,16 +35,15 @@ import retrofit2.http.Query
 interface RestAPI {
 
     @GET("users/show.json?format=html")
-    fun user_show(         @Query("id") uniqueId: String): Single<Response<Player>>
+    fun user_show(@Query("id") uniqueId: String): Single<Response<Player>>
 
 
     @POST("account/update_profile.json")
     fun update_profile(): Single<Response<Player>>
 
 
-    @GET("statuses/{type}.json?count=60&format=html")
-    fun fetch_statuses(@Path("type") type: String,
-                       @Query("id") target: String,
+    @GET("statuses/{path}.json?count=60&format=html")
+    fun fetch_statuses(@Path("path") path: String,
                        @Query("since_id") since: String?,
                        @Query("max_id") max: String?): Single<Response<List<Status>>>
 }

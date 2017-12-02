@@ -58,7 +58,7 @@ class HomeView : AbstractLazyFragment(), Injectable {
             })
         }
 
-        val f = TimelineView.newInstance(TIMELINE_HOME)
+        val f = TimelineView.newInstance(TIMELINE_HOME, null)
         addFragmentInFragment(f, R.id.fragment_container, false)
         f.userVisibleHint = true
     }

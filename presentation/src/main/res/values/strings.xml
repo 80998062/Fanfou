@@ -10,4 +10,6 @@
     <string name="name_new_account">新账号</string>
     <string name="hint_add_new_account_emoji">( •̀ .̫ •́ )✧</string>
     <string name="action_add">添加</string>
+    <string name="status_fetch_succeed_format">%d条新状态</string>
+    <string name="status_fetch_no_new_data">还没有新的状态</string>
 </resources>

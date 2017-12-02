@@ -23,23 +23,20 @@ package com.sinyuk.fanfou.domain.entities
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class PlayerExtracts constructor() {
-    var uniqueId: String = ""
-    var playerId: String = ""
-    var playerScreenName: String = ""
-    var playerProfileImageUrl: String = ""
-    var playerProfileImageUrlLarge: String = ""
-    var playerProfileBackgroundImageUrl: String? = ""
+data class PlayerExtracts constructor(
+        var uniqueId: String = "",
+        var id: String = "",
+        var screenName: String? = "",
+        var profileImageUrl: String? = "",
+        var profileImageUrlLarge: String? = "",
+        var profileBackgroundImageUrl: String? = "") {
 
-    constructor(player: Player?) : this() {
-        player?.let {
-            it.uniqueId = uniqueId
-            it.id = playerId
-            it.screenName = playerScreenName
-            it.profileImageUrl = playerProfileImageUrl
-            it.profileImageUrlLarge = playerProfileImageUrlLarge
-            it.profileBackgroundImageUrl = playerProfileBackgroundImageUrl
-        }
-    }
-
+    constructor(player: Player) : this(
+            uniqueId = player.uniqueId,
+            id = player.id,
+            screenName = player.screenName,
+            profileImageUrl = player.profileImageUrl,
+            profileImageUrlLarge = player.profileImageUrlLarge,
+            profileBackgroundImageUrl = player.profileBackgroundImageUrl
+    )
 }

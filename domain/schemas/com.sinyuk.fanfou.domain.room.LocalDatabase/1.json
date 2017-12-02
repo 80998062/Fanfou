@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7f0443016c8b2f7d53770419e06cabda",
+    "identityHash": "e391d266ad9814d67c47f779e9a2b2a6",
     "entities": [
       {
         "tableName": "players",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `screenName` TEXT NOT NULL, `location` TEXT NOT NULL, `gender` TEXT NOT NULL, `birthday` TEXT NOT NULL, `description` TEXT NOT NULL, `profileImageUrl` TEXT NOT NULL, `profileImageUrlLarge` TEXT NOT NULL, `url` TEXT NOT NULL, `protectedX` INTEGER NOT NULL, `followersCount` INTEGER NOT NULL, `friendsCount` INTEGER NOT NULL, `favouritesCount` INTEGER NOT NULL, `statusesCount` INTEGER NOT NULL, `photoCount` INTEGER NOT NULL, `following` INTEGER NOT NULL, `notifications` INTEGER NOT NULL, `createdAt` INTEGER, `profileBackgroundImageUrl` TEXT, PRIMARY KEY(`uniqueId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT, `screenName` TEXT, `location` TEXT, `gender` TEXT, `birthday` TEXT, `description` TEXT, `profileImageUrl` TEXT, `profileImageUrlLarge` TEXT, `url` TEXT, `protectedX` INTEGER, `followersCount` INTEGER, `friendsCount` INTEGER, `favouritesCount` INTEGER, `statusesCount` INTEGER, `photoCount` INTEGER, `following` INTEGER, `notifications` INTEGER, `createdAt` INTEGER, `profileBackgroundImageUrl` TEXT, PRIMARY KEY(`uniqueId`))",
         "fields": [
           {
             "fieldPath": "uniqueId",
@@ -24,103 +24,103 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "screenName",
             "columnName": "screenName",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "location",
             "columnName": "location",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "gender",
             "columnName": "gender",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "birthday",
             "columnName": "birthday",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "description",
             "columnName": "description",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "profileImageUrl",
             "columnName": "profileImageUrl",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "profileImageUrlLarge",
             "columnName": "profileImageUrlLarge",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "url",
             "columnName": "url",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "protectedX",
             "columnName": "protectedX",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "followersCount",
             "columnName": "followersCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "friendsCount",
             "columnName": "friendsCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "favouritesCount",
             "columnName": "favouritesCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "statusesCount",
             "columnName": "statusesCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "photoCount",
             "columnName": "photoCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "following",
             "columnName": "following",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "notifications",
             "columnName": "notifications",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "createdAt",
@@ -163,7 +163,7 @@
       },
       {
         "tableName": "registrations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT, `password` TEXT, `loggedAt` INTEGER, `token` TEXT, `secret` TEXT, PRIMARY KEY(`uniqueId`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT, `password` TEXT, `loggedAt` INTEGER, `token` TEXT, `secret` TEXT, PRIMARY KEY(`uniqueId`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "uniqueId",
@@ -229,7 +229,7 @@
         "foreignKeys": [
           {
             "table": "players",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "uniqueId"
@@ -242,7 +242,7 @@
       },
       {
         "tableName": "statuses",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToUserId` TEXT, `favorited` INTEGER NOT NULL, `inReplyToScreenName` TEXT, `isSelf` INTEGER NOT NULL, `repostUserId` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `uniqueId` TEXT, `playerId` TEXT, `playerScreenName` TEXT, `playerProfileImageUrl` TEXT, `playerProfileImageUrlLarge` TEXT, `playerProfileBackgroundImageUrl` TEXT, `url` TEXT, `imageurl` TEXT, `thumburl` TEXT, `largeurl` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToScreenName` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `isSelf` INTEGER NOT NULL, `favorited` INTEGER NOT NULL, `collectorIds` TEXT, `repostUserId` TEXT, `inReplyToUserId` TEXT, `playeruniqueId` TEXT, `playerid` TEXT, `playerscreenName` TEXT, `playerprofileImageUrl` TEXT, `playerprofileImageUrlLarge` TEXT, `playerprofileBackgroundImageUrl` TEXT, `photourl` TEXT, `photoimageurl` TEXT, `photothumburl` TEXT, `photolargeurl` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -275,32 +275,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "inReplyToUserId",
-            "columnName": "inReplyToUserId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "favorited",
-            "columnName": "favorited",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "inReplyToScreenName",
             "columnName": "inReplyToScreenName",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "isSelf",
-            "columnName": "isSelf",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "repostUserId",
-            "columnName": "repostUserId",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -329,62 +305,92 @@
             "notNull": false
           },
           {
+            "fieldPath": "isSelf",
+            "columnName": "isSelf",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "favorited",
+            "columnName": "favorited",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "collectorIds",
+            "columnName": "collectorIds",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "repostUserId",
+            "columnName": "repostUserId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inReplyToUserId",
+            "columnName": "inReplyToUserId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "playerExtracts.uniqueId",
-            "columnName": "uniqueId",
+            "columnName": "playeruniqueId",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "playerExtracts.playerId",
-            "columnName": "playerId",
+            "fieldPath": "playerExtracts.id",
+            "columnName": "playerid",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "playerExtracts.playerScreenName",
-            "columnName": "playerScreenName",
+            "fieldPath": "playerExtracts.screenName",
+            "columnName": "playerscreenName",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "playerExtracts.playerProfileImageUrl",
-            "columnName": "playerProfileImageUrl",
+            "fieldPath": "playerExtracts.profileImageUrl",
+            "columnName": "playerprofileImageUrl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "playerExtracts.playerProfileImageUrlLarge",
-            "columnName": "playerProfileImageUrlLarge",
+            "fieldPath": "playerExtracts.profileImageUrlLarge",
+            "columnName": "playerprofileImageUrlLarge",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "playerExtracts.playerProfileBackgroundImageUrl",
-            "columnName": "playerProfileBackgroundImageUrl",
+            "fieldPath": "playerExtracts.profileBackgroundImageUrl",
+            "columnName": "playerprofileBackgroundImageUrl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "photos.url",
-            "columnName": "url",
+            "columnName": "photourl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "photos.imageurl",
-            "columnName": "imageurl",
+            "columnName": "photoimageurl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "photos.thumburl",
-            "columnName": "thumburl",
+            "columnName": "photothumburl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "photos.largeurl",
-            "columnName": "largeurl",
+            "columnName": "photolargeurl",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -397,25 +403,123 @@
         },
         "indices": [
           {
-            "name": "index_statuses_id_uniqueId",
+            "name": "index_statuses_id_createdAt",
             "unique": false,
             "columnNames": [
               "id",
-              "uniqueId"
+              "createdAt"
             ],
-            "createSql": "CREATE  INDEX `index_statuses_id_uniqueId` ON `${TABLE_NAME}` (`id`, `uniqueId`)"
+            "createSql": "CREATE  INDEX `index_statuses_id_createdAt` ON `${TABLE_NAME}` (`id`, `createdAt`)"
           }
         ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "player_status",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `i` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "playerId",
+            "columnName": "playerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusId",
+            "columnName": "statusId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "i",
+            "columnName": "i",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "i"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
         "foreignKeys": [
           {
             "table": "players",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "uniqueId"
+              "playerId"
             ],
             "referencedColumns": [
               "uniqueId"
+            ]
+          },
+          {
+            "table": "statuses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "statusId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "player_like",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `i` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "playerId",
+            "columnName": "playerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusId",
+            "columnName": "statusId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "i",
+            "columnName": "i",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "i"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "players",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "playerId"
+            ],
+            "referencedColumns": [
+              "uniqueId"
+            ]
+          },
+          {
+            "table": "statuses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "statusId"
+            ],
+            "referencedColumns": [
+              "id"
             ]
           }
         ]
@@ -423,7 +527,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7f0443016c8b2f7d53770419e06cabda\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e391d266ad9814d67c47f779e9a2b2a6\")"
     ]
   }
 }

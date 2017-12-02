@@ -30,7 +30,10 @@ import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.domain.utils.XauthUtils
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import okhttp3.*
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -42,8 +45,8 @@ import java.util.concurrent.TimeUnit
  * Created by sinyuk on 2017/11/28.
  */
 class RemoteDataSource constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) : RemoteTasks {
-    override fun fetchTimeline(type: String, target: String, since: String?, max: String?): Single<List<Status>> =
-            restAPI.fetch_statuses(type, target, since, max).map(ErrorCheckFunction(gson))
+    override fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>> =
+            restAPI.fetch_statuses(path, since, max).map(ErrorCheckFunction(gson))
 
     override fun updateProfile(): Single<Player> = restAPI.update_profile().map(ErrorCheckFunction(gson))
 
@@ -94,8 +97,6 @@ class RemoteDataSource constructor(application: Application, endpoint: Endpoint,
         logging.level = HttpLoggingInterceptor.Level.BODY
 
         okHttpClient = OkHttpClient.Builder()
-                .cache(Cache(application.getExternalFilesDir("http_cache"), MAX_HTTP_CACHE))
-                .addInterceptor(interceptor)
                 .addNetworkInterceptor(interceptor)
                 .addInterceptor(logging)
                 .addNetworkInterceptor(StethoInterceptor())

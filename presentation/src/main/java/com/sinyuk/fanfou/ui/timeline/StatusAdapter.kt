@@ -32,19 +32,64 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class StatusAdapter : PagedListAdapter<Status, StatusAdapter.StatusViewHolder>(DIFF_CALLBACK) {
-    override fun onBindViewHolder(holder: StatusViewHolder, position: Int) {
-        val status = getItem(position)
-        if (status == null) {
-            // Null defines a placeholder item - PagedListAdapter will automatically invalidate
-            // this row when the actual object is loaded from the database
-            holder.clear()
-        } else {
-            holder.bindTo(status)
+class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder.itemViewType == TYPE_DATA) {
+            holder as StatusViewHolder
+            val status = getItem(position)
+            if (status == null) {
+                // Null defines a placeholder item - PagedListAdapter will automatically invalidate
+                // this row when the actual object is loaded from the database
+                holder.clear()
+            } else {
+                holder.bindTo(status)
+            }
+        } else if (holder.itemViewType == TYPE_FOOTER) {
+
+        }
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+            if (viewType == TYPE_DATA) {
+                StatusViewHolder(parent)
+            } else {
+                FooterViewHolder(parent)
+            }
+
+
+    fun addFooter() {
+        if (!hasFooter) {
+            hasFooter = true
+            notifyItemInserted(currentList?.size ?: 0)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusViewHolder = StatusViewHolder(parent)
+    fun removeFooter() {
+        if (hasFooter) {
+            hasFooter = false
+            notifyItemRemoved(currentList?.size ?: 0)
+        }
+    }
+
+    private var hasFooter = false
+
+    override fun getItemCount(): Int = if (hasFooter) {
+        (currentList?.size ?: 0) + 1
+    } else {
+        currentList?.size ?: 0
+    }
+
+
+    private val TYPE_FOOTER = Int.MAX_VALUE
+    private val TYPE_DATA = 0
+    override fun getItemViewType(position: Int): Int = if (position == currentList?.size ?: 0) {
+        TYPE_FOOTER
+    } else {
+        TYPE_DATA
+    }
 
 
     class StatusViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
@@ -59,12 +104,16 @@ class StatusAdapter : PagedListAdapter<Status, StatusAdapter.StatusViewHolder>(D
 
         fun bindTo(status: Status) {
             itemView.avatar.setImageResource(R.mipmap.ic_launcher_round)
-            itemView.screenName.text = status.user?.screenName
+            itemView.screenName.text = status.playerExtracts?.screenName
             itemView.content.text = status.text
-            itemView.createdAt.text = status.createdAt?.toLocaleString()
+            itemView.createdAt.text = status.createdAt?.toString()
             itemView.image.setImageResource(R.mipmap.ic_launcher_round)
         }
     }
+
+
+    class FooterViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_footer, parent, false))
 
 
     companion object {

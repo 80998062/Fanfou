@@ -33,8 +33,14 @@ interface PlayerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(player: Player): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun inserts(players: List<Player>): List<Long>
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(players: List<Player>): Int
+    fun update(player: Player): Int
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updates(players: List<Player>): Int
 
     @Delete
     fun delete(player: Player): Int

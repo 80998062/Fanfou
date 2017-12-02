@@ -35,17 +35,40 @@ interface LocalTasks {
 
     fun deleteRegistration(uniqueId: String): Int
 
+    fun insertRegistration(uniqueId: String, account: String, password: String, authorization: Authorization): Long
+
+
+    // player
+
+
     fun queryPlayer(uniqueId: String): LiveData<Player>
 
     fun queryAdmins(): LiveData<List<Player>>
 
-    fun insertRegistration(uniqueId: String, account: String, password: String, authorization: Authorization): Long
-
     fun insertPlayer(player: Player): Long
 
-    fun insertPlayers(players: List<Player>): Int
+    fun insertPlayers(players: List<Player>): List<Long>
+
+    fun updatePlayer(player: Player): Int
+
+    fun updatePlayers(players: List<Player>): Int
+
+    // status
 
     fun homeTimeline(uniqueId: String): LivePagedListProvider<Int, Status>
 
-    fun saveStatuses(statuses: List<Status>):List<Long>
+    fun queryStatus(id: String): Status?
+
+    fun insertStatuses(statuses: List<Status>): List<Long>
+
+    fun insertStatus(status: Status): Long
+
+    fun updateStatuses(statuses: List<Status>): Int
+
+    fun updateStatus(status: Status): Int
+
+    fun mapPlayerAndStatus(playerId: String, statusId: String): Long
+
+    fun mapPlayerAndLike(playerId: String, statusId: String): Long
+
 }

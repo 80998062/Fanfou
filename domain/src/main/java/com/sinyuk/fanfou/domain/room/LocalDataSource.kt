@@ -23,9 +23,7 @@ package com.sinyuk.fanfou.domain.room
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.paging.LivePagedListProvider
-import com.sinyuk.fanfou.domain.entities.Player
-import com.sinyuk.fanfou.domain.entities.Registration
-import com.sinyuk.fanfou.domain.entities.Status
+import com.sinyuk.fanfou.domain.entities.*
 import com.sinyuk.fanfou.domain.rest.Authorization
 import java.util.*
 
@@ -33,9 +31,25 @@ import java.util.*
  * Created by sinyuk on 2017/11/28.
  */
 class LocalDataSource constructor(private val application: Application, private val database: LocalDatabase) : LocalTasks {
-    override fun saveStatuses(statuses: List<Status>) = database.statusDao().insert(statuses)
 
-    override fun homeTimeline(uniqueId: String): LivePagedListProvider<Int, Status> = database.statusDao().queryById(uniqueId)
+    override fun mapPlayerAndLike(playerId: String, statusId: String) =
+            database.playerAndLikeDao().insert(PlayerAndLike(playerId, statusId))
+
+    override fun mapPlayerAndStatus(playerId: String, statusId: String): Long =
+            database.playerAndStatusDao().insert(PlayerAndStatus(playerId, statusId))
+
+    override fun queryStatus(id: String) = database.statusDao().query(id)
+
+    override fun insertStatus(status: Status): Long = database.statusDao().insert(status)
+
+    override fun insertStatuses(statuses: List<Status>) = database.statusDao().inserts(statuses)
+
+    override fun updateStatuses(statuses: List<Status>) = database.statusDao().updates(statuses)
+
+    override fun updateStatus(status: Status) = database.statusDao().update(status)
+
+    override fun homeTimeline(uniqueId: String): LivePagedListProvider<Int, Status> =
+            database.playerAndStatusDao().query(uniqueId)
 
     override fun queryRegistration(uniqueId: String): Registration? = database.registrationDao().query(uniqueId)
 
@@ -56,8 +70,12 @@ class LocalDataSource constructor(private val application: Application, private 
                     authorization.token,
                     authorization.secret))
 
-    override fun insertPlayer(player: Player): Long = database.playerDao().insert(player)
+    override fun insertPlayer(player: Player) = database.playerDao().insert(player)
 
-    override fun insertPlayers(players: List<Player>): Int = database.playerDao().insertAll(players)
+    override fun insertPlayers(players: List<Player>) = database.playerDao().inserts(players)
+
+    override fun updatePlayer(player: Player) = database.playerDao().update(player)
+
+    override fun updatePlayers(players: List<Player>): Int = database.playerDao().updates(players)
 
 }

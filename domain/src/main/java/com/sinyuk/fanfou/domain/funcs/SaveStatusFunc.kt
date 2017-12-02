@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.funcs
 
+import android.util.Log
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.entities.PlayerExtracts
 import com.sinyuk.fanfou.domain.entities.Status
@@ -29,10 +30,12 @@ import io.reactivex.functions.Function
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class SaveStatusFunc constructor(val localTasks: LocalTasks, val type: String, val id: String) : Function<List<Status>, List<Status>> {
+class SaveStatusFunc constructor(private val localTasks: LocalTasks,
+                                 private val path: String,
+                                 private val currentUser: String) : Function<List<Status>, List<Status>> {
 
     override fun apply(t: List<Status>): List<Status> {
-        when (type) {
+        when (path) {
             TIMELINE_HOME -> saveInDatabase(t)
         }
 
@@ -40,9 +43,31 @@ class SaveStatusFunc constructor(val localTasks: LocalTasks, val type: String, v
     }
 
     private fun saveInDatabase(t: List<Status>) {
+        Log.d(this@SaveStatusFunc::class.java.simpleName, "获取到" + t.size + "条消息")
+        var count = 0
         for (status in t) {
-            status.playerExtracts = PlayerExtracts(status.user)
+            // add user extras data to database
+            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+
+            if (status.favorited) {
+                val localStatus = localTasks.queryStatus(status.id)
+
+                if (localStatus == null) {
+                    status.addCollector(currentUser)
+                    localTasks.insertStatus(status)
+                } else {
+                    status.collectorIds = localStatus.collectorIds
+                    status.addCollector(currentUser)
+                    localTasks.updateStatus(status)
+                }
+            }
+
+            // make sure insert status first to get foreign key worked
+            // mapper current player to this status
+            localTasks.mapPlayerAndStatus(currentUser, status.id)
+            localTasks.mapPlayerAndLike(currentUser, status.id)
+            count++
         }
-        localTasks.saveStatuses(t)
+        Log.d(this@SaveStatusFunc::class.java.simpleName, "保存了" + count + "条消息")
     }
 }

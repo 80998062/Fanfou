@@ -122,11 +122,11 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取公共消息的缓存
      */
-    fun homeTimeline(uniqueId: String) = localTasks.homeTimeline(uniqueId)
+    fun homeTimeline() = localTasks.homeTimeline(preferences.getString(UNIQUE_ID).get())
 
-    fun fetchTimeline(type: String, id: String, since: String?, max: String?): Single<List<Status>> {
-        return remoteTasks.fetchTimeline(type, id, since, max)
-                .map(SaveStatusFunc(localTasks, type, id))
+    fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>> {
+        return remoteTasks.fetchTimeline(path, since, max)
+                .map(SaveStatusFunc(localTasks, path, preferences.getString(UNIQUE_ID).get()))
                 .subscribeOn(Schedulers.computation())
     }
 

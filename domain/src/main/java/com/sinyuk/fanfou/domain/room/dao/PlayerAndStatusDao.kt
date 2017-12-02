@@ -18,22 +18,25 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.rest
+package com.sinyuk.fanfou.domain.room.dao
 
-import com.sinyuk.fanfou.domain.entities.Player
+import android.arch.paging.LivePagedListProvider
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.Query
+import com.sinyuk.fanfou.domain.entities.PlayerAndStatus
 import com.sinyuk.fanfou.domain.entities.Status
-import io.reactivex.Single
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/12/2.
  */
-interface RemoteTasks {
-    fun requestToken(account: String, password: String): Single<Authorization?>
+@Dao
+interface PlayerAndStatusDao {
+    @Insert
+    fun insert(mapper: PlayerAndStatus): Long
 
-    fun updateProfile(): Single<Player>
-
-    fun fetchPlayer(uniqueId:String): Single<Player>
-
-    fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>>
-
+    @Query("SELECT * from statuses WHERE id IN " +
+            "(SELECT statusId from player_status WHERE playerId = :uniqueId)" +
+            "ORDER BY createdAt DESC, id ASC")
+    fun query(uniqueId: String): LivePagedListProvider<Int, Status>
 }
