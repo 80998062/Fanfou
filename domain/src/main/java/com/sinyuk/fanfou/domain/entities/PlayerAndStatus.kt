@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.domain.entities
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.ForeignKey.CASCADE
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
 
@@ -30,10 +31,11 @@ import android.support.annotation.NonNull
  * Created by sinyuk on 2017/12/2.
  */
 @Entity(tableName = "player_status",
+        indices = arrayOf(Index("playerId"),Index("statusId")),
         foreignKeys = arrayOf(
                 ForeignKey(onDelete = CASCADE, entity = Player::class, parentColumns = arrayOf("uniqueId"), childColumns = arrayOf("playerId")),
                 ForeignKey(onDelete = CASCADE, entity = Status::class, parentColumns = arrayOf("id"), childColumns = arrayOf("statusId"))))
 data class PlayerAndStatus constructor(
         var playerId: String = "",
         var statusId: String = "",
-        @NonNull @PrimaryKey(autoGenerate = true) var i: Int = 1)
+        @NonNull @PrimaryKey var pk: String = "")

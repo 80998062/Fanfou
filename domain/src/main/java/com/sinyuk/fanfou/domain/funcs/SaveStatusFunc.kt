@@ -22,52 +22,61 @@ package com.sinyuk.fanfou.domain.funcs
 
 import android.util.Log
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.domain.entities.PlayerAndLike
+import com.sinyuk.fanfou.domain.entities.PlayerAndStatus
 import com.sinyuk.fanfou.domain.entities.PlayerExtracts
 import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.domain.room.LocalTasks
+import com.sinyuk.fanfou.domain.room.LocalDatabase
 import io.reactivex.functions.Function
 
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class SaveStatusFunc constructor(private val localTasks: LocalTasks,
+class SaveStatusFunc constructor(private val database: LocalDatabase,
                                  private val path: String,
                                  private val currentUser: String) : Function<List<Status>, List<Status>> {
 
     override fun apply(t: List<Status>): List<Status> {
         when (path) {
-            TIMELINE_HOME -> saveInDatabase(t)
+            TIMELINE_HOME -> saveInDatabase(t, database, currentUser)
         }
 
         return t
     }
 
-    private fun saveInDatabase(t: List<Status>) {
-        Log.d(this@SaveStatusFunc::class.java.simpleName, "获取到" + t.size + "条消息")
-        var count = 0
-        for (status in t) {
-            // add user extras data to database
-            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+    companion object {
+        fun saveInDatabase(t: List<Status>, database: LocalDatabase, currentUser: String) {
+            Log.d(SaveStatusFunc::class.java.simpleName, "获取到" + t.size + "条消息")
+            var count = 0
+            for (status in t) {
+                // add user extras data to database
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
 
-            if (status.favorited) {
-                val localStatus = localTasks.queryStatus(status.id)
-
-                if (localStatus == null) {
-                    status.addCollector(currentUser)
-                    localTasks.insertStatus(status)
+                if (status.favorited) {
+                    val localStatus = database.statusDao().query(status.id)
+                    if (localStatus == null) {
+                        status.addCollector(currentUser)
+                        database.statusDao().insert(status)
+                        count++
+                    } else {
+                        status.collectorIds = localStatus.collectorIds
+                        status.addCollector(currentUser)
+                        count += database.statusDao().update(status)
+                    }
                 } else {
-                    status.collectorIds = localStatus.collectorIds
-                    status.addCollector(currentUser)
-                    localTasks.updateStatus(status)
+                    database.statusDao().insert(status)
+                    count++
+                }
+
+                // make sure insert status first to get foreign key worked
+                // mapper current player to this status
+                database.playerAndStatusDao().insert(PlayerAndStatus(currentUser, status.id))
+
+                if (status.favorited) {
+                    database.playerAndLikeDao().insert(PlayerAndLike(currentUser, status.id))
                 }
             }
-
-            // make sure insert status first to get foreign key worked
-            // mapper current player to this status
-            localTasks.mapPlayerAndStatus(currentUser, status.id)
-            localTasks.mapPlayerAndLike(currentUser, status.id)
-            count++
+            Log.d(SaveStatusFunc::class.java.simpleName, "保存了" + count + "条消息")
         }
-        Log.d(this@SaveStatusFunc::class.java.simpleName, "保存了" + count + "条消息")
     }
 }

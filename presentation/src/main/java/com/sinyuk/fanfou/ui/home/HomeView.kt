@@ -51,16 +51,18 @@ class HomeView : AbstractLazyFragment(), Injectable {
     var adminLive: LiveData<Player>? = null
 
     override fun lazyDo() {
+
+        val f = TimelineView.newInstance(TIMELINE_HOME, null)
+        addFragmentInFragment(f, R.id.fragment_container, false)
+
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java).apply {
             accountRelay.observe(this@HomeView, Observer<String> {
                 adminLive?.removeObserver(adminOB)
                 adminLive = admin(it).apply { observe(this@HomeView, adminOB) }
             })
+            f.userVisibleHint = true
         }
 
-        val f = TimelineView.newInstance(TIMELINE_HOME, null)
-        addFragmentInFragment(f, R.id.fragment_container, false)
-        f.userVisibleHint = true
     }
 
     private val adminOB: Observer<Player> = Observer { t ->

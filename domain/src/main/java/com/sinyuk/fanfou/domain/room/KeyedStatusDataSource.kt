@@ -22,43 +22,28 @@ package com.sinyuk.fanfou.domain.room
 
 import android.annotation.SuppressLint
 import android.arch.paging.KeyedDataSource
-import android.arch.persistence.room.InvalidationTracker
-import android.support.annotation.NonNull
+import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.domain.room.dao.StatusDao
 
 
 /**
  * Created by sinyuk on 2017/12/1.
  */
 @SuppressLint("RestrictedApi")
-class KeyedStatusDataSource constructor(private val database: LocalDatabase) : KeyedDataSource<String, Status>() {
-    private val statusDao: StatusDao = database.statusDao()
-    @SuppressWarnings("FieldCanBeLocal")
-    private val observer: InvalidationTracker.Observer = object : InvalidationTracker.Observer("statuses") {
-        override fun onInvalidated(@NonNull tables: Set<String>) {
-            // the table has been invalidated, invalidate the DataSource
-            invalidate()
-        }
-    }
+class KeyedStatusDataSource constructor(private val repository: Repository, private val path: String) : KeyedDataSource<String, Status>() {
 
-    init {
-        database.invalidationTracker.addWeakObserver(observer)
-    }
 
     override fun isInvalid(): Boolean {
-        database.invalidationTracker.refreshVersionsAsync()
         return super.isInvalid()
     }
 
 
-    override fun loadBefore(currentBeginKey: String, pageSize: Int): MutableList<Status> =
-            statusDao.idLoadBefore(currentBeginKey, pageSize)
+    override fun loadBefore(currentBeginKey: String, pageSize: Int) = repository.loadTimelineBefore(path, currentBeginKey, pageSize)
 
-    override fun loadAfter(currentEndKey: String, pageSize: Int): MutableList<Status> =
-            statusDao.idLoadAfter(currentEndKey, pageSize)
 
-    override fun loadInitial(pageSize: Int): MutableList<Status> = statusDao.initial(pageSize)
+    override fun loadAfter(currentEndKey: String, pageSize: Int) = repository.loadTimelineAfter(path, currentEndKey, pageSize)
+
+    override fun loadInitial(pageSize: Int): MutableList<Status> = repository.loadTimelineInitial(path, pageSize)
 
 
     override fun getKey(item: Status): String = item.id

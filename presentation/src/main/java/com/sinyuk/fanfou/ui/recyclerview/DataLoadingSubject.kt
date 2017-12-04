@@ -18,25 +18,20 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.rest
-
-import com.sinyuk.fanfou.domain.entities.Player
-import com.sinyuk.fanfou.domain.entities.Status
-import io.reactivex.Single
+package com.sinyuk.fanfou.ui.recyclerview
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * An interface for classes offering data loading state to be observed.
  */
-interface RemoteTasks {
-    fun requestToken(account: String, password: String): Single<Authorization?>
+interface DataLoadingSubject {
+    val isDataLoading: Boolean
+    fun registerCallback(callbacks: DataLoadingCallbacks)
+    fun unregisterCallback(callbacks: DataLoadingCallbacks)
 
-    fun updateProfile(): Single<Player>
-
-    fun fetchPlayer(uniqueId: String): Single<Player>
-
-    fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>>
-
-
-    fun fetchTimelineCall(path: String, since: String?, max: String?): MutableList<Status>?
-
+    interface DataLoadingCallbacks {
+        fun loadMoreStarted()
+        fun loadMoreFailed(e: Throwable)
+        fun loadMoreGone()
+        fun loadMoreFinished()
+    }
 }

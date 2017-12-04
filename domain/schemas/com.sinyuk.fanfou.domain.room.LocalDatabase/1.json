@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e391d266ad9814d67c47f779e9a2b2a6",
+    "identityHash": "1ee53318c556dbdb369e6268bd222ecf",
     "entities": [
       {
         "tableName": "players",
@@ -242,7 +242,7 @@
       },
       {
         "tableName": "statuses",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToScreenName` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `isSelf` INTEGER NOT NULL, `favorited` INTEGER NOT NULL, `collectorIds` TEXT, `repostUserId` TEXT, `inReplyToUserId` TEXT, `playeruniqueId` TEXT, `playerid` TEXT, `playerscreenName` TEXT, `playerprofileImageUrl` TEXT, `playerprofileImageUrlLarge` TEXT, `playerprofileBackgroundImageUrl` TEXT, `photourl` TEXT, `photoimageurl` TEXT, `photothumburl` TEXT, `photolargeurl` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToScreenName` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `favorited` INTEGER NOT NULL, `collectorIds` TEXT, `repostUserId` TEXT, `inReplyToUserId` TEXT, `playeruniqueId` TEXT, `playerid` TEXT, `playerscreenName` TEXT, `playerprofileImageUrl` TEXT, `playerprofileImageUrlLarge` TEXT, `playerprofileBackgroundImageUrl` TEXT, `photourl` TEXT, `photoimageurl` TEXT, `photothumburl` TEXT, `photolargeurl` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -303,12 +303,6 @@
             "columnName": "createdAt",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "isSelf",
-            "columnName": "isSelf",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "favorited",
@@ -416,7 +410,7 @@
       },
       {
         "tableName": "player_status",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `i` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `pk` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "playerId",
@@ -431,19 +425,36 @@
             "notNull": true
           },
           {
-            "fieldPath": "i",
-            "columnName": "i",
-            "affinity": "INTEGER",
+            "fieldPath": "pk",
+            "columnName": "pk",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "i"
+            "pk"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_player_status_playerId",
+            "unique": false,
+            "columnNames": [
+              "playerId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_status_playerId` ON `${TABLE_NAME}` (`playerId`)"
+          },
+          {
+            "name": "index_player_status_statusId",
+            "unique": false,
+            "columnNames": [
+              "statusId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_status_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "players",
@@ -471,7 +482,7 @@
       },
       {
         "tableName": "player_like",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `i` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `pk` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "playerId",
@@ -486,19 +497,36 @@
             "notNull": true
           },
           {
-            "fieldPath": "i",
-            "columnName": "i",
-            "affinity": "INTEGER",
+            "fieldPath": "pk",
+            "columnName": "pk",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "i"
+            "pk"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_player_like_playerId",
+            "unique": false,
+            "columnNames": [
+              "playerId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_like_playerId` ON `${TABLE_NAME}` (`playerId`)"
+          },
+          {
+            "name": "index_player_like_statusId",
+            "unique": false,
+            "columnNames": [
+              "statusId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_like_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "players",
@@ -527,7 +555,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e391d266ad9814d67c47f779e9a2b2a6\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1ee53318c556dbdb369e6268bd222ecf\")"
     ]
   }
 }

@@ -26,7 +26,6 @@ import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.rest.Endpoint
 import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteDataSource
-import com.sinyuk.fanfou.domain.room.LocalDataSource
 import com.sinyuk.fanfou.domain.room.LocalDatabase
 import dagger.Module
 import dagger.Provides

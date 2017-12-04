@@ -36,8 +36,6 @@ class GlobalErrorHandler constructor(private val application: Application) : Con
 
     override fun accept(e: Throwable?) {
         e?.let {
-            e.printStackTrace()
-
             if (e is VisibleThrowable) {
                 Toast.makeText(application, e.message, Toast.LENGTH_SHORT).show()
                 return

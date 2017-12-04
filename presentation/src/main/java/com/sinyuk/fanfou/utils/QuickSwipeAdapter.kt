@@ -22,11 +22,8 @@ package com.sinyuk.fanfou.utils
 
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
-import com.daimajia.swipe.SwipeLayout
-import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.interfaces.SwipeAdapterInterface
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
-import com.daimajia.swipe.util.Attributes
 
 /**
  * @author sinyuk
@@ -35,47 +32,47 @@ import com.daimajia.swipe.util.Attributes
 
 abstract class QuickSwipeAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K>, SwipeItemMangerInterface, SwipeAdapterInterface {
 
-    private var mItemManger = SwipeItemRecyclerMangerImpl(this)
-
-    override fun openItem(position: Int) {
-        mItemManger.openItem(position)
-    }
-
-    override fun closeItem(position: Int) {
-        mItemManger.closeItem(position)
-    }
-
-    override fun closeAllExcept(layout: SwipeLayout) {
-        mItemManger.closeAllExcept(layout)
-    }
-
-    override fun closeAllItems() {
-        mItemManger.closeAllItems()
-    }
-
-    override fun getOpenItems(): List<Int> {
-        return mItemManger.openItems
-    }
-
-    override fun getOpenLayouts(): List<SwipeLayout> {
-        return mItemManger.openLayouts
-    }
-
-    override fun removeShownLayouts(layout: SwipeLayout) {
-        mItemManger.removeShownLayouts(layout)
-    }
-
-    override fun isOpen(position: Int): Boolean {
-        return mItemManger.isOpen(position)
-    }
-
-    override fun getMode(): Attributes.Mode {
-        return mItemManger.mode
-    }
-
-    override fun setMode(mode: Attributes.Mode) {
-        mItemManger.mode = mode
-    }
+//    private var mItemManger = SwipeItemRecyclerMangerImpl(this@QuickSwipeAdapter)
+//
+//    override fun openItem(position: Int) {
+//        mItemManger.openItem(position)
+//    }
+//
+//    override fun closeItem(position: Int) {
+//        mItemManger.closeItem(position)
+//    }
+//
+//    override fun closeAllExcept(layout: SwipeLayout) {
+//        mItemManger.closeAllExcept(layout)
+//    }
+//
+//    override fun closeAllItems() {
+//        mItemManger.closeAllItems()
+//    }
+//
+//    override fun getOpenItems(): List<Int> {
+//        return mItemManger.openItems
+//    }
+//
+//    override fun getOpenLayouts(): List<SwipeLayout> {
+//        return mItemManger.openLayouts
+//    }
+//
+//    override fun removeShownLayouts(layout: SwipeLayout) {
+//        mItemManger.removeShownLayouts(layout)
+//    }
+//
+//    override fun isOpen(position: Int): Boolean {
+//        return mItemManger.isOpen(position)
+//    }
+//
+//    override fun getMode(): Attributes.Mode {
+//        return mItemManger.mode
+//    }
+//
+//    override fun setMode(mode: Attributes.Mode) {
+//        mItemManger.mode = mode
+//    }
 
 
     constructor(layoutResId: Int, data: List<T>?) : super(layoutResId, data)

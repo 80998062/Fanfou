@@ -53,7 +53,6 @@ class ProfileView : AbstractLazyFragment(), Injectable {
                 adminLive = admin(it).apply { observe(this@ProfileView, adminOB) }
             })
         }
-
     }
 
     private val adminOB: Observer<Player> = Observer { t ->

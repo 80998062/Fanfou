@@ -21,19 +21,84 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
+import android.graphics.Color
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import com.daimajia.swipe.SwipeLayout
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
+import com.daimajia.swipe.interfaces.SwipeAdapterInterface
+import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
+import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.entities.Status
+import com.sinyuk.fanfou.ui.recyclerview.DataLoadingSubject
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
+import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+final class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CALLBACK), SwipeItemMangerInterface, SwipeAdapterInterface, DataLoadingSubject.DataLoadingCallbacks {
+    override fun loadMoreStarted() {
+    }
 
+    override fun loadMoreFailed(e: Throwable) {
+    }
+
+    override fun loadMoreGone() {
+    }
+
+    override fun loadMoreFinished() {
+    }
+
+    private var mItemManger = SwipeItemRecyclerMangerImpl(this)
+
+    override fun openItem(position: Int) {
+        mItemManger.openItem(position)
+    }
+
+    override fun closeItem(position: Int) {
+        mItemManger.closeItem(position)
+    }
+
+    override fun closeAllExcept(layout: SwipeLayout) {
+        mItemManger.closeAllExcept(layout)
+    }
+
+    override fun closeAllItems() {
+        mItemManger.closeAllItems()
+    }
+
+    override fun getOpenItems(): List<Int> {
+        return mItemManger.openItems
+    }
+
+    override fun getOpenLayouts(): List<SwipeLayout> {
+        return mItemManger.openLayouts
+    }
+
+    override fun removeShownLayouts(layout: SwipeLayout) {
+        mItemManger.removeShownLayouts(layout)
+    }
+
+    override fun isOpen(position: Int): Boolean {
+        return mItemManger.isOpen(position)
+    }
+
+    override fun getMode(): Attributes.Mode {
+        return mItemManger.mode
+    }
+
+    override fun setMode(mode: Attributes.Mode) {
+        mItemManger.mode = mode
+    }
+
+    override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
+
+    lateinit var uniqueId: String
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder.itemViewType == TYPE_DATA) {
@@ -44,7 +109,7 @@ class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CAL
                 // this row when the actual object is loaded from the database
                 holder.clear()
             } else {
-                holder.bindTo(status)
+                holder.bindTo(status, uniqueId)
             }
         } else if (holder.itemViewType == TYPE_FOOTER) {
 
@@ -100,14 +165,53 @@ class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CAL
             itemView.content.text = null
             itemView.createdAt.text = null
             itemView.image.setImageDrawable(null)
+            itemView.swipeLayout.close(false)
+            itemView.surfaceView.setBackgroundColor(Color.WHITE)
+            itemView.likeButton.setImageDrawable(null)
+            itemView.deleteButton.visibility = View.GONE
         }
 
-        fun bindTo(status: Status) {
+        fun bindTo(status: Status, uniqueId: String) {
             itemView.avatar.setImageResource(R.mipmap.ic_launcher_round)
             itemView.screenName.text = status.playerExtracts?.screenName
             itemView.content.text = status.text
             itemView.createdAt.text = status.createdAt?.toString()
             itemView.image.setImageResource(R.mipmap.ic_launcher_round)
+            itemView.swipeLayout.isClickToClose = true
+
+
+            if (status.playerExtracts?.uniqueId == uniqueId || status.repostUserId == uniqueId || status.inReplyToUserId == uniqueId) {
+                itemView.surfaceView.setBackgroundColor(Color.GRAY)
+            } else {
+                itemView.surfaceView.setBackgroundColor(Color.WHITE)
+            }
+
+
+            if (status.playerExtracts?.uniqueId == uniqueId) {
+                itemView.deleteButton.visibility = View.VISIBLE
+            } else {
+                itemView.deleteButton.visibility = View.GONE
+            }
+
+
+            if (status.collectorIds?.contains(uniqueId.toRegex()) == true) {
+                itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
+            } else {
+                itemView.likeButton.setImageDrawable(null)
+            }
+
+            itemView.likeButton.setOnClickListener {
+                itemView.swipeLayout.close()
+            }
+            itemView.repostButton.setOnClickListener {
+                itemView.swipeLayout.close()
+            }
+            itemView.overflowButton.setOnClickListener {
+                itemView.swipeLayout.close()
+            }
+            itemView.deleteButton.setOnClickListener {
+                itemView.swipeLayout.close()
+            }
         }
     }
 

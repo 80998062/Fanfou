@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.domain.rest
 import com.sinyuk.fanfou.domain.entities.Player
 import com.sinyuk.fanfou.domain.entities.Status
 import io.reactivex.Single
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -43,7 +44,10 @@ interface RestAPI {
 
 
     @GET("statuses/{path}.json?count=60&format=html")
-    fun fetch_statuses(@Path("path") path: String,
-                       @Query("since_id") since: String?,
-                       @Query("max_id") max: String?): Single<Response<List<Status>>>
+    fun fetch_statuses(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Single<Response<List<Status>>>
+
+
+    @GET("statuses/{path}.json?count=60&format=html")
+    fun fetch_statuses_call(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Call<MutableList<Status>?>
+
 }

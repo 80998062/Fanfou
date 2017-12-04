@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.rest
 
-import android.util.Log
 import com.google.gson.Gson
 import io.reactivex.functions.Function
 import io.reactivex.exceptions.Exceptions

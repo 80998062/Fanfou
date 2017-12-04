@@ -34,6 +34,8 @@ import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.daimajia.swipe.SimpleSwipeListener
 import com.daimajia.swipe.SwipeLayout
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
+import com.daimajia.swipe.util.Attributes
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstracBottomSheetFragment
@@ -136,6 +138,48 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     }
 
     class AccountAdapter constructor(res: Int, data: List<Player>?) : QuickSwipeAdapter<Player, BaseViewHolder>(res, data) {
+        private var mItemManger = SwipeItemRecyclerMangerImpl(this)
+
+        override fun openItem(position: Int) {
+            mItemManger.openItem(position)
+        }
+
+        override fun closeItem(position: Int) {
+            mItemManger.closeItem(position)
+        }
+
+        override fun closeAllExcept(layout: SwipeLayout) {
+            mItemManger.closeAllExcept(layout)
+        }
+
+        override fun closeAllItems() {
+            mItemManger.closeAllItems()
+        }
+
+        override fun getOpenItems(): List<Int> {
+            return mItemManger.openItems
+        }
+
+        override fun getOpenLayouts(): List<SwipeLayout> {
+            return mItemManger.openLayouts
+        }
+
+        override fun removeShownLayouts(layout: SwipeLayout) {
+            mItemManger.removeShownLayouts(layout)
+        }
+
+        override fun isOpen(position: Int): Boolean {
+            return mItemManger.isOpen(position)
+        }
+
+        override fun getMode(): Attributes.Mode {
+            return mItemManger.mode
+        }
+
+        override fun setMode(mode: Attributes.Mode) {
+            mItemManger.mode = mode
+        }
+
         override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
         override fun convert(helper: BaseViewHolder, item: Player?) {

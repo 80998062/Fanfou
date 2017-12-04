@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.domain.entities
 
 import android.arch.persistence.room.*
 import android.support.annotation.NonNull
+import android.text.TextUtils
 import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.room.DateConverter
 import java.util.*
@@ -48,9 +49,9 @@ data class Status constructor(
         @SerializedName("created_at") var createdAt: Date? = null,
         @Embedded(prefix = "player") var playerExtracts: PlayerExtracts? = null,
         @Embedded(prefix = "photo") @SerializedName("photo") var photos: Photos? = null,
-        @SerializedName("is_self") var isSelf: Boolean = false,
+//        @SerializedName("is_self") var isSelf: Boolean = false, 不准的
         @SerializedName("favorited") var favorited: Boolean = false,
-        var collectorIds: String? = null,
+        var collectorIds: String? = "",
         @SerializedName("repost_user_id") var repostUserId: String? = null,
         @SerializedName("in_reply_to_user_id") var inReplyToUserId: String? = null
 ) {
@@ -58,13 +59,12 @@ data class Status constructor(
      * 添加一个收藏者
      */
     fun addCollector(uniqueId: String) {
-        if (collectorIds?.contains(uniqueId.toRegex()) == true) {
-            // no-op
+        if (TextUtils.isEmpty(collectorIds)) {
+            collectorIds = uniqueId
         } else {
-            if (collectorIds != null) {
-                collectorIds += ","
+            if (!collectorIds!!.contains(uniqueId.toRegex())) {
+                collectorIds += (";" + uniqueId)
             }
-            collectorIds += uniqueId
         }
     }
 
@@ -72,11 +72,14 @@ data class Status constructor(
      * 移除一个收藏者
      */
     fun removeCollector(uniqueId: String) {
-        if (collectorIds?.contains(uniqueId.toRegex()) == true) {
+        if (TextUtils.isEmpty(collectorIds)) {
+            return
+        }
+        if (collectorIds!!.contains(uniqueId.toRegex())) {
             if (collectorIds == uniqueId) {
-                collectorIds = null
+                collectorIds = ""
             } else {
-                collectorIds!!.replace((uniqueId + ","), "", false)
+                collectorIds!!.replace((uniqueId + ";"), "", false)
             }
         }
     }

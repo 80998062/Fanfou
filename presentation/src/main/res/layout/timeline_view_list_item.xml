@@ -18,84 +18,102 @@
   ~  */
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/surfaceView"
+    android:id="@+id/swipeLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/gap_16"
-    android:paddingLeft="@dimen/gap_16"
-    android:paddingRight="@dimen/gap_16"
-    android:paddingTop="@dimen/gap_8">
+    app:clickToClose="true"
+    app:drag_edge="right"
+    app:leftEdgeSwipeOffset="0dp"
+    app:rightEdgeSwipeOffset="0dp">
 
-    <LinearLayout
-        android:id="@+id/header"
+    <!-- Bottom View Start-->
+    <include
+        android:id="@+id/bottom_wrapper"
+        layout="@layout/timeline_view_list_item_underlayer" />
+
+    <!-- Bottom View End-->
+
+    <RelativeLayout
+        android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/gap_16"
+        android:paddingLeft="@dimen/gap_16"
+        android:paddingRight="@dimen/gap_16"
+        android:paddingTop="@dimen/gap_8">
 
-        <ImageView
-            android:id="@+id/avatar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:scaleType="centerCrop"
-            tools:src="@mipmap/ic_launcher_round" />
-
-        <TextView
-            android:id="@+id/screenName"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/gap_8"
-            android:minWidth="40dp"
-            android:textColor="@color/textColorPrimary"
-            android:textSize="@dimen/text_16"
-            android:textStyle="bold"
-            tools:text="Sinyuk" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="centerCrop"
+                tools:src="@mipmap/ic_launcher_round" />
+
+            <TextView
+                android:id="@+id/screenName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/gap_8"
+                android:minWidth="40dp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/text_16"
+                android:textStyle="bold"
+                tools:text="Sinyuk" />
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
 
-        <TextView
-            android:id="@+id/createdAt"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/createdAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorHint"
+                android:textSize="@dimen/text_12"
+                tools:text="Sinyuk" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColorHint"
-            android:textSize="@dimen/text_12"
-            tools:text="Sinyuk" />
-    </LinearLayout>
+            android:layout_below="@+id/header"
+            android:layout_marginTop="@dimen/gap_8"
+            android:orientation="horizontal">
 
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2dp"
+                android:maxLines="8"
+                android:minHeight="56dp"
+                android:textColor="@color/textStatusContent"
+                android:textSize="@dimen/text_16"
+                tools:text="343435sfdhksad\nhfhadskfhksa\ndhfksa\njdhfkjhdsaksdhfk" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
-        android:layout_marginTop="@dimen/gap_8"
-        android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginLeft="@dimen/gap_8"
+                android:src="@color/textColorPrimary" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/content"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:lineSpacingExtra="2dp"
-            android:maxLines="8"
-            android:minHeight="56dp"
-            android:textColor="@color/textStatusContent"
-            android:textSize="@dimen/text_16"
-            tools:text="343435sfdhksad\nhfhadskfhksa\ndhfksa\njdhfkjhdsaksdhfk" />
-
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginLeft="@dimen/gap_8"
-            android:src="@color/textColorPrimary" />
-    </LinearLayout>
-
-</RelativeLayout>
+    </RelativeLayout>
+</com.daimajia.swipe.SwipeLayout>

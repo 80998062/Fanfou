@@ -30,7 +30,7 @@ import com.sinyuk.fanfou.domain.funcs.SaveStatusFunc
 import com.sinyuk.fanfou.domain.rest.Authorization
 import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteTasks
-import com.sinyuk.fanfou.domain.room.LocalTasks
+import com.sinyuk.fanfou.domain.room.LocalDatabase
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.Consumer
@@ -41,7 +41,7 @@ import java.util.*
  * Created by sinyuk on 2017/11/27.
  */
 class Repository constructor(private val remoteTasks: RemoteTasks,
-                             private val localTasks: LocalTasks,
+                             private val database: LocalDatabase,
                              private val interceptor: Oauth1SigningInterceptor,
                              private val preferences: RxSharedPreferences) {
 
@@ -73,8 +73,9 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
                         .doOnError({ Log.e("updateProfile", it.message) })
                         .map {
                             Log.d("Repository", "<======= Save Registration ======>")
-                            localTasks.insertPlayer(it)
-                            localTasks.insertRegistration(it.uniqueId, account, password, authorization)
+                            database.playerDao().insert(it)
+                            database.registrationDao().insert(
+                                    Registration(it.uniqueId, account, password, Date(System.currentTimeMillis()), authorization.token, authorization.secret))
                             preferences.getString(UNIQUE_ID).set(it.uniqueId)
                             it
                         }
@@ -87,24 +88,24 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
      *  获取登录信息
      */
     fun registration(uniqueId: String): Single<Registration?> =
-            Single.fromCallable { localTasks.queryRegistration(uniqueId) }.subscribeOn(Schedulers.computation())
+            Single.fromCallable { database.registrationDao().query(uniqueId) }.subscribeOn(Schedulers.computation())
 
     /**
      * 删除登录信息
      */
     fun deleteRegistration(uniqueId: String): Completable =
-            Completable.fromCallable { localTasks.deleteRegistration(uniqueId) }
+            Completable.fromCallable { database.registrationDao().delete(Registration(uniqueId)) }
                     .subscribeOn(Schedulers.computation())
 
     /**
      *  获取所有用户
      */
-    fun admins(): LiveData<List<Player>> = localTasks.queryAdmins()
+    fun admins(): LiveData<List<Player>> = database.playerDao().admins()
 
     /**
      *  获取登录的用户
      */
-    fun admin(uniqueId: String): LiveData<Player> = localTasks.queryPlayer(uniqueId)
+    fun admin(uniqueId: String): LiveData<Player> = database.playerDao().query(uniqueId)
 
     /**
      * 更新用户资料
@@ -115,21 +116,72 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
             // convert player to map
         }
         return remoteTasks.updateProfile()
-                .map { it -> localTasks.insertPlayer(it) }
+                .map { it ->
+                }
                 .toCompletable()
     }
 
     /**
      *  获取公共消息的缓存
      */
-    fun homeTimeline() = localTasks.homeTimeline(preferences.getString(UNIQUE_ID).get())
+    @Deprecated("删")
+    fun homeTimeline() = database.playerAndStatusDao().query(preferences.getString(UNIQUE_ID).get())
 
+    @Deprecated("删")
+    fun publicTimeline() = database.statusDao().publicTimeline()
+
+    @Deprecated("删")
     fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>> {
         return remoteTasks.fetchTimeline(path, since, max)
-                .map(SaveStatusFunc(localTasks, path, preferences.getString(UNIQUE_ID).get()))
+                .map(SaveStatusFunc(database, path, preferences.getString(UNIQUE_ID).get()))
+                .doOnError {
+                    Log.e("fetchTimeline", "保存到数据库", it)
+                }
                 .subscribeOn(Schedulers.computation())
     }
 
+
+    fun loadTimelineBefore(path: String, max: String, size: Int): MutableList<Status> {
+        // TODO: path.switch()
+        val cache = database.statusDao().loadBefore(max, size)
+        return if (cache.isNotEmpty()) {
+            cache
+        } else {
+            val prefetch = remoteTasks.fetchTimelineCall(path, null, max)
+            prefetch?.let {
+                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
+            }
+            prefetch ?: mutableListOf()
+        }
+    }
+
+    fun loadTimelineAfter(path: String, since: String, size: Int): MutableList<Status> {
+        // TODO: path.switch()
+        val cache = database.statusDao().loadAfter(since, size)
+        return if (cache.isNotEmpty()) {
+            cache
+        } else {
+            val prefetch = remoteTasks.fetchTimelineCall(path, since, null)
+            prefetch?.let {
+                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
+            }
+            prefetch ?: mutableListOf()
+        }
+    }
+
+    fun loadTimelineInitial(path: String, size: Int): MutableList<Status> {
+        // TODO: path.switch()
+        val cache = database.statusDao().initial(size)
+        return if (cache.isNotEmpty()) {
+            cache
+        } else {
+            val prefetch = remoteTasks.fetchTimelineCall(path, null, null)
+            prefetch?.let {
+                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
+            }
+            prefetch ?: mutableListOf()
+        }
+    }
 
     /**
      * authorize or deauthorize

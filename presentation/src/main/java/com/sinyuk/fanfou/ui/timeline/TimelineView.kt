@@ -26,10 +26,10 @@ import android.arch.paging.PagedList
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
+import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.injections.Injectable
 import com.sinyuk.fanfou.utils.SingleHanlder
@@ -65,6 +65,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private lateinit var timelinePath: String
     private var targetPlayer: String? = null
 
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         timelinePath = arguments?.getString("path")!!
@@ -92,12 +93,10 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             accountRelay.observe(this@TimelineView, Observer<String> {
                 Log.d(TimelineView::class.java.simpleName, it)
                 if (it !== uniqueId) { // 当用户账号发生更新的时候重新订阅
-                    uniqueId = it
-                    subscribeLiveData()
+                    subscribeLiveData(it!!)
                 }
             })
         }
-
     }
 
     private fun setupSwipeRefresh() {
@@ -107,7 +106,9 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private fun afterSinceId() {
         val d = timelineViewModel.fetchTimeline(timelinePath, targetPlayer, since, null)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doAfterTerminate { swipeRefreshLayout.isRefreshing = false }
+                .doAfterTerminate {
+                    swipeRefreshLayout.isRefreshing = false
+                }
                 .subscribeWith(object : SingleHanlder<List<Status>>(toast) {
                     override fun onSuccess(t: List<Status>) {
                         super.onSuccess(t)
@@ -125,15 +126,24 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private fun beforeMaxId() {
         val d = timelineViewModel.fetchTimeline(timelinePath, targetPlayer, null, max)
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    isLoading = true
+                }
                 .subscribeWith(object : SingleHanlder<List<Status>>(toast) {
+                    override fun onError(e: Throwable) {
+                        super.onError(e)
+                        isLoading = false
+                    }
+
                     override fun onSuccess(t: List<Status>) {
                         super.onSuccess(t)
-
+                        isLoading = t.size < PAGE_SIZE
                     }
                 })
         addDisposable(d)
     }
 
+    private var isLoading: Boolean = true
 
     private fun setupRecyclerView() {
         if (recyclerView.layoutManager == null) {
@@ -142,15 +152,6 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             lm.isAutoMeasureEnabled = true
             recyclerView.layoutManager = lm
             recyclerView.setHasFixedSize(true)
-            recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                }
-
-                override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                }
-            })
         }
 
         if (adapter == null) {
@@ -163,9 +164,14 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     }
 
     private var liveTimeline: LiveData<PagedList<Status>>? = null
-    private fun subscribeLiveData() {
+
+    private fun subscribeLiveData(it: String) {
+        uniqueId = it
+        adapter?.uniqueId = it
         liveTimeline?.removeObserver(timelineOB)
-        liveTimeline = timelineViewModel.timeline().apply { observe(this@TimelineView, timelineOB) }
+        liveTimeline = timelineViewModel.timeline(timelinePath, targetPlayer).apply {
+            observe(this@TimelineView, timelineOB)
+        }
     }
 
     private val timelineOB: Observer<PagedList<Status>> = Observer { t ->
@@ -173,6 +179,9 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         if (t?.isNotEmpty() == true) {
             since = t.first().id
             max = t.last().id
+        } else {
+            since = null
+            max = null
         }
     }
 
