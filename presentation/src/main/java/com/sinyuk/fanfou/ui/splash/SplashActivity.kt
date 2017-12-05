@@ -23,12 +23,12 @@ package com.sinyuk.fanfou.ui.splash
 import android.content.Intent
 import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractActivity
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.ui.HomeActivity
 import com.sinyuk.fanfou.ui.account.AccountViewModel
 import com.sinyuk.fanfou.ui.account.SignActivity
-import com.sinyuk.fanfou.utils.obtainViewModel
-import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import javax.inject.Inject

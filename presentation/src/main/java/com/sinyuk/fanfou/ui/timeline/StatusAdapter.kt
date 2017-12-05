@@ -27,8 +27,8 @@ import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.utils.QuickSwipeAdapter
+import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.util.QuickSwipeAdapter
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 

@@ -24,8 +24,8 @@ import android.app.Activity
 import android.app.Application
 import android.util.Log
 import com.facebook.stetho.Stetho
-import com.sinyuk.fanfou.injections.AppInjector
-import com.sinyuk.fanfou.utils.GlobalErrorHandler
+import com.sinyuk.fanfou.di.AppInjector
+import com.sinyuk.fanfou.util.GlobalErrorHandler
 import dagger.android.AndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.DispatchingAndroidInjector

@@ -23,12 +23,12 @@ package com.sinyuk.fanfou.ui.timeline
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import com.f2prateek.rx.preferences2.RxSharedPreferences
-import com.sinyuk.fanfou.domain.Repository
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
-import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
+import com.sinyuk.fanfou.domain.repo.Repository
+import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.util.PreferenceAwareLiveData
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Named
@@ -46,13 +46,13 @@ class TimelineViewModel @Inject constructor(
 
     internal fun timeline(timelinePath: String, targetPlayer: String?) =
             when (timelinePath) {
-                TIMELINE_PUBLIC -> repository.homeTimeline()
-                else -> repository.homeTimeline()
+                TIMELINE_PUBLIC -> repository.adminHome()
+                else -> repository.adminHome()
             }
 
 
     fun fetchTimeline(path: String, playerId: String?, since: String?, max: String?): Single<MutableList<Status>> {
-        return repository.fetchTimeline(path, since, max)
+        return repository.fetchHomeTimeline(since, max)
     }
 
 

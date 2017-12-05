@@ -1,5 +1,6 @@
 package com.sinyuk.fanfou
 
+import android.test.MoreAsserts.assertEquals
 import org.junit.Test
 
 import org.junit.Assert.*

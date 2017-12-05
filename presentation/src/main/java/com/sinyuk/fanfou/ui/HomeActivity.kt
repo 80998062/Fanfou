@@ -27,8 +27,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractActivity
-import com.sinyuk.fanfou.domain.entities.Player
+import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.vo.Player
 import com.sinyuk.fanfou.ui.account.AccountBottomSheet
 import com.sinyuk.fanfou.ui.account.AccountViewModel
 import com.sinyuk.fanfou.ui.account.ProfileView
@@ -36,8 +36,8 @@ import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.home.RootPageAdapter
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.search.PublicView
-import com.sinyuk.fanfou.utils.obtainViewModel
-import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.home_activity.*
 import javax.inject.Inject

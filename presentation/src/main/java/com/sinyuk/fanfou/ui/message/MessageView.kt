@@ -24,12 +24,12 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.util.Log
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
-import com.sinyuk.fanfou.domain.entities.Player
-import com.sinyuk.fanfou.injections.Injectable
+import com.sinyuk.fanfou.base.AbstractLazyFragment
+import com.sinyuk.fanfou.domain.vo.Player
+import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.ui.account.AccountViewModel
-import com.sinyuk.fanfou.utils.obtainViewModel
-import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import javax.inject.Inject
 

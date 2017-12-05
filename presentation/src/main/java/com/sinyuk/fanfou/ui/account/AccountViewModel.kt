@@ -23,10 +23,10 @@ package com.sinyuk.fanfou.ui.account
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import com.f2prateek.rx.preferences2.RxSharedPreferences
-import com.sinyuk.fanfou.domain.Repository
+import com.sinyuk.fanfou.domain.repo.Repository
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
-import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
+import com.sinyuk.fanfou.util.PreferenceAwareLiveData
 import javax.inject.Inject
 import javax.inject.Named
 

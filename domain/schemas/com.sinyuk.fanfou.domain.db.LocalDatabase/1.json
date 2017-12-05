@@ -1,0 +1,561 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "1ee53318c556dbdb369e6268bd222ecf",
+    "entities": [
+      {
+        "tableName": "players",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT, `screenName` TEXT, `location` TEXT, `gender` TEXT, `birthday` TEXT, `description` TEXT, `profileImageUrl` TEXT, `profileImageUrlLarge` TEXT, `url` TEXT, `protectedX` INTEGER, `followersCount` INTEGER, `friendsCount` INTEGER, `favouritesCount` INTEGER, `statusesCount` INTEGER, `photoCount` INTEGER, `following` INTEGER, `notifications` INTEGER, `createdAt` INTEGER, `profileBackgroundImageUrl` TEXT, PRIMARY KEY(`uniqueId`))",
+        "fields": [
+          {
+            "fieldPath": "uniqueId",
+            "columnName": "uniqueId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "screenName",
+            "columnName": "screenName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gender",
+            "columnName": "gender",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "birthday",
+            "columnName": "birthday",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "profileImageUrl",
+            "columnName": "profileImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "profileImageUrlLarge",
+            "columnName": "profileImageUrlLarge",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "protectedX",
+            "columnName": "protectedX",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "followersCount",
+            "columnName": "followersCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "friendsCount",
+            "columnName": "friendsCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "favouritesCount",
+            "columnName": "favouritesCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "statusesCount",
+            "columnName": "statusesCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photoCount",
+            "columnName": "photoCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "following",
+            "columnName": "following",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "notifications",
+            "columnName": "notifications",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "profileBackgroundImageUrl",
+            "columnName": "profileBackgroundImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uniqueId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_players_uniqueId",
+            "unique": false,
+            "columnNames": [
+              "uniqueId"
+            ],
+            "createSql": "CREATE  INDEX `index_players_uniqueId` ON `${TABLE_NAME}` (`uniqueId`)"
+          },
+          {
+            "name": "index_players_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "createSql": "CREATE  INDEX `index_players_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "registrations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT, `password` TEXT, `loggedAt` INTEGER, `token` TEXT, `secret` TEXT, PRIMARY KEY(`uniqueId`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "uniqueId",
+            "columnName": "uniqueId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "account",
+            "columnName": "account",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "password",
+            "columnName": "password",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "loggedAt",
+            "columnName": "loggedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "secret",
+            "columnName": "secret",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uniqueId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_registrations_uniqueId",
+            "unique": false,
+            "columnNames": [
+              "uniqueId"
+            ],
+            "createSql": "CREATE  INDEX `index_registrations_uniqueId` ON `${TABLE_NAME}` (`uniqueId`)"
+          },
+          {
+            "name": "index_registrations_account",
+            "unique": false,
+            "columnNames": [
+              "account"
+            ],
+            "createSql": "CREATE  INDEX `index_registrations_account` ON `${TABLE_NAME}` (`account`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "players",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "uniqueId"
+            ],
+            "referencedColumns": [
+              "uniqueId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "statuses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rawid` INTEGER, `text` TEXT, `source` TEXT, `inReplyToStatusId` TEXT, `inReplyToScreenName` TEXT, `repostScreenName` TEXT, `repostStatusId` TEXT, `location` TEXT, `createdAt` INTEGER, `favorited` INTEGER NOT NULL, `collectorIds` TEXT, `repostUserId` TEXT, `inReplyToUserId` TEXT, `playeruniqueId` TEXT, `playerid` TEXT, `playerscreenName` TEXT, `playerprofileImageUrl` TEXT, `playerprofileImageUrlLarge` TEXT, `playerprofileBackgroundImageUrl` TEXT, `photourl` TEXT, `photoimageurl` TEXT, `photothumburl` TEXT, `photolargeurl` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rawid",
+            "columnName": "rawid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inReplyToStatusId",
+            "columnName": "inReplyToStatusId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inReplyToScreenName",
+            "columnName": "inReplyToScreenName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "repostScreenName",
+            "columnName": "repostScreenName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "repostStatusId",
+            "columnName": "repostStatusId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "favorited",
+            "columnName": "favorited",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "collectorIds",
+            "columnName": "collectorIds",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "repostUserId",
+            "columnName": "repostUserId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "inReplyToUserId",
+            "columnName": "inReplyToUserId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.uniqueId",
+            "columnName": "playeruniqueId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.id",
+            "columnName": "playerid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.screenName",
+            "columnName": "playerscreenName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.profileImageUrl",
+            "columnName": "playerprofileImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.profileImageUrlLarge",
+            "columnName": "playerprofileImageUrlLarge",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playerExtracts.profileBackgroundImageUrl",
+            "columnName": "playerprofileBackgroundImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photos.url",
+            "columnName": "photourl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photos.imageurl",
+            "columnName": "photoimageurl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photos.thumburl",
+            "columnName": "photothumburl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photos.largeurl",
+            "columnName": "photolargeurl",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_statuses_id_createdAt",
+            "unique": false,
+            "columnNames": [
+              "id",
+              "createdAt"
+            ],
+            "createSql": "CREATE  INDEX `index_statuses_id_createdAt` ON `${TABLE_NAME}` (`id`, `createdAt`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "player_status",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `pk` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "playerId",
+            "columnName": "playerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusId",
+            "columnName": "statusId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pk",
+            "columnName": "pk",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "pk"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_player_status_playerId",
+            "unique": false,
+            "columnNames": [
+              "playerId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_status_playerId` ON `${TABLE_NAME}` (`playerId`)"
+          },
+          {
+            "name": "index_player_status_statusId",
+            "unique": false,
+            "columnNames": [
+              "statusId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_status_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "players",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "playerId"
+            ],
+            "referencedColumns": [
+              "uniqueId"
+            ]
+          },
+          {
+            "table": "statuses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "statusId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "player_like",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playerId` TEXT NOT NULL, `statusId` TEXT NOT NULL, `pk` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`playerId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`statusId`) REFERENCES `statuses`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "playerId",
+            "columnName": "playerId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusId",
+            "columnName": "statusId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pk",
+            "columnName": "pk",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "pk"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_player_like_playerId",
+            "unique": false,
+            "columnNames": [
+              "playerId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_like_playerId` ON `${TABLE_NAME}` (`playerId`)"
+          },
+          {
+            "name": "index_player_like_statusId",
+            "unique": false,
+            "columnNames": [
+              "statusId"
+            ],
+            "createSql": "CREATE  INDEX `index_player_like_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "players",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "playerId"
+            ],
+            "referencedColumns": [
+              "uniqueId"
+            ]
+          },
+          {
+            "table": "statuses",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "statusId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1ee53318c556dbdb369e6268bd222ecf\")"
+    ]
+  }
+}

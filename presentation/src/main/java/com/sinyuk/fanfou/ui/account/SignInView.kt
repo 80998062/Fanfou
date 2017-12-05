@@ -24,12 +24,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractFragment
-import com.sinyuk.fanfou.injections.Injectable
+import com.sinyuk.fanfou.base.AbstractFragment
+import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.ui.HomeActivity
-import com.sinyuk.fanfou.utils.CompletableHandler
-import com.sinyuk.fanfou.utils.obtainViewModel
-import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.fanfou.util.CompletableHandler
+import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.signin_view.*

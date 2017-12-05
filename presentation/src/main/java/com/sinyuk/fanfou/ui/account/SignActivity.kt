@@ -24,10 +24,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.abstracts.AbstractActivity
-import com.sinyuk.fanfou.utils.addFragmentInActivity
-import com.sinyuk.fanfou.utils.obtainViewModel
-import com.sinyuk.fanfou.viewmodels.ViewModelFactory
+import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.util.addFragmentInActivity
+import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
 /**

@@ -34,6 +34,12 @@ const val TIMELINE_HOME = "home_timeline"
  */
 const val TIMELINE_PUBLIC = "public_timeline"
 
+
+/**
+ * 显示指定用户及其好友的消息
+ */
+const val TIMELINE_FAVORITES = "favorites_timeline"
+
 /**
  * 按照时间先后顺序显示消息上下文
  */
@@ -80,4 +86,10 @@ const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道�
  */
 const val TYPE_GLOBAL: String = "prefs_global"
 const val UNIQUE_ID: String = "unique_id"
+
+/**
+ *
+ */
+const val DATABASE_IN_MEMORY: String = "in_memory"
+const val DATABASE_IN_DISK: String = "in_disk"
 
