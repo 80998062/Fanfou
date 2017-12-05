@@ -20,7 +20,7 @@
 
 package com.sinyuk.fanfou.domain.room.dao
 
-import android.arch.paging.LivePagedListProvider
+import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.entities.Status
 
@@ -46,7 +46,7 @@ interface StatusDao {
     fun insert(status: Status): Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updates(statuses: List<Status>): Int
+    fun updates(statuses: MutableList<Status>): Int
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(status: Status): Int
@@ -56,5 +56,5 @@ interface StatusDao {
 
 
     @Query("SELECT * from statuses ORDER BY createdAt DESC, id ASC")
-    fun publicTimeline(): LivePagedListProvider<Int, Status>
+    fun publicTimeline(): LiveData<MutableList<Status>>
 }

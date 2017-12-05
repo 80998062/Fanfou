@@ -34,19 +34,19 @@ interface PlayerDao {
     fun insert(player: Player): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun inserts(players: List<Player>): List<Long>
+    fun inserts(players: MutableList<Player>): MutableList<Long>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(player: Player): Int
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updates(players: List<Player>): Int
+    fun updates(players: MutableList<Player>): Int
 
     @Delete
     fun delete(player: Player): Int
 
     @Query("SELECT * FROM players WHERE uniqueId IN (SELECT uniqueId FROM registrations)")
-    fun admins(): LiveData<List<Player>>
+    fun admins(): LiveData<MutableList<Player>>
 
     @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
     fun query(uniqueId: String?): LiveData<Player>

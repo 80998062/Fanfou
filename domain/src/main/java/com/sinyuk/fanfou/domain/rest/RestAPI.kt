@@ -43,11 +43,11 @@ interface RestAPI {
     fun update_profile(): Single<Response<Player>>
 
 
-    @GET("statuses/{path}.json?count=60&format=html")
-    fun fetch_statuses(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Single<Response<List<Status>>>
+    @GET("statuses/{path}.json?count=10&format=html")
+    fun fetch_statuses(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Single<Response<MutableList<Status>>>
 
 
-    @GET("statuses/{path}.json?count=60&format=html")
+    @GET("statuses/{path}.json?count=10&format=html")
     fun fetch_statuses_call(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Call<MutableList<Status>?>
 
 }

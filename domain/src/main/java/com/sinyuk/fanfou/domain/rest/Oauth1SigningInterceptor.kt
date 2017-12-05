@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.domain.rest
 
 
+import android.text.TextUtils
 import com.sinyuk.fanfou.domain.utils.UrlEscapeUtils
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -55,8 +56,11 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
 
 
     @Throws(IOException::class)
-    override fun intercept(chain: Interceptor.Chain): Response {
-        return chain.proceed(signRequest(chain.request()))
+    override fun intercept(chain: Interceptor.Chain): Response = if (TextUtils.isEmpty(accessSecret) || TextUtils.isEmpty(accessToken)) {
+        chain.proceed(chain.request().newBuilder().removeHeader("Authorization").build())
+    } else {
+        chain.proceed(signRequest(chain.request()))
+
     }
 
 

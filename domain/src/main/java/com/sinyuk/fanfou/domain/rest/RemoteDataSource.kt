@@ -38,7 +38,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
@@ -46,21 +45,8 @@ import java.util.concurrent.TimeUnit
  * Created by sinyuk on 2017/11/28.
  */
 class RemoteDataSource constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) : RemoteTasks {
-    override fun fetchTimelineCall(path: String, since: String?, max: String?): MutableList<Status>? {
-        try {
-            val response = restAPI.fetch_statuses_call(path, since, max).execute()
-            if (response.isSuccessful && response.code() == 200) {
-                return response.body()
-            } else {
-                throw VisibleThrowable("网络错误")
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            throw VisibleThrowable(e.message ?: "")
-        }
-    }
 
-    override fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>> =
+    override fun fetchTimeline(path: String, since: String?, max: String?): Single<MutableList<Status>> =
             restAPI.fetch_statuses(path, since, max).map(ErrorCheckFunction(gson))
 
     override fun updateProfile(): Single<Player> = restAPI.update_profile().map(ErrorCheckFunction(gson))

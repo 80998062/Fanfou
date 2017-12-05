@@ -34,7 +34,6 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:27.0.2"
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.21'
 
-    implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.archLifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.archLifecycleVersion"
     implementation project(':domain')

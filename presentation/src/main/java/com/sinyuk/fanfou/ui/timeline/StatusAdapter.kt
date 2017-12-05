@@ -20,38 +20,31 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.arch.paging.PagedListAdapter
 import android.graphics.Color
-import android.support.v7.recyclerview.extensions.DiffCallback
-import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
-import com.daimajia.swipe.interfaces.SwipeAdapterInterface
-import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.ui.recyclerview.DataLoadingSubject
+import com.sinyuk.fanfou.utils.QuickSwipeAdapter
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 
 /**
  * Created by sinyuk on 2017/12/1.
  */
-final class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DIFF_CALLBACK), SwipeItemMangerInterface, SwipeAdapterInterface, DataLoadingSubject.DataLoadingCallbacks {
-    override fun loadMoreStarted() {
-    }
+class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(R.layout.timeline_view_list_item) {
 
-    override fun loadMoreFailed(e: Throwable) {
-    }
+    lateinit var uniqueId: String
 
-    override fun loadMoreGone() {
-    }
-
-    override fun loadMoreFinished() {
+    override fun convert(holder: StatusViewHolder, status: Status?) {
+        if (status == null) {
+            holder.clear()
+        } else {
+            holder.bindTo(status, uniqueId)
+        }
     }
 
     private var mItemManger = SwipeItemRecyclerMangerImpl(this)
@@ -98,67 +91,8 @@ final class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DI
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
-    lateinit var uniqueId: String
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder.itemViewType == TYPE_DATA) {
-            holder as StatusViewHolder
-            val status = getItem(position)
-            if (status == null) {
-                // Null defines a placeholder item - PagedListAdapter will automatically invalidate
-                // this row when the actual object is loaded from the database
-                holder.clear()
-            } else {
-                holder.bindTo(status, uniqueId)
-            }
-        } else if (holder.itemViewType == TYPE_FOOTER) {
-
-        }
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            if (viewType == TYPE_DATA) {
-                StatusViewHolder(parent)
-            } else {
-                FooterViewHolder(parent)
-            }
-
-
-    fun addFooter() {
-        if (!hasFooter) {
-            hasFooter = true
-            notifyItemInserted(currentList?.size ?: 0)
-        }
-    }
-
-    fun removeFooter() {
-        if (hasFooter) {
-            hasFooter = false
-            notifyItemRemoved(currentList?.size ?: 0)
-        }
-    }
-
-    private var hasFooter = false
-
-    override fun getItemCount(): Int = if (hasFooter) {
-        (currentList?.size ?: 0) + 1
-    } else {
-        currentList?.size ?: 0
-    }
-
-
-    private val TYPE_FOOTER = Int.MAX_VALUE
-    private val TYPE_DATA = 0
-    override fun getItemViewType(position: Int): Int = if (position == currentList?.size ?: 0) {
-        TYPE_FOOTER
-    } else {
-        TYPE_DATA
-    }
-
-
-    class StatusViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_item, parent, false)) {
+    class StatusViewHolder(view: View) : BaseViewHolder(view) {
         fun clear() {
             itemView.avatar.setImageDrawable(null)
             itemView.screenName.text = null
@@ -212,19 +146,6 @@ final class StatusAdapter : PagedListAdapter<Status, RecyclerView.ViewHolder>(DI
             itemView.deleteButton.setOnClickListener {
                 itemView.swipeLayout.close()
             }
-        }
-    }
-
-
-    class FooterViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_footer, parent, false))
-
-
-    companion object {
-        val DIFF_CALLBACK: DiffCallback<Status> = object : DiffCallback<Status>() {
-            override fun areItemsTheSame(oldItem: Status, newItem: Status): Boolean = oldItem.id === newItem.id
-
-            override fun areContentsTheSame(oldItem: Status, newItem: Status): Boolean = true
         }
     }
 }

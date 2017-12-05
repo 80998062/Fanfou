@@ -21,21 +21,21 @@
 package com.sinyuk.fanfou.injections.modules
 
 import android.app.Application
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.App
 import com.sinyuk.fanfou.domain.Repository
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.rest.Endpoint
 import com.sinyuk.fanfou.domain.rest.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.rest.RemoteDataSource
 import com.sinyuk.fanfou.domain.room.LocalDatabase
+import com.sinyuk.myutils.system.ToastUtils
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
-import com.f2prateek.rx.preferences2.RxSharedPreferences
-import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import javax.inject.Named
-import com.sinyuk.myutils.system.ToastUtils
+import javax.inject.Singleton
 
 
 /**
@@ -80,6 +80,6 @@ class AppModule constructor(private val app: App) {
     @Provides
     @Singleton
     fun provideRepository(d: LocalDatabase, e: Endpoint, i: Oauth1SigningInterceptor, @Named(TYPE_GLOBAL) sp: RxSharedPreferences): Repository =
-            Repository(RemoteDataSource(app, e, i), LocalDataSource(app, d), i, sp)
+            Repository(RemoteDataSource(app, e, i), d, i, sp)
 
 }

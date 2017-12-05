@@ -20,7 +20,7 @@
 
 package com.sinyuk.fanfou.domain.room.dao
 
-import android.arch.paging.LivePagedListProvider
+import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
@@ -38,5 +38,5 @@ interface PlayerAndStatusDao {
     @Query("SELECT * from statuses WHERE id IN " +
             "(SELECT statusId from player_status WHERE playerId = :uniqueId)" +
             "ORDER BY createdAt DESC, id ASC")
-    fun query(uniqueId: String): LivePagedListProvider<Int, Status>
+    fun query(uniqueId: String): LiveData<MutableList<Status>>
 }

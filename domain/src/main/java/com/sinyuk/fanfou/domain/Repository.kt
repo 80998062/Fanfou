@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain
 
-import android.arch.lifecycle.LiveData
 import android.util.Log
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.sinyuk.fanfou.domain.entities.Player
@@ -100,12 +99,12 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取所有用户
      */
-    fun admins(): LiveData<List<Player>> = database.playerDao().admins()
+    fun admins() = database.playerDao().admins()
 
     /**
      *  获取登录的用户
      */
-    fun admin(uniqueId: String): LiveData<Player> = database.playerDao().query(uniqueId)
+    fun admin(uniqueId: String) = database.playerDao().query(uniqueId)
 
     /**
      * 更新用户资料
@@ -124,63 +123,15 @@ class Repository constructor(private val remoteTasks: RemoteTasks,
     /**
      *  获取公共消息的缓存
      */
-    @Deprecated("删")
     fun homeTimeline() = database.playerAndStatusDao().query(preferences.getString(UNIQUE_ID).get())
 
-    @Deprecated("删")
-    fun publicTimeline() = database.statusDao().publicTimeline()
-
-    @Deprecated("删")
-    fun fetchTimeline(path: String, since: String?, max: String?): Single<List<Status>> {
+    fun fetchTimeline(path: String, since: String?, max: String?): Single<MutableList<Status>> {
         return remoteTasks.fetchTimeline(path, since, max)
                 .map(SaveStatusFunc(database, path, preferences.getString(UNIQUE_ID).get()))
                 .doOnError {
                     Log.e("fetchTimeline", "保存到数据库", it)
                 }
                 .subscribeOn(Schedulers.computation())
-    }
-
-
-    fun loadTimelineBefore(path: String, max: String, size: Int): MutableList<Status> {
-        // TODO: path.switch()
-        val cache = database.statusDao().loadBefore(max, size)
-        return if (cache.isNotEmpty()) {
-            cache
-        } else {
-            val prefetch = remoteTasks.fetchTimelineCall(path, null, max)
-            prefetch?.let {
-                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
-            }
-            prefetch ?: mutableListOf()
-        }
-    }
-
-    fun loadTimelineAfter(path: String, since: String, size: Int): MutableList<Status> {
-        // TODO: path.switch()
-        val cache = database.statusDao().loadAfter(since, size)
-        return if (cache.isNotEmpty()) {
-            cache
-        } else {
-            val prefetch = remoteTasks.fetchTimelineCall(path, since, null)
-            prefetch?.let {
-                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
-            }
-            prefetch ?: mutableListOf()
-        }
-    }
-
-    fun loadTimelineInitial(path: String, size: Int): MutableList<Status> {
-        // TODO: path.switch()
-        val cache = database.statusDao().initial(size)
-        return if (cache.isNotEmpty()) {
-            cache
-        } else {
-            val prefetch = remoteTasks.fetchTimelineCall(path, null, null)
-            prefetch?.let {
-                SaveStatusFunc.saveInDatabase(it, database, preferences.getString(UNIQUE_ID).get())
-            }
-            prefetch ?: mutableListOf()
-        }
     }
 
     /**

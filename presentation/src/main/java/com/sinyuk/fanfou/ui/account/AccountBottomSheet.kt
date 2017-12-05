@@ -80,30 +80,36 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     private lateinit var adapter: AutoClearedValue<AccountAdapter>
 
     private fun initListView() {
-        val layoutManager = LinearLayoutManager(context)
-        layoutManager.isAutoMeasureEnabled = true
-        recyclerView.layoutManager = layoutManager
-        recyclerView.setHasFixedSize(true)
-        val accountAdapter = AccountAdapter(R.layout.account_selectable_list_item, null)
-        accountAdapter.onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { _, view, position ->
-            when (view.id) {
-                R.id.checkbox -> {
-                    if (adapter.get()?.checkedPosition != position) {
-                        onSwitch(position)
-                        adapter.get()?.checkedPosition = position
-                    }
-
-                }
-                R.id.deleteButton -> onDelete(position)
-            }
+        LinearLayoutManager(context).apply {
+            isItemPrefetchEnabled = true
+            initialPrefetchItemCount = 10
+            isAutoMeasureEnabled = true
+            recyclerView.layoutManager = this
         }
-        val footer: View = LayoutInflater.from(context).inflate(R.layout.account_selectable_list_footer, recyclerView, false)
-        footer.addNewAccount.setOnClickListener { addNewAccount() }
-        accountAdapter.addFooterView(footer)
-        accountAdapter.setHeaderFooterEmpty(false, true)
-        recyclerView.adapter = accountAdapter
-        adapter = AutoClearedValue(this, accountAdapter)
 
+        recyclerView.setHasFixedSize(true)
+
+        AccountAdapter(R.layout.account_selectable_list_item, null).apply {
+            onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { _, view, position ->
+                when (view.id) {
+                    R.id.checkbox -> {
+                        if (adapter.get()?.checkedPosition != position) {
+                            onSwitch(position)
+                            adapter.get()?.checkedPosition = position
+                        }
+
+                    }
+                    R.id.deleteButton -> onDelete(position)
+                }
+            }
+
+            val footer: View = LayoutInflater.from(context).inflate(R.layout.account_selectable_list_footer, recyclerView, false)
+            footer.addNewAccount.setOnClickListener { addNewAccount() }
+            addFooterView(footer)
+            setHeaderFooterEmpty(false, true)
+            recyclerView.adapter = this
+            adapter = AutoClearedValue(this@AccountBottomSheet, this)
+        }
     }
 
     private fun addNewAccount() {
@@ -130,7 +136,7 @@ class AccountBottomSheet : AbstracBottomSheetFragment(), Injectable {
     }
 
     @Suppress("SENSELESS_COMPARISON")
-    private val adminsOB: Observer<List<Player>> = Observer { t ->
+    private val adminsOB: Observer<MutableList<Player>> = Observer { t ->
         // TODO: 要求当前登录用户在第一位
         if (adapter.get() != null) {
             adapter.get()!!.setNewData(t)

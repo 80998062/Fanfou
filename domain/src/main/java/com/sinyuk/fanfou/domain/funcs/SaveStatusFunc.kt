@@ -34,9 +34,9 @@ import io.reactivex.functions.Function
  */
 class SaveStatusFunc constructor(private val database: LocalDatabase,
                                  private val path: String,
-                                 private val currentUser: String) : Function<List<Status>, List<Status>> {
+                                 private val currentUser: String) : Function<MutableList<Status>, MutableList<Status>> {
 
-    override fun apply(t: List<Status>): List<Status> {
+    override fun apply(t: MutableList<Status>): MutableList<Status> {
         when (path) {
             TIMELINE_HOME -> saveInDatabase(t, database, currentUser)
         }
@@ -45,7 +45,7 @@ class SaveStatusFunc constructor(private val database: LocalDatabase,
     }
 
     companion object {
-        fun saveInDatabase(t: List<Status>, database: LocalDatabase, currentUser: String) {
+        fun saveInDatabase(t: MutableList<Status>, database: LocalDatabase, currentUser: String) {
             Log.d(SaveStatusFunc::class.java.simpleName, "获取到" + t.size + "条消息")
             var count = 0
             for (status in t) {
@@ -70,10 +70,10 @@ class SaveStatusFunc constructor(private val database: LocalDatabase,
 
                 // make sure insert status first to get foreign key worked
                 // mapper current player to this status
-                database.playerAndStatusDao().insert(PlayerAndStatus(currentUser, status.id))
+                database.playerAndStatusDao().insert(PlayerAndStatus(currentUser, status.id, currentUser + status.id))
 
                 if (status.favorited) {
-                    database.playerAndLikeDao().insert(PlayerAndLike(currentUser, status.id))
+                    database.playerAndLikeDao().insert(PlayerAndLike(currentUser, status.id, currentUser + status.id))
                 }
             }
             Log.d(SaveStatusFunc::class.java.simpleName, "保存了" + count + "条消息")

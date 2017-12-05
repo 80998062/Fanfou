@@ -22,14 +22,12 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
-import android.arch.paging.LivePagedListProvider
-import android.arch.paging.PagedList
 import com.f2prateek.rx.preferences2.RxSharedPreferences
-import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.Repository
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.domain.entities.Status
-import com.sinyuk.fanfou.domain.room.KeyedStatusDataSource
 import com.sinyuk.fanfou.lives.PreferenceAwareLiveData
 import io.reactivex.Single
 import javax.inject.Inject
@@ -46,27 +44,14 @@ class TimelineViewModel @Inject constructor(
     internal val accountRelay: PreferenceAwareLiveData<String> = PreferenceAwareLiveData(preferences.getString(UNIQUE_ID))
 
 
-    val config = PagedList.Config.Builder().setEnablePlaceholders(true).setPageSize(PAGE_SIZE)
-            .setPrefetchDistance(PAGE_SIZE)
-            .build()
-
-    internal fun timeline(timelinePath: String, targetPlayer: String?): LiveData<PagedList<Status>> =
+    internal fun timeline(timelinePath: String, targetPlayer: String?) =
             when (timelinePath) {
-                TIMELINE_PUBLIC -> repository.publicTimeline().create(0, config)
-                else -> repository.homeTimeline().create(0, config)
+                TIMELINE_PUBLIC -> repository.homeTimeline()
+                else -> repository.homeTimeline()
             }
 
 
-    val liveData = object : LivePagedListProvider<String, Status>() {
-        override fun createDataSource(): DataSource<String, Status> = KeyedStatusDataSource(repository, TIMELINE_HOME)
-    }.create(null,
-            PagedList.Config.Builder()
-                    .setInitialLoadSizeHint(PAGE_SIZE)
-                    .setPrefetchDistance(PAGE_SIZE / 2)
-                    .setEnablePlaceholders(false).build())
-
-    fun fetchTimeline(path: String, playerId: String?, since: String?, max: String?): Single<List<Status>> {
-
+    fun fetchTimeline(path: String, playerId: String?, since: String?, max: String?): Single<MutableList<Status>> {
         return repository.fetchTimeline(path, since, max)
     }
 

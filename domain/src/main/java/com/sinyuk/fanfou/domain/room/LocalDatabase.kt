@@ -55,11 +55,20 @@ abstract class LocalDatabase : RoomDatabase() {
         fun getInstance(context: Context): LocalDatabase {
             synchronized(lock) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.applicationContext,
-                            LocalDatabase::class.java, "fanfou.db")
-                            .build()
+                    INSTANCE = Room.databaseBuilder(context.applicationContext, LocalDatabase::class.java, "fanfou.db").build()
                 }
                 return INSTANCE!!
+            }
+        }
+
+        private var INSTANCE2: LocalDatabase? = null
+
+        fun getInMemory(context: Context): LocalDatabase {
+            synchronized(lock) {
+                if (INSTANCE2 == null) {
+                    INSTANCE2 = Room.inMemoryDatabaseBuilder(context.applicationContext, LocalDatabase::class.java).build()
+                }
+                return INSTANCE2!!
             }
         }
     }

@@ -18,21 +18,20 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.rest
+package com.sinyuk.fanfou.ui
 
-import com.sinyuk.fanfou.domain.entities.Player
-import com.sinyuk.fanfou.domain.entities.Status
-import io.reactivex.Single
+import com.chad.library.adapter.base.loadmore.LoadMoreView
+import com.sinyuk.fanfou.R
 
-/**
- * Created by sinyuk on 2017/11/28.
- */
-interface RemoteTasks {
-    fun requestToken(account: String, password: String): Single<Authorization?>
 
-    fun updateProfile(): Single<Player>
+class CustomLoadMoreView : LoadMoreView() {
 
-    fun fetchPlayer(uniqueId: String): Single<Player>
+    override fun getLayoutId(): Int = R.layout.quick_view_load_more
 
-    fun fetchTimeline(path: String, since: String?, max: String?): Single<MutableList<Status>>
+    override fun getLoadingViewId(): Int = R.id.load_more_loading_view
+
+    override fun getLoadFailViewId(): Int = R.id.load_more_load_fail_view
+
+    override fun getLoadEndViewId(): Int = R.id.load_more_load_end_view
+
 }

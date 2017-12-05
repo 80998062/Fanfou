@@ -33,11 +33,12 @@ android {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.12'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
     kapt "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
-    implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
+    implementation "android.arch.lifecycle:extensions:$rootProject.ext.archLifecycleVersion"
 
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
@@ -60,6 +61,4 @@ dependencies {
     implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
 
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'junit:junit:4.12'
 }

@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import android.arch.paging.PagedList
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -32,6 +31,7 @@ import com.sinyuk.fanfou.abstracts.AbstractLazyFragment
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.entities.Status
 import com.sinyuk.fanfou.injections.Injectable
+import com.sinyuk.fanfou.utils.CustomLoadMoreView
 import com.sinyuk.fanfou.utils.SingleHanlder
 import com.sinyuk.fanfou.utils.obtainViewModel
 import com.sinyuk.fanfou.viewmodels.ViewModelFactory
@@ -80,7 +80,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    private var adapter: StatusAdapter? = null
+    private val adapter: StatusAdapter? by lazy { StatusAdapter() }
 
 
     private var uniqueId: String? = null
@@ -103,12 +103,11 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         swipeRefreshLayout.setOnRefreshListener { afterSinceId() }
     }
 
+
     private fun afterSinceId() {
-        val d = timelineViewModel.fetchTimeline(timelinePath, targetPlayer, since, null)
+        timelineViewModel.fetchTimeline(timelinePath, targetPlayer, since, null)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doAfterTerminate {
-                    swipeRefreshLayout.isRefreshing = false
-                }
+                .doAfterTerminate { swipeRefreshLayout.isRefreshing = false }
                 .subscribeWith(object : SingleHanlder<List<Status>>(toast) {
                     override fun onSuccess(t: List<Status>) {
                         super.onSuccess(t)
@@ -119,70 +118,79 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                         }
                     }
                 })
-        addDisposable(d)
+                .apply { addDisposable(this) }
     }
 
+    private var isLoadMoreEnd = false
 
     private fun beforeMaxId() {
-        val d = timelineViewModel.fetchTimeline(timelinePath, targetPlayer, null, max)
+        if (isLoadMoreEnd) {
+            return
+        }
+
+        timelineViewModel.fetchTimeline(timelinePath, targetPlayer, null, max)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    isLoading = true
-                }
                 .subscribeWith(object : SingleHanlder<List<Status>>(toast) {
                     override fun onError(e: Throwable) {
                         super.onError(e)
-                        isLoading = false
+                        adapter?.loadMoreFail()
                     }
 
                     override fun onSuccess(t: List<Status>) {
                         super.onSuccess(t)
-                        isLoading = t.size < PAGE_SIZE
+                        if (t.size < PAGE_SIZE) {
+                            isLoadMoreEnd = true
+                            adapter?.loadMoreEnd(false)
+                        } else {
+                            adapter?.loadMoreComplete()
+                        }
                     }
                 })
-        addDisposable(d)
+                .apply { addDisposable(this) }
     }
 
-    private var isLoading: Boolean = true
 
     private fun setupRecyclerView() {
-        if (recyclerView.layoutManager == null) {
-            val lm = LinearLayoutManager(context)
-            lm.initialPrefetchItemCount = 10
-            lm.isAutoMeasureEnabled = true
-            recyclerView.layoutManager = lm
-            recyclerView.setHasFixedSize(true)
+        LinearLayoutManager(context).apply {
+            isItemPrefetchEnabled = true
+            initialPrefetchItemCount = PAGE_SIZE
+            isAutoMeasureEnabled = true
+            recyclerView.layoutManager = this
+        }
+        recyclerView.setHasFixedSize(true)
+
+        adapter?.apply {
+            setHeaderFooterEmpty(false, false)
+            setLoadMoreView(CustomLoadMoreView())
+            setEnableLoadMore(true)
+            disableLoadMoreIfNotFullPage(recyclerView)
+            setOnLoadMoreListener({ beforeMaxId() }, recyclerView)
+            recyclerView.adapter = this
         }
 
-        if (adapter == null) {
-            adapter = StatusAdapter()
-        }
-
-        if (recyclerView.adapter == null) {
-            recyclerView.adapter = adapter
-        }
     }
 
-    private var liveTimeline: LiveData<PagedList<Status>>? = null
+    private var liveTimeline: LiveData<MutableList<Status>>? = null
 
     private fun subscribeLiveData(it: String) {
         uniqueId = it
         adapter?.uniqueId = it
-        liveTimeline?.removeObserver(timelineOB)
+        since = null
+        max = null
+        liveTimeline?.removeObservers(this@TimelineView)
         liveTimeline = timelineViewModel.timeline(timelinePath, targetPlayer).apply {
             observe(this@TimelineView, timelineOB)
         }
+
+        afterSinceId()
     }
 
-    private val timelineOB: Observer<PagedList<Status>> = Observer { t ->
-        adapter?.setList(t)
+    private val timelineOB: Observer<MutableList<Status>> = Observer { t ->
         if (t?.isNotEmpty() == true) {
             since = t.first().id
             max = t.last().id
-        } else {
-            since = null
-            max = null
         }
+        adapter?.setNewData(t)
     }
 
     private var since: String? = null
