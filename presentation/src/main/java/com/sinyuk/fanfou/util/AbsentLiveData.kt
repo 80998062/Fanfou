@@ -18,20 +18,22 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.home
+package com.sinyuk.fanfou.util
 
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import android.arch.lifecycle.LiveData
 
 /**
- * Created by sinyuk on 2017/11/30.
+ * A LiveData class that has `null` value.
  */
-class RootPageAdapter(supporFragmentManager: FragmentManager,private val fragments: MutableList<Fragment>) : FragmentPagerAdapter(supporFragmentManager) {
+class AbsentLiveData<T> private constructor() : LiveData<T>() {
+    init {
+        postValue(null)
+    }
 
-    override fun getItem(position: Int): Fragment = fragments[position]
+    companion object {
+        fun <T> create(): LiveData<T> {
 
-    override fun getCount(): Int = fragments.size
-
-
+            return AbsentLiveData()
+        }
+    }
 }

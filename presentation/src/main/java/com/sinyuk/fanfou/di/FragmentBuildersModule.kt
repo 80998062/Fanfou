@@ -20,14 +20,7 @@
 
 package com.sinyuk.fanfou.di
 
-import com.sinyuk.fanfou.ui.account.AccountBottomSheet
-import com.sinyuk.fanfou.ui.account.ProfileView
-import com.sinyuk.fanfou.ui.account.SettingsView
 import com.sinyuk.fanfou.ui.account.SignInView
-import com.sinyuk.fanfou.ui.home.HomeView
-import com.sinyuk.fanfou.ui.message.MessageView
-import com.sinyuk.fanfou.ui.search.PublicView
-import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -36,29 +29,8 @@ import dagger.android.ContributesAndroidInjector
  * Created by sinyuk on 2017/11/28.
  */
 @Module
-public abstract class FragmentBuildersModule {
+abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
-    abstract fun SignInView(): SignInView
-
-    @ContributesAndroidInjector
-    abstract fun AccountBottomSheet(): AccountBottomSheet
-
-    @ContributesAndroidInjector
-    abstract fun SettingsView(): SettingsView
-
-    @ContributesAndroidInjector
-    abstract fun HomeView(): HomeView
-
-    @ContributesAndroidInjector
-    abstract fun PublicView(): PublicView
-
-    @ContributesAndroidInjector
-    abstract fun MessageView(): MessageView
-
-    @ContributesAndroidInjector
-    abstract fun ProfileView(): ProfileView
-
-    @ContributesAndroidInjector
-    abstract fun TimelineView(): TimelineView
+    abstract fun signInView(): SignInView
 }

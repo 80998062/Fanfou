@@ -42,8 +42,7 @@ class AppExecutors(private val diskIO: Executor,
                    private val mainThread: Executor) {
 
     @Inject
-    constructor() : this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(4),
-            MainThreadExecutor())
+    constructor() : this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(4), MainThreadExecutor())
 
 
     fun diskIO() = diskIO

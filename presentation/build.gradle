@@ -35,15 +35,10 @@ dependencies {
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.21'
 
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.archLifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.archLifecycleVersion"
+    kapt "android.arch.lifecycle:compiler:$rootProject.ext.archLifecycleVersion"
+
     implementation project(':domain')
-
-    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
-    implementation("io.reactivex.rxjava2:rxandroid:2.0.1") {
-        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
-        exclude group: 'org.reactivestreams', module: 'reactive-streams'
-    }
-
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
     implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
@@ -53,12 +48,8 @@ dependencies {
     }
     kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
 
-
     implementation 'com.facebook.stetho:stetho:1.5.0'
-
-    //
     implementation 'com.github.80998062:MyUtils:2.0.2'
-    implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC3'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"
     implementation 'com.daimajia.androidanimations:library:2.3@aar'
 

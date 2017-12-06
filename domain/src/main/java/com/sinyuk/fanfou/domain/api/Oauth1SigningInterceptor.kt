@@ -21,7 +21,11 @@
 package com.sinyuk.fanfou.domain.api
 
 
-import android.text.TextUtils
+import android.content.SharedPreferences
+import com.sinyuk.fanfou.domain.ACCESS_SECRET
+import com.sinyuk.fanfou.domain.ACCESS_TOKEN
+import com.sinyuk.fanfou.domain.BuildConfig
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.util.UrlEscapeUtils
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -35,32 +39,31 @@ import java.security.SecureRandom
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import javax.inject.Named
+import javax.inject.Singleton
 
 
 /**
  * The type Oauth 1 signing interceptor.
  */
-class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
-    private var accessToken: String? = authorization?.secret
-    private var accessSecret: String? = authorization?.token
-    private val consumerKey = FanfouApi.CONSUMER_KEY
-    private val consumerSecret = FanfouApi.CONSUMER_SECRET
+@Singleton
+class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferences) : Interceptor {
+    private val consumerKey = BuildConfig.CONSUMER_KEY
+    private val consumerSecret = BuildConfig.CONSUMER_SECRET
     private val random = SecureRandom()
     private val clock = Clock()
 
 
-    fun authenticator(authorization: Authorization?) {
-        this.accessSecret = authorization?.secret
-        this.accessToken = authorization?.token
-    }
-
-
     @Throws(IOException::class)
-    override fun intercept(chain: Interceptor.Chain): Response = if (TextUtils.isEmpty(accessSecret) || TextUtils.isEmpty(accessToken)) {
-        chain.proceed(chain.request().newBuilder().removeHeader("Authorization").build())
-    } else {
-        chain.proceed(signRequest(chain.request()))
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val token = p.getString(ACCESS_TOKEN, null)
+        val secret = p.getString(ACCESS_SECRET, null)
 
+        return if (token == null || secret == null) {
+            chain.proceed(chain.request().newBuilder().removeHeader("Authorization").build())
+        } else {
+            chain.proceed(signRequest(chain.request(), token, secret))
+        }
     }
 
 
@@ -84,7 +87,7 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
      * @param request the request
      * @return the authorization
      */
-    private fun signRequest(request: Request): Request {
+    private fun signRequest(request: Request, accessToken: String?, accessSecret: String?): Request {
         val nonce = ByteArray(32)
         random.nextBytes(nonce)
         val oauthNonce = ByteString.of(*nonce).base64().replace("\\W".toRegex(), "")
@@ -105,7 +108,8 @@ class Oauth1SigningInterceptor(authorization: Authorization?) : Interceptor {
 
         val httpUrl = request.url()
         val contentType = request.header("Content-Type")
-        if (request.method() == "GET" || (request.method() == "POST") && contentType == "application/x-www-form-urlencoded") {
+        if (request.method() == "GET" || (request.method() == "POST")
+                && contentType == "application/x-www-form-urlencoded") {
             val querySize = request.url().querySize()
             for (i in 0 until querySize) {
                 parameters.put(httpUrl.queryParameterName(i), httpUrl.queryParameterValue(i))

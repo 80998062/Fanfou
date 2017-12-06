@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.ui.account
 
+import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -27,11 +28,9 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.ui.HomeActivity
-import com.sinyuk.fanfou.util.CompletableHandler
 import com.sinyuk.fanfou.util.obtainViewModel
-import com.sinyuk.fanfou.viewmodel.ViewModelFactory
+import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.signin_view.*
 import javax.inject.Inject
 
@@ -43,27 +42,20 @@ class SignInView : AbstractFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.signin_view
 
 
-    @Inject lateinit var factory: ViewModelFactory
+    @Inject lateinit var factory: ViewModelProvider.Factory
 
     @Inject lateinit var toast: ToastUtils
 
-    private lateinit var accountViewModel: AccountViewModel
+    private val accountViewModel: AccountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
-
         loginButton.setOnClickListener({
-            val d = accountViewModel.login(accountEt.text.toString(), passwordEt.text.toString())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : CompletableHandler(toast) {
-                        override fun onComplete() {
-                            toHome()
-                        }
-                    })
-
-            addDisposable(d)
+            accountViewModel.repo.sign(
+                    accountEt.text.toString(),
+                    passwordEt.text.toString()
+            )
         })
     }
 

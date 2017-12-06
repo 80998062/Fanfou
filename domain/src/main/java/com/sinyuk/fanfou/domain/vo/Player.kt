@@ -22,10 +22,7 @@
 
 package com.sinyuk.fanfou.domain.vo
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
+import android.arch.persistence.room.*
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.db.DateConverter
@@ -60,5 +57,8 @@ data class Player @JvmOverloads constructor(
         @SerializedName("following") var following: Boolean? = false,
         @SerializedName("notifications") var notifications: Boolean? = false,
         @SerializedName("created_at") var createdAt: Date? = null,
-        @SerializedName("profile_background_image_url") var profileBackgroundImageUrl:String?= ""
+        @SerializedName("profile_background_image_url") var profileBackgroundImageUrl: String? = "",
+        @Embedded(prefix = "access") var authorization: Authorization? = null
+
+
 )

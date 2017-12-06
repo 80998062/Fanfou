@@ -18,22 +18,16 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.util
-
-import android.arch.lifecycle.LiveData
+package com.sinyuk.fanfou.domain
 
 /**
- * A LiveData class that has `null` value.
+ * Created by sinyuk on 2017/12/6.
+ *
  */
-class AbsentLiveData<T> private constructor() : LiveData<T>() {
-    init {
-        postValue(null)
-    }
 
-    companion object {
-        fun <T> create(): LiveData<T> {
-
-            return AbsentLiveData()
-        }
-    }
-}
+/**
+ * preferences
+ */
+const val UNIQUE_ID: String = "unique_id"
+const val ACCESS_TOKEN: String = "access_token"
+const val ACCESS_SECRET: String = "access_secret"

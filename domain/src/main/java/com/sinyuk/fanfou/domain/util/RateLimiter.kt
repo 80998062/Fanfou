@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo
+package com.sinyuk.fanfou.domain.util
 
 import android.os.SystemClock
 import android.support.v4.util.ArrayMap

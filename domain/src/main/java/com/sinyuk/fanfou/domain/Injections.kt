@@ -18,9 +18,20 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.api
+package com.sinyuk.fanfou.domain
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2017/12/6.
+ *
  */
-data class Authorization constructor(val token: String?, val secret: String?)
+
+/**
+ * database type
+ */
+const val DATABASE_IN_MEMORY: String = "in_memory"
+const val DATABASE_IN_DISK: String = "in_disk"
+
+/**
+ * preferences type
+ */
+const val TYPE_GLOBAL: String = "prefs_global"

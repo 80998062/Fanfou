@@ -21,12 +21,12 @@
 package com.sinyuk.fanfou.util
 
 import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
-import com.sinyuk.fanfou.viewmodel.ViewModelFactory
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -51,8 +51,7 @@ fun AppCompatActivity.addFragmentInActivity(fragment: Fragment, resId: Int, addT
     }
 }
 
-fun <T : ViewModel> AppCompatActivity.obtainViewModel(viewModelFactory: ViewModelFactory, viewModelClass: Class<T>) =
-        ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
+fun <T : ViewModel> AppCompatActivity.obtainViewModel(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
 
 /**
  * Runs a FragmentTransaction, then calls commit().
@@ -75,5 +74,5 @@ fun Fragment.addFragmentInFragment(fragment: Fragment, resId: Int, addToBackStac
     }
 }
 
-fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelFactory, viewModelClass: Class<T>) =
+fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
         ViewModelProviders.of(this.activity as AppCompatActivity, viewModelFactory).get(viewModelClass)

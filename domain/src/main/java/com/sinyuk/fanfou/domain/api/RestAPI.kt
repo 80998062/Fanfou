@@ -20,10 +20,9 @@
 
 package com.sinyuk.fanfou.domain.api
 
+import android.arch.lifecycle.LiveData
 import com.sinyuk.fanfou.domain.vo.Player
 import com.sinyuk.fanfou.domain.vo.Status
-import io.reactivex.Single
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -35,18 +34,18 @@ import retrofit2.http.Query
 interface RestAPI {
 
     @GET("users/show.json?format=html")
-    fun user_show(@Query("id") uniqueId: String): Single<Response<Player>>
+    fun user_show(@Query("id") uniqueId: String): LiveData<ApiResponse<Player>>
 
 
     @POST("account/update_profile.json")
-    fun update_profile(): Single<Response<Player>>
+    fun update_profile(): LiveData<ApiResponse<Player>>
 
 
     @GET("statuses/{path}.json?count=10&format=html")
-    fun fetch_from_path(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): Single<Response<MutableList<Status>>>
+    fun fetch_from_path(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): LiveData<ApiResponse<MutableList<Status>>>
 
 
     @GET("favorites/id.json?count=10&format=html")
-    fun fetch_favorites(@Query("id") id: String?, @Query("since_id") since: String?, @Query("max_id") max: String?): Single<Response<MutableList<Status>>>
+    fun fetch_favorites(@Query("id") id: String?, @Query("since_id") since: String?, @Query("max_id") max: String?): LiveData<ApiResponse<MutableList<Status>>>
 
 }

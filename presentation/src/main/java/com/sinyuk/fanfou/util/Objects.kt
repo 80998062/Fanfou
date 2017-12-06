@@ -18,20 +18,15 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.api
+package com.sinyuk.fanfou.util
 
-import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.Status
-import io.reactivex.Single
-
-/**
- * Created by sinyuk on 2017/11/28.
- */
-interface RemoteTasks {
-    fun requestToken(account: String, password: String): Single<Authorization?>
-    fun updateProfile(): Single<Player>
-    fun fetchPlayer(uniqueId: String): Single<Player>
-    fun fetchFromPath(path: String, since: String?, max: String?): Single<MutableList<Status>>
-    fun fetchFavorites(uniqueId: String?, since: String?, max: String?): Single<MutableList<Status>>
-
+object Objects {
+    fun equals(o1: Any?, o2: Any?): Boolean {
+        if (o1 == null) {
+            return o2 == null
+        }
+        return if (o2 == null) {
+            false
+        } else o1 == o2
+    }
 }

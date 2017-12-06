@@ -18,11 +18,22 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.api
+package com.sinyuk.fanfou.di;
 
-/**
- * Created by sinyuk on 2017/11/29.
- */
-class VisibleThrowable constructor(message: String, val code: Int) : Throwable(message) {
-    constructor(message: String) : this(message, 0)
+import android.arch.lifecycle.ViewModel;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import dagger.MapKey;
+
+@Documented
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@MapKey
+@interface ViewModelKey {
+    Class<? extends ViewModel> value();
 }

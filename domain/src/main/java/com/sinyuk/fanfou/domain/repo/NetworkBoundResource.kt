@@ -27,7 +27,8 @@ import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.api.ApiResponse
-import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.db.LocalDatabase
+import com.sinyuk.fanfou.domain.vo.*
 
 /**
  * A generic class that can provide a resource backed by both the sqlite database and the network.
@@ -66,7 +67,7 @@ abstract class NetworkBoundResource<ResultType, RequestType>
         }
     }
 
-    private fun fetchFromNetwork(dbSource: LiveData<ResultType>) {
+    private fun fetchFromNetwork(dbSource: LiveData<ResultType?>) {
         val apiResponse = createCall()
         // we re-attach dbSource as a new source, it will dispatch its latest value quickly
         result.addSource(dbSource) { newData -> setValue(Resource.loading(newData)) }
@@ -81,14 +82,12 @@ abstract class NetworkBoundResource<ResultType, RequestType>
                         // we specially request a new live data,
                         // otherwise we will get immediately last cached value,
                         // which may not be updated with latest results received from network.
-                        result.addSource(loadFromDb()
-                        ) { newData -> setValue(Resource.success(newData)) }
+                        result.addSource(loadFromDb()) { newData -> setValue(Resource.success(newData)) }
                     }
                 }
             } else {
                 onFetchFailed()
-                result.addSource(dbSource
-                ) { newData -> setValue(Resource.error(response?.errorMessage, newData)) }
+                result.addSource(dbSource) { newData -> setValue(Resource.error(response?.errorMessage, newData)) }
             }
         }
     }
@@ -98,9 +97,7 @@ abstract class NetworkBoundResource<ResultType, RequestType>
 
     fun asLiveData(): LiveData<Resource<ResultType>> = result
 
-    @WorkerThread
-    protected fun processResponse(response: ApiResponse<RequestType>): RequestType? = response.body
-
+    @WorkerThread private fun processResponse(response: ApiResponse<RequestType>): RequestType? = response.body
 
     @WorkerThread
     protected abstract fun saveCallResult(item: RequestType?)
@@ -109,8 +106,43 @@ abstract class NetworkBoundResource<ResultType, RequestType>
     protected abstract fun shouldFetch(data: ResultType?): Boolean
 
     @MainThread
-    protected abstract fun loadFromDb(): LiveData<ResultType>
+    protected abstract fun loadFromDb(): LiveData<ResultType?>
 
     @MainThread
     protected abstract fun createCall(): LiveData<ApiResponse<RequestType>>
+
+
+    companion object {
+        fun saveInDatabase(t: MutableList<Status>, database: LocalDatabase, currentUser: String) {
+            var count = 0
+            for (status in t) {
+                // add user extras data to database
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+
+                if (status.favorited) {
+                    val localStatus = database.statusDao().query(status.id)
+                    if (localStatus == null) {
+                        status.addCollector(currentUser)
+                        database.statusDao().insert(status)
+                        count++
+                    } else {
+                        status.collectorIds = localStatus.collectorIds
+                        status.addCollector(currentUser)
+                        count += database.statusDao().update(status)
+                    }
+                } else {
+                    database.statusDao().insert(status)
+                    count++
+                }
+
+                // make sure insert states first to get foreign key worked
+                // mapper current player to this states
+                database.playerAndStatusDao().insert(PlayerAndStatus(currentUser, status.id, currentUser + status.id))
+
+                if (status.favorited) {
+                    database.playerAndLikeDao().insert(PlayerAndLike(currentUser, status.id, currentUser + status.id))
+                }
+            }
+        }
+    }
 }

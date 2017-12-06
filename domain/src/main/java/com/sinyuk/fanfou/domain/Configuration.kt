@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.domain
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 
 /**
@@ -81,15 +82,7 @@ const val PAGE_SIZE = 10
  */
 const val AUTHOR_FAILED_MSG = "获取第三方应用授权失败"
 const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道怎么了"
-/**
- * preferences
- */
-const val TYPE_GLOBAL: String = "prefs_global"
-const val UNIQUE_ID: String = "unique_id"
 
-/**
- *
- */
-const val DATABASE_IN_MEMORY: String = "in_memory"
-const val DATABASE_IN_DISK: String = "in_disk"
+
+
 

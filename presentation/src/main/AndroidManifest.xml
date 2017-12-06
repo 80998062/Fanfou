@@ -13,27 +13,27 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name=".ui.splash.SplashActivity"
-            android:label="@string/label_splash">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <!--<activity-->
+            <!--android:name=".ui.splash.SplashActivity"-->
+            <!--android:label="@string/label_splash">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
 
-        <activity
-            android:name=".ui.HomeActivity"
-            android:label="@string/label_home">
+        <!--<activity-->
+            <!--android:name=".ui.HomeActivity"-->
+            <!--android:label="@string/label_home">-->
 
-        </activity>
+        <!--</activity>-->
 
-        <activity
-            android:name=".ui.account.SignActivity"
-            android:label="@string/label_sign">
+        <!--<activity-->
+            <!--android:name=".ui.account.SignActivity"-->
+            <!--android:label="@string/label_sign">-->
 
-        </activity>
+        <!--</activity>-->
 
     </application>
 

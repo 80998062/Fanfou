@@ -22,16 +22,11 @@ package com.sinyuk.fanfou
 
 import android.app.Activity
 import android.app.Application
-import android.util.Log
 import com.facebook.stetho.Stetho
 import com.sinyuk.fanfou.di.AppInjector
-import com.sinyuk.fanfou.util.GlobalErrorHandler
 import dagger.android.AndroidInjector
-import dagger.android.HasActivityInjector
 import dagger.android.DispatchingAndroidInjector
-import io.reactivex.Completable
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
+import dagger.android.HasActivityInjector
 import javax.inject.Inject
 
 
@@ -47,19 +42,12 @@ class App : Application(), HasActivityInjector {
         super.onCreate()
         AppInjector.init(this)
 
-        RxJavaPlugins.setErrorHandler(GlobalErrorHandler(this))
-
         initStetho()
     }
 
     private fun initStetho() {
-        Completable.fromCallable({
-            Stetho.initialize(Stetho.newInitializerBuilder(applicationContext)
-                    .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(applicationContext))
-                    .build())
-        })
-                .subscribeOn(Schedulers.io())
-                .doOnError { it.printStackTrace() }
-                .subscribe { Log.d("App: ", "initStetho") }
+        Stetho.initialize(Stetho.newInitializerBuilder(applicationContext)
+                .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(applicationContext))
+                .build())
     }
 }

@@ -49,7 +49,6 @@ data class Status constructor(
         @SerializedName("created_at") var createdAt: Date? = null,
         @Embedded(prefix = "player") var playerExtracts: PlayerExtracts? = null,
         @Embedded(prefix = "photo") @SerializedName("photo") var photos: Photos? = null,
-//        @SerializedName("is_self") var isSelf: Boolean = false, 不准的
         @SerializedName("favorited") var favorited: Boolean = false,
         var collectorIds: String? = "",
         @SerializedName("repost_user_id") var repostUserId: String? = null,

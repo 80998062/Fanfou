@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1ee53318c556dbdb369e6268bd222ecf",
+    "identityHash": "6c69534073fb4c203e7829352b228ec9",
     "entities": [
       {
         "tableName": "players",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT, `screenName` TEXT, `location` TEXT, `gender` TEXT, `birthday` TEXT, `description` TEXT, `profileImageUrl` TEXT, `profileImageUrlLarge` TEXT, `url` TEXT, `protectedX` INTEGER, `followersCount` INTEGER, `friendsCount` INTEGER, `favouritesCount` INTEGER, `statusesCount` INTEGER, `photoCount` INTEGER, `following` INTEGER, `notifications` INTEGER, `createdAt` INTEGER, `profileBackgroundImageUrl` TEXT, PRIMARY KEY(`uniqueId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `id` TEXT NOT NULL, `name` TEXT, `screenName` TEXT, `location` TEXT, `gender` TEXT, `birthday` TEXT, `description` TEXT, `profileImageUrl` TEXT, `profileImageUrlLarge` TEXT, `url` TEXT, `protectedX` INTEGER, `followersCount` INTEGER, `friendsCount` INTEGER, `favouritesCount` INTEGER, `statusesCount` INTEGER, `photoCount` INTEGER, `following` INTEGER, `notifications` INTEGER, `createdAt` INTEGER, `profileBackgroundImageUrl` TEXT, `accesstoken` TEXT, `accesssecret` TEXT, PRIMARY KEY(`uniqueId`))",
         "fields": [
           {
             "fieldPath": "uniqueId",
@@ -133,6 +133,18 @@
             "columnName": "profileBackgroundImageUrl",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "authorization.token",
+            "columnName": "accesstoken",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "authorization.secret",
+            "columnName": "accesssecret",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -160,85 +172,6 @@
           }
         ],
         "foreignKeys": []
-      },
-      {
-        "tableName": "registrations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uniqueId` TEXT NOT NULL, `account` TEXT, `password` TEXT, `loggedAt` INTEGER, `token` TEXT, `secret` TEXT, PRIMARY KEY(`uniqueId`), FOREIGN KEY(`uniqueId`) REFERENCES `players`(`uniqueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "uniqueId",
-            "columnName": "uniqueId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "account",
-            "columnName": "account",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "password",
-            "columnName": "password",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "loggedAt",
-            "columnName": "loggedAt",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "token",
-            "columnName": "token",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "secret",
-            "columnName": "secret",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "uniqueId"
-          ],
-          "autoGenerate": false
-        },
-        "indices": [
-          {
-            "name": "index_registrations_uniqueId",
-            "unique": false,
-            "columnNames": [
-              "uniqueId"
-            ],
-            "createSql": "CREATE  INDEX `index_registrations_uniqueId` ON `${TABLE_NAME}` (`uniqueId`)"
-          },
-          {
-            "name": "index_registrations_account",
-            "unique": false,
-            "columnNames": [
-              "account"
-            ],
-            "createSql": "CREATE  INDEX `index_registrations_account` ON `${TABLE_NAME}` (`account`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "players",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "uniqueId"
-            ],
-            "referencedColumns": [
-              "uniqueId"
-            ]
-          }
-        ]
       },
       {
         "tableName": "statuses",
@@ -555,7 +488,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1ee53318c556dbdb369e6268bd222ecf\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"6c69534073fb4c203e7829352b228ec9\")"
     ]
   }
 }

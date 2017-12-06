@@ -27,10 +27,7 @@ import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasFragmentInjector
-
 import dagger.android.support.HasSupportFragmentInjector
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
 /**
@@ -47,7 +44,6 @@ abstract class AbstractActivity : AppCompatActivity(), HasFragmentInjector, HasS
     override fun fragmentInjector(): AndroidInjector<android.app.Fragment> = frameworkFragmentInjector
 
 
-    private val mCompositeDisposable: CompositeDisposable = CompositeDisposable()
     /**
      * before setContentView()
      */
@@ -65,21 +61,6 @@ abstract class AbstractActivity : AppCompatActivity(), HasFragmentInjector, HasS
 
         layoutId()?.let {
             setContentView(layoutId()!!)
-        }
-    }
-
-
-    /**
-     * Add disposable.
-     *
-     * @param s the s
-     */
-    protected fun addDisposable(s: Disposable) = mCompositeDisposable.add(s)
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (!mCompositeDisposable.isDisposed) {
-            mCompositeDisposable.dispose()
         }
     }
 }

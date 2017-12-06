@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
-import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.vo.Status
 
@@ -30,17 +29,8 @@ import com.sinyuk.fanfou.domain.vo.Status
  */
 @Dao
 interface StatusDao {
-    @Query("SELECT * from statuses ORDER BY createdAt DESC LIMIT :limit")
-    fun initial(limit: Int): MutableList<Status>
-
-    @Query("SELECT * from statuses WHERE id < :key ORDER BY createdAt DESC LIMIT :limit")
-    fun loadAfter(key: String, limit: Int): MutableList<Status>
-
-    @Query("SELECT * from statuses WHERE id > :key ORDER BY createdAt ASC LIMIT :limit")
-    fun loadBefore(key: String, limit: Int): MutableList<Status>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun inserts(statuses: List<Status>): List<Long>
+    fun inserts(statuses: MutableList<Status>): MutableList<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(status: Status): Long
@@ -53,8 +43,4 @@ interface StatusDao {
 
     @Query("SELECT * FROM statuses WHERE id = :id")
     fun query(id: String): Status?
-
-
-    @Query("SELECT * from statuses ORDER BY createdAt DESC, id ASC")
-    fun publicTimeline(): LiveData<MutableList<Status>>
 }

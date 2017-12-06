@@ -25,16 +25,12 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
 abstract class AbstractFragment : Fragment() {
-
-    private val mCompositeDisposable = CompositeDisposable()
 
     protected abstract fun layoutId(): Int?
 
@@ -45,18 +41,4 @@ abstract class AbstractFragment : Fragment() {
             super.onCreateView(inflater, container, savedInstanceState)
         }
     }
-
-
-    protected fun addDisposable(s: Disposable) {
-        mCompositeDisposable.add(s)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (!mCompositeDisposable.isDisposed) {
-            mCompositeDisposable.dispose()
-        }
-    }
-
-
 }

@@ -18,10 +18,9 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.api
+package com.sinyuk.fanfou.domain.vo
 
 /**
- * request : /account/user_show.json
- * error : 参数错误
+ * Created by sinyuk on 2017/12/6.
  */
-data class Error constructor(val request: String = "", val error: String = "")
+data class Authorization constructor(val token: String, val secret: String)

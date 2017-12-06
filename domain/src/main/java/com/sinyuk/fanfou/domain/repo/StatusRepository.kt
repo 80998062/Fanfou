@@ -20,8 +20,50 @@
 
 package com.sinyuk.fanfou.domain.repo
 
+import android.arch.lifecycle.LiveData
+import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
+import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
+import com.sinyuk.fanfou.domain.api.ApiResponse
+import com.sinyuk.fanfou.domain.api.Endpoint
+import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
+import com.sinyuk.fanfou.domain.db.LocalDatabase
+import com.sinyuk.fanfou.domain.vo.Status
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Singleton
+
 /**
  * Created by sinyuk on 2017/12/6.
+ *
  */
-class StatusRepository {
+@Singleton
+class StatusRepository @Inject constructor(url: Endpoint,
+                                           interceptor: Oauth1SigningInterceptor,
+                                           private val appExecutors: AppExecutors,
+                                           @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
+                                           @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
+
+    fun loadMyHomeTimline() = object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
+        override fun onFetchFailed() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun saveCallResult(item: MutableList<Status>?) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun shouldFetch(data: MutableList<Status>?): Boolean {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun loadFromDb(): LiveData<MutableList<Status>?> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun createCall(): LiveData<ApiResponse<MutableList<Status>>> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+    }
 }

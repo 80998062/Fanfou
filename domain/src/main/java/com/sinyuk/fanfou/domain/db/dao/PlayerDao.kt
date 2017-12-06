@@ -21,33 +21,27 @@
 package com.sinyuk.fanfou.domain.db.dao
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Delete
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy.REPLACE
+import android.arch.persistence.room.Query
 import com.sinyuk.fanfou.domain.vo.Player
 
 
 /**
  * Created by sinyuk on 2017/11/27.
+ *
  */
 @Dao
 interface PlayerDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(player: Player): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun inserts(players: MutableList<Player>): MutableList<Long>
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(player: Player): Int
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updates(players: MutableList<Player>): Int
 
     @Delete
     fun delete(player: Player): Int
 
-    @Query("SELECT * FROM players WHERE uniqueId IN (SELECT uniqueId FROM registrations)")
-    fun admins(): LiveData<MutableList<Player>>
-
     @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
-    fun query(uniqueId: String?): LiveData<Player>
+    fun query(uniqueId: String?): LiveData<Player?>
+
+    @Insert(onConflict = REPLACE)
+    fun insert(player: Player?): Long?
 }

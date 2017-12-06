@@ -21,8 +21,8 @@
 package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.App
-import dagger.android.support.AndroidSupportInjectionModule
 import dagger.Component
+import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 
@@ -31,6 +31,6 @@ import javax.inject.Singleton
  */
 @Singleton
 @Component(modules = arrayOf(AppModule::class, AndroidSupportInjectionModule::class, ActivityBuildersModule::class))
-public interface AppComponent {
+interface AppComponent {
     fun inject(instance: App)
 }

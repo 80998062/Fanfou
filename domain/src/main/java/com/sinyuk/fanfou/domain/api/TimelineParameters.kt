@@ -27,8 +27,9 @@ import java.util.*
 
 /**
  * Created by sinyuk on 2017/11/30.
+ *
  */
-@Deprecated("好像没用啊")
+@Deprecated("没用了")
 class TimelineParameters private constructor(builder: Builder) {
 
     private var sinceId: String? = null

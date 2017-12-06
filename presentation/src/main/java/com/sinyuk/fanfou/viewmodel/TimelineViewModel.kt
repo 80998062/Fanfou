@@ -18,29 +18,14 @@
  *
  */
 
-package com.sinyuk.fanfou.util
+package com.sinyuk.fanfou.viewmodel
 
-import com.sinyuk.fanfou.domain.UNHANDLE_VISIBLE_ERROR_MESSAGE
-import com.sinyuk.fanfou.domain.api.VisibleThrowable
-import com.sinyuk.myutils.system.ToastUtils
-import io.reactivex.observers.DisposableSingleObserver
+import android.arch.lifecycle.ViewModel
+import com.sinyuk.fanfou.domain.repo.StatusRepository
+import javax.inject.Inject
 
 /**
- * Created by sinyuk on 2017/12/1.
+ * Created by sinyuk on 2017/12/6.
  */
-open class SingleHanlder<T> constructor(private val toast: ToastUtils?) : DisposableSingleObserver<T>() {
-    override fun onSuccess(t: T) {
-    }
-
-    constructor() : this(null)
-
-
-    override fun onError(e: Throwable) {
-        if (e is VisibleThrowable) {
-            toast?.let {
-                toast.toastShort(e.message ?: UNHANDLE_VISIBLE_ERROR_MESSAGE)
-            }
-        }
-    }
-
+class TimelineViewModel @Inject constructor(val repo: StatusRepository) : ViewModel() {
 }

@@ -21,8 +21,6 @@
 package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.HomeActivity
-import com.sinyuk.fanfou.ui.account.SignActivity
-import com.sinyuk.fanfou.ui.splash.SplashActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -31,17 +29,10 @@ import dagger.android.ContributesAndroidInjector
  * Created by sinyuk on 2017/11/28.
  */
 @Module
-public abstract class ActivityBuildersModule {
-    @ActivityScope
-    @ContributesAndroidInjector(modules = arrayOf(FragmentBuildersModule::class))
-    internal abstract fun SplashActivity(): SplashActivity
-
+abstract class ActivityBuildersModule {
 
     @ActivityScope
     @ContributesAndroidInjector(modules = arrayOf(FragmentBuildersModule::class))
-    internal abstract fun HomeActivity(): HomeActivity
+    abstract fun homeActivity(): HomeActivity
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = arrayOf(FragmentBuildersModule::class))
-    internal abstract fun SignActivity(): SignActivity
 }
