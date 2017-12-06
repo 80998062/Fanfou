@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.ui.account
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
@@ -27,6 +28,9 @@ import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.vo.Authorization
+import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.vo.States
 import com.sinyuk.fanfou.ui.HomeActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -51,12 +55,25 @@ class SignInView : AbstractFragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loginButton.setOnClickListener({
-            accountViewModel.repo.sign(
-                    accountEt.text.toString(),
-                    passwordEt.text.toString()
-            )
-        })
+        loginButton.setOnClickListener { onLogin() }
+
+    }
+
+    private fun onLogin() {
+        accountViewModel.sign(
+                "80998062@qq.com"/*accountEt.text.toString()*/,
+                "rabbit7run" /*passwordEt.text.toString()*/)
+                .observe(this@SignInView, Observer<Resource<Authorization>> {
+                    when (it?.states) {
+                        States.ERROR -> {
+                            it.message?.let { toast.toastShort(it) }
+                        }
+                        States.SUCCESS -> {
+                            accountViewModel.checkLogin()
+                        }
+                        else -> TODO()
+                    }
+                })
     }
 
     private fun toHome() {

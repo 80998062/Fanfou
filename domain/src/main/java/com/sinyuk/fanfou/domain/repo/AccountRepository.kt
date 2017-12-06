@@ -54,13 +54,20 @@ class AccountRepository
 
     fun accessSecret() = prefs.getString(ACCESS_SECRET, null)
 
+//    @SuppressLint("CommitPrefEdits")
+//    fun updateAuthorization(updated: Authorization) {
+//        prefs.edit().apply {
+//            putString(ACCESS_SECRET, updated.secret)
+//            putString(ACCESS_TOKEN, updated.token)
+//            apply()
+//        }
+//    }
 
     /**
      * sigin in
      */
     fun sign(account: String, password: String): MutableLiveData<Resource<Authorization>> {
-        val uniqueId = ""
-        val task = AuthorizeTask(uniqueId, account, password, okHttpClient, db, prefs)
+        val task = SignInTask(account, password, okHttpClient, prefs)
         appExecutors.diskIO().execute(task)
         return task.liveData
     }

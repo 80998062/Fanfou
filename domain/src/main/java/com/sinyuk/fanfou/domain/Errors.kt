@@ -18,20 +18,11 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.db;
+package com.sinyuk.fanfou.domain
 
-import android.arch.persistence.room.TypeConverter;
+/**
+ * Created by sinyuk on 2017/12/6.
+ */
 
-import java.util.Date;
 
-public class DateConverter {
-    @TypeConverter
-    public static Date fromTimestamp(Long value) {
-        return value == null ? null : new Date(value);
-    }
-
-    @TypeConverter
-    public static Long dateToTimestamp(Date date) {
-        return date == null ? null : date.getTime();
-    }
-}
+const val  ERROR_LOGIN_FORM_DATA_EMPTY = "账号和密码不能为空"

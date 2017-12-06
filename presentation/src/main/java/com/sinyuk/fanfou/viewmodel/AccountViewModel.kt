@@ -30,16 +30,18 @@ import com.sinyuk.fanfou.domain.vo.Authorization
 import com.sinyuk.fanfou.domain.vo.Player
 import com.sinyuk.fanfou.domain.vo.Resource
 import com.sinyuk.fanfou.util.AbsentLiveData
+import com.sinyuk.fanfou.util.Objects
 import javax.inject.Inject
 
 
 /**
  * Created by sinyuk on 2017/12/6.
+ *
  */
 class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewModel() {
 
     @VisibleForTesting
-    val login = MutableLiveData<Authorization>()
+    private val login = MutableLiveData<Authorization>()
 
     private val user: LiveData<Resource<Player>>? by lazy {
         Transformations.switchMap(login, {
@@ -52,8 +54,16 @@ class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewMo
     }
 
 
+    /**
+     * 检查是否登录
+     */
     fun checkLogin() {
-        Authorization(repo.accessToken(), repo.accessSecret())
+        val current = Authorization(repo.accessToken(), repo.accessSecret())
+        if (!Objects.equals(current, login.value)) {
+            login.value = current
+        }
     }
+
+    fun sign(account: String, password: String) = repo.sign(account, password)
 
 }

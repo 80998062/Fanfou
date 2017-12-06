@@ -26,7 +26,7 @@ package com.sinyuk.fanfou.domain.vo
  *
  * https://github.com/googlesamples/android-architecture-components/blob/master/GithubBrowserSample/app/src/main/java/com/android/example/github/vo/Resource.java
 </T> */
-class Resource<out T>(private val states: States, val data: T?, val message: String?) {
+class Resource<out T>(val states: States, val data: T?, val message: String?) {
     companion object {
         fun <T> success(data: T?): Resource<T> = Resource(States.SUCCESS, data, null)
         fun <T> error(msg: String?, data: T?): Resource<T> = Resource(States.ERROR, data, msg)

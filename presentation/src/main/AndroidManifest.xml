@@ -16,18 +16,18 @@
         <!--<activity-->
             <!--android:name=".ui.splash.SplashActivity"-->
             <!--android:label="@string/label_splash">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
-
-        <!--<activity-->
-            <!--android:name=".ui.HomeActivity"-->
-            <!--android:label="@string/label_home">-->
 
         <!--</activity>-->
+
+        <activity
+            android:name=".ui.HomeActivity"
+            android:label="@string/label_home">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!--<activity-->
             <!--android:name=".ui.account.SignActivity"-->
