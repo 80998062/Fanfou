@@ -44,4 +44,18 @@ interface StatusDao {
 
     @Query("SELECT * FROM statuses WHERE id = :id")
     fun query(id: String?): LiveData<Status?>
+
+
+    @Query("SELECT * from statuses WHERE createdAt > (SELECT createdAt FROM statuses WHERE id = :since)" +
+            " ORDER BY createdAt DESC LIMIT :limit")
+    fun before(since: String?, limit: Int): LiveData<MutableList<Status>?>
+
+
+    @Query("SELECT * from statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :max)" +
+            " ORDER BY createdAt DESC LIMIT :limit")
+    fun after(max: String?, limit: Int): LiveData<MutableList<Status>?>
+
+
+    @Query("SELECT * from statuses ORDER BY createdAt DESC LIMIT :limit")
+    fun initial(limit: Int): LiveData<MutableList<Status>?>
 }

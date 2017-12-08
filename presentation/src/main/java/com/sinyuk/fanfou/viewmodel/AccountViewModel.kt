@@ -55,7 +55,7 @@ class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewMo
         }
     })
 
-    fun timeline(since: String?, max: String?) = repo.timeline(since, max)
+    fun loadmore(max: String?) = repo.timeline(max)
 
 
     /**

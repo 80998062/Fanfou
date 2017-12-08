@@ -87,7 +87,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     }
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { afterSinceId() }
+        swipeRefreshLayout.setOnRefreshListener { beforeMaxId() }
     }
 
 
@@ -95,7 +95,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         Observer<Resource<MutableList<Status>>> { t ->
             when (t?.states) {
                 States.SUCCESS -> {
-                    addBefore(t.data)
+                    insertBefore(t.data)
                 }
                 States.ERROR -> {
                     t.message?.let { toast.toastShort(it) }
@@ -110,23 +110,38 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
     }
 
-    private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
 
-    private fun afterSinceId() {
-        if (targetPlayer == null) {
-            when (timelinePath) {
-                TIMELINE_HOME -> resourceLive = accountViewModel.timeline(since, null).apply { observe(this@TimelineView, refreshOB) }
-                else -> TODO()
-            }.run {
-
+    private val loadmoreOB: Observer<Resource<MutableList<Status>>> by lazy {
+        Observer<Resource<MutableList<Status>>> { t ->
+            when (t?.states) {
+                States.SUCCESS -> {
+                    isLoadMore = false
+                    if (t.data?.size == PAGE_SIZE) {
+                        adapter.loadMoreComplete()
+                    } else {
+                        adapter.loadMoreEnd(true)
+                    }
+                    appendAfter(t.data)
+                }
+                States.ERROR -> {
+                    isLoadMore = false
+                    adapter.loadMoreFail()
+                    t.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> { isLoadMore = true }
+                null -> TODO()
             }
-
-        } else {
-            TODO()
+            swipeRefreshLayout.isRefreshing = false
         }
     }
 
-    private fun addBefore(data: MutableList<Status>?) {
+    private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
+
+    private fun afterSinceId() {
+
+    }
+
+    private fun insertBefore(data: MutableList<Status>?) {
         data?.let {
             since = data.first().id
             adapter.data.addAll(0, it)
@@ -134,15 +149,30 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
     }
 
+    private fun appendAfter(data: MutableList<Status>?) {
+        data?.let {
+            max = data.last().id
+            adapter.data.addAll(it)
+            adapter.notifyDataSetChanged()
+        }
+    }
 
-    private var isLoadMoreEnd = false
+
+    private var isLoadMore = false
 
     private fun beforeMaxId() {
-        if (isLoadMoreEnd) {
-            return
+        if (isLoadMore) return
+        if (targetPlayer == null) {
+            when (timelinePath) {
+                TIMELINE_HOME -> resourceLive = accountViewModel.loadmore(max).apply { observe(this@TimelineView, loadmoreOB) }
+                else -> TODO()
+            }.run {
+//                resourceLive?.removeObserver(loadmoreOB)
+            }
+
+        } else {
+            TODO()
         }
-
-
     }
 
 

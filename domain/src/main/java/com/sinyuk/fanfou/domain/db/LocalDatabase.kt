@@ -25,13 +25,9 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
-import com.sinyuk.fanfou.domain.db.dao.PlayerAndLikeDao
-import com.sinyuk.fanfou.domain.db.dao.PlayerAndStatusDao
 import com.sinyuk.fanfou.domain.db.dao.PlayerDao
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
 import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.PlayerAndLike
-import com.sinyuk.fanfou.domain.vo.PlayerAndStatus
 import com.sinyuk.fanfou.domain.vo.Status
 
 
@@ -39,17 +35,11 @@ import com.sinyuk.fanfou.domain.vo.Status
  * Created by sinyuk on 2017/11/27.
  *
  */
-@Database(entities = arrayOf(
-        Player::class,
-        Status::class,
-        PlayerAndStatus::class,
-        PlayerAndLike::class),
-        version = BuildConfig.VERSION_CODE)
+@Database(entities = arrayOf(Player::class, Status::class),
+        version = BuildConfig.VERSION_CODE, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun statusDao(): StatusDao
-    abstract fun playerAndStatusDao(): PlayerAndStatusDao
-    abstract fun playerAndLikeDao(): PlayerAndLikeDao
 
     companion object {
 

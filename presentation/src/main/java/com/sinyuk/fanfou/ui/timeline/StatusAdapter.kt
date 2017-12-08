@@ -128,14 +128,10 @@ class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(
             }
 
 
-            if (uniqueId == null) {
-                itemView.likeButton.setImageDrawable(null)
+            if (status.favorited) {
+                itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
             } else {
-                if (status.collectorIds?.contains(uniqueId.toRegex()) == true) {
-                    itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
-                } else {
-                    itemView.likeButton.setImageDrawable(null)
-                }
+                itemView.likeButton.setImageDrawable(null)
             }
 
 

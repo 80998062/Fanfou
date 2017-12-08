@@ -54,7 +54,6 @@ class AccountRepository
 
     fun accessSecret(): String? = prefs.getString(ACCESS_SECRET, null)
 
-
     /**
      * sigin in
      */
@@ -103,13 +102,13 @@ class AccountRepository
                         rateLimiter.shouldFetch(KEY) || forcedUpdate || data == null || data.isEmpty()
 
                 override fun loadFromDb(): LiveData<MutableList<Status>?> = if (max == null) {
-                    db.playerAndStatusDao().initial(uniqueId()!!, PAGE_SIZE)
+                    db.statusDao().initial(PAGE_SIZE)
                 } else {
                     Transformations.switchMap(db.statusDao().query(max), {
                         if (it == null) {
                             AbsentLiveData.create()
                         } else {
-                            db.playerAndStatusDao().after(uniqueId()!!, max, PAGE_SIZE)
+                            db.statusDao().after(max, PAGE_SIZE)
                         }
                     })
                 }
@@ -118,45 +117,16 @@ class AccountRepository
 
             }.asLiveData()
 
-    private fun mocksaveStatus(t: MutableList<Status>) {
+    private fun saveStatus(t: MutableList<Status>) {
         db.beginTransaction()
         try {
-
+            for (status in t) {
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                Log.d("saveStatus", "insert at " + db.statusDao().insert(status))
+            }
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
-        }
-    }
-
-    private fun saveStatus(t: MutableList<Status>) {
-        Log.e("timeline", "saveStatus " + t.size)
-
-        val currentUser = uniqueId()
-        for (status in t) {
-            // add user extras data to database
-            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-
-            if (status.favorited) {
-                val localStatus = db.statusDao().query(status.id)
-                if (localStatus.value == null) {
-                    currentUser?.let { status.addCollector(it) }
-                    db.statusDao().insert(status)
-                } else {
-                    localStatus.value?.collectorIds?.let { status.collectorIds = it }
-                    currentUser?.let { status.addCollector(it) }
-                    db.statusDao().update(status)
-                }
-            } else {
-                db.statusDao().insert(status)
-            }
-            // make sure insert states first to get foreign key worked
-            // mapper current player to this states
-            currentUser?.let {
-                db.playerAndStatusDao().insert(PlayerAndStatus(it, status.id, it + status.id))
-                if (status.favorited) {
-                    db.playerAndLikeDao().insert(PlayerAndLike(it, status.id, it + status.id))
-                }
-            }
         }
     }
 }
