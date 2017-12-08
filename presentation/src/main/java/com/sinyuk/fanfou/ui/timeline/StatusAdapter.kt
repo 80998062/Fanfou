@@ -37,7 +37,7 @@ import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
  */
 class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(R.layout.timeline_view_list_item) {
 
-    lateinit var uniqueId: String
+    var uniqueId: String? = null
 
     override fun convert(holder: StatusViewHolder, status: Status?) {
         if (status == null) {
@@ -105,7 +105,7 @@ class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(
             itemView.deleteButton.visibility = View.GONE
         }
 
-        fun bindTo(status: Status, uniqueId: String) {
+        fun bindTo(status: Status, uniqueId: String?) {
             itemView.avatar.setImageResource(R.mipmap.ic_launcher_round)
             itemView.screenName.text = status.playerExtracts?.screenName
             itemView.content.text = status.text
@@ -128,11 +128,16 @@ class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(
             }
 
 
-            if (status.collectorIds?.contains(uniqueId.toRegex()) == true) {
-                itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
-            } else {
+            if (uniqueId == null) {
                 itemView.likeButton.setImageDrawable(null)
+            } else {
+                if (status.collectorIds?.contains(uniqueId.toRegex()) == true) {
+                    itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
+                } else {
+                    itemView.likeButton.setImageDrawable(null)
+                }
             }
+
 
             itemView.likeButton.setOnClickListener {
                 itemView.swipeLayout.close()

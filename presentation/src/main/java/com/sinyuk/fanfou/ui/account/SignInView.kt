@@ -31,7 +31,7 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.vo.Authorization
 import com.sinyuk.fanfou.domain.vo.Resource
 import com.sinyuk.fanfou.domain.vo.States
-import com.sinyuk.fanfou.ui.HomeActivity
+import com.sinyuk.fanfou.ui.MainActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -78,7 +78,7 @@ class SignInView : AbstractFragment(), Injectable {
 
     private fun toHome() {
         context?.let {
-            HomeActivity.start(context!!, Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            MainActivity.start(context!!, Intent.FLAG_ACTIVITY_CLEAR_TOP)
             activity!!.finish()
         }
     }

@@ -24,23 +24,31 @@ import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.ui.search.PublicView
+import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.main_activity.*
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
-class HomeActivity : AbstractActivity() {
+class MainActivity : AbstractActivity(), View.OnClickListener {
     companion object {
+
         @JvmStatic
         fun start(context: Context, flags: Int?) {
-            val intent = Intent(context, HomeActivity::class.java)
+            val intent = Intent(context, MainActivity::class.java)
             flags?.let { intent.flags = flags }
             context.startActivity(intent)
         }
@@ -49,7 +57,7 @@ class HomeActivity : AbstractActivity() {
     override fun beforeInflate() {
     }
 
-    override fun layoutId(): Int? = R.layout.home_activity
+    override fun layoutId(): Int? = R.layout.main_activity
 
     @Inject lateinit var factory: ViewModelProvider.Factory
 
@@ -57,31 +65,55 @@ class HomeActivity : AbstractActivity() {
 
     @Inject lateinit var toast: ToastUtils
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
 
-        addFragmentInActivity(SignInView(), R.id.fragment_container, false)
+        setupActionBar()
+        setupViewPager()
     }
 
+
     private fun setupActionBar() {
-//        avatar.setOnClickListener {
-//            val sheet = AccountBottomSheet()
-//            sheet.show(supportFragmentManager, AccountBottomSheet::class.java.simpleName)
-//        }
+        avatar.setOnClickListener {
+            addFragmentInActivity(PlayerView(), R.id.fragment_container, true)
+        }
     }
 
     private fun setupViewPager() {
-//        val homePage = HomeView()
-//        val publicPage = PublicView()
-//        val messagePage = MessageView()
-//        val profilePage = ProfileView()
-//
-//        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, publicPage, messagePage, profilePage))
-//
-//        viewPager.offscreenPageLimit = 4
-//        viewPager.adapter = adapter
+        val homePage = TimelineView.newInstance(TIMELINE_HOME)
+        val publicPage = PublicView()
+        val signView = SignInView()
+        val messagePage = MessageView()
+
+        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, publicPage, signView, messagePage))
+
+        viewPager.offscreenPageLimit = 4
+        viewPager.adapter = adapter
+
+        homeTab.setOnClickListener(this)
+        publicTab.setOnClickListener(this)
+        notificationTab.setOnClickListener(this)
+        messageTab.setOnClickListener(this)
+
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.homeTab -> {
+                viewPager.setCurrentItem(0, false)
+            }
+            R.id.publicTab -> {
+                viewPager.setCurrentItem(1, false)
+            }
+            R.id.notificationTab -> {
+                viewPager.setCurrentItem(2, false)
+            }
+            R.id.messageTab -> {
+                viewPager.setCurrentItem(3, false)
+            }
+        }
     }
 
 

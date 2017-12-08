@@ -37,6 +37,20 @@ interface PlayerAndStatusDao {
 
     @Query("SELECT * from statuses WHERE id IN " +
             "(SELECT statusId from player_status WHERE playerId = :uniqueId)" +
-            "ORDER BY createdAt DESC, id ASC")
-    fun query(uniqueId: String): LiveData<MutableList<Status>>
+            "AND createdAt > (SELECT createdAt FROM statuses WHERE id = :since)" +
+            "ORDER BY createdAt DESC LIMIT :limit")
+    fun before(uniqueId: String, since: String?, limit: Int): LiveData<MutableList<Status>?>
+
+
+    @Query("SELECT * from statuses WHERE id IN " +
+            "(SELECT statusId from player_status WHERE playerId = :uniqueId)" +
+            "AND createdAt < (SELECT createdAt FROM statuses WHERE id = :max)" +
+            "ORDER BY createdAt DESC LIMIT :limit")
+    fun after(uniqueId: String, max: String?, limit: Int): LiveData<MutableList<Status>?>
+
+
+    @Query("SELECT * from statuses WHERE id IN " +
+            "(SELECT statusId from player_status WHERE playerId = :uniqueId)" +
+            "ORDER BY createdAt DESC LIMIT :limit")
+    fun initial(uniqueId: String, limit: Int): LiveData<MutableList<Status>?>
 }

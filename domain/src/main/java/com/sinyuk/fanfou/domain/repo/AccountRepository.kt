@@ -23,14 +23,13 @@ package com.sinyuk.fanfou.domain.repo
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.SharedPreferences
+import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.vo.Authorization
-import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.vo.*
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -44,24 +43,15 @@ class AccountRepository
                     interceptor: Oauth1SigningInterceptor,
                     private val appExecutors: AppExecutors,
                     @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
-                    @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase,
                     @Named(TYPE_GLOBAL) val prefs: SharedPreferences) : AbstractRepository(url, interceptor) {
 
 
-    fun uniqueId() = prefs.getString(UNIQUE_ID, null)
+    fun uniqueId(): String? = prefs.getString(UNIQUE_ID, null)
 
-    fun accessToken() = prefs.getString(ACCESS_TOKEN, null)
+    fun accessToken(): String? = prefs.getString(ACCESS_TOKEN, null)
 
-    fun accessSecret() = prefs.getString(ACCESS_SECRET, null)
+    fun accessSecret(): String? = prefs.getString(ACCESS_SECRET, null)
 
-//    @SuppressLint("CommitPrefEdits")
-//    fun updateAuthorization(updated: Authorization) {
-//        prefs.edit().apply {
-//            putString(ACCESS_SECRET, updated.secret)
-//            putString(ACCESS_TOKEN, updated.token)
-//            apply()
-//        }
-//    }
 
     /**
      * sigin in
@@ -75,11 +65,14 @@ class AccountRepository
     /**
      * load account
      */
-    fun loadAccount(forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
+    fun verifyCredentials(forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
         override fun onFetchFailed() {}
 
         override fun saveCallResult(item: Player?) {
             item?.let {
+                prefs.edit().apply {
+                    putString(UNIQUE_ID, it.uniqueId)
+                }.apply()
                 it.authorization = Authorization(accessToken(), accessSecret())
                 db.playerDao().insert(it)
             }
@@ -89,7 +82,67 @@ class AccountRepository
 
         override fun loadFromDb(): LiveData<Player?> = db.playerDao().query(uniqueId())
 
-        override fun createCall(): LiveData<ApiResponse<Player>> = restAPI.update_profile()
+        override fun createCall(): LiveData<ApiResponse<Player>> = restAPI.verify_credentials()
 
     }.asLiveData()
+
+    fun timeline(since: String?, max: String?, forcedUpdate: Boolean = false) =
+            object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
+                override fun onFetchFailed() {
+                    Log.e("timeline", "onFetchFailed")
+                }
+
+                override fun saveCallResult(item: MutableList<Status>?) {
+                    item?.let { saveStatus(it) }
+                }
+
+                override fun shouldFetch(data: MutableList<Status>?) =
+                        rateLimiter.shouldFetch(KEY) || forcedUpdate || data == null || data.isEmpty()
+
+                override fun loadFromDb(): LiveData<MutableList<Status>?> {
+                    Log.e("timeline", "loadFromDb")
+                    return when {
+                        since == null && max == null -> db.playerAndStatusDao().initial(uniqueId()!!, PAGE_SIZE)
+                        since != null -> db.playerAndStatusDao().before(uniqueId()!!, since, PAGE_SIZE)
+                        max != null -> db.playerAndStatusDao().after(uniqueId()!!, max, PAGE_SIZE)
+                        else -> TODO()
+                    }
+                }
+
+                override fun createCall() = restAPI.fetch_from_path(TIMELINE_HOME, since, max)
+
+            }.asLiveData()
+
+
+    private fun saveStatus(t: MutableList<Status>) {
+        Log.e("timeline", "saveStatus " + t.size)
+
+        val currentUser = uniqueId()
+        for (status in t) {
+            // add user extras data to database
+            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+
+            if (status.favorited) {
+                val localStatus = db.statusDao().query(status.id)
+                if (localStatus == null) {
+                    currentUser?.let { status.addCollector(it) }
+                    db.statusDao().insert(status)
+                } else {
+                    status.collectorIds = localStatus.collectorIds
+                    currentUser?.let { status.addCollector(it) }
+                    db.statusDao().update(status)
+                }
+            } else {
+                db.statusDao().insert(status)
+            }
+            // make sure insert states first to get foreign key worked
+            // mapper current player to this states
+            currentUser?.let {
+                db.playerAndStatusDao().insert(PlayerAndStatus(it, status.id, it + status.id))
+                if (status.favorited) {
+                    db.playerAndLikeDao().insert(PlayerAndLike(it, status.id, it + status.id))
+                }
+            }
+        }
+    }
 }

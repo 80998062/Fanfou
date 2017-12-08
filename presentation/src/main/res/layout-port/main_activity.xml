@@ -17,16 +17,42 @@
   ~  * limitations under the License.
   ~  */
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="false">
+
+
+    <RelativeLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomNav">
+
+        <android.support.v4.widget.Space
+            android:id="@+id/placeholder"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/root_action_bar_height"
+            android:layout_marginBottom="@dimen/status_bar_height" />
+
+        <com.sinyuk.fanfou.ui.FreezeViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/placeholder" />
+
+    </RelativeLayout>
 
     <FrameLayout
+        android:id="@+id/actionBar"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/colorAccent">
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/status_bar_height">
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="@dimen/root_action_bar_height" />
 
         <ImageView
             android:id="@+id/avatar"
@@ -35,23 +61,19 @@
             android:layout_gravity="center_vertical"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_launcher_round" />
-    </FrameLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="@dimen/divider_size"
+            android:layout_gravity="bottom"
+            android:background="@color/divider_color" />
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="44dp"
+        android:layout_alignParentBottom="true"
         android:background="@color/colorPrimaryDark"
         android:orientation="horizontal">
 
@@ -65,7 +87,7 @@
             android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/searchTab"
+            android:id="@+id/publicTab"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -74,7 +96,7 @@
             android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/messageTab"
+            android:id="@+id/notificationTab"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -83,12 +105,14 @@
             android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/profileTab"
+            android:id="@+id/messageTab"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="我的"
+            android:text="私信"
             android:textColor="@android:color/black" />
     </LinearLayout>
-</LinearLayout>
+
+
+</RelativeLayout>

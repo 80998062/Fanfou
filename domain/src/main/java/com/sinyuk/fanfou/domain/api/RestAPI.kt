@@ -23,10 +23,7 @@ package com.sinyuk.fanfou.domain.api
 import android.arch.lifecycle.LiveData
 import com.sinyuk.fanfou.domain.vo.Player
 import com.sinyuk.fanfou.domain.vo.Status
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -34,11 +31,14 @@ import retrofit2.http.Query
 interface RestAPI {
 
     @GET("users/show.json?format=html")
-    fun user_show(@Query("id") uniqueId: String): LiveData<ApiResponse<Player>>
+    fun user_update(@Query("id") uniqueId: String): LiveData<ApiResponse<Player>>
 
+    @GET("account/verify_credentials.json?format=html")
+    fun verify_credentials(): LiveData<ApiResponse<Player>>
 
-    @POST("account/update_profile.json")
-    fun update_profile(): LiveData<ApiResponse<Player>>
+    @FormUrlEncoded
+    @POST("account/update_profile.json?format=html")
+    fun update_profile(@Body player: Player): LiveData<ApiResponse<Player>>
 
 
     @GET("statuses/{path}.json?count=10&format=html")

@@ -43,15 +43,19 @@ class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewMo
     @VisibleForTesting
     private val login = MutableLiveData<Authorization>()
 
-    private val user: LiveData<Resource<Player>>? by lazy {
-        Transformations.switchMap(login, {
-            if (it?.secret == null) {
-                AbsentLiveData.create()
-            } else {
-                repo.loadAccount()
-            }
-        })
+    init {
+        login.value = Authorization(repo.accessToken(), repo.accessSecret())
     }
+
+    val user: LiveData<Resource<Player>> = Transformations.switchMap(login, {
+        if (it?.secret == null) {
+            AbsentLiveData.create()
+        } else {
+            repo.verifyCredentials()
+        }
+    })
+
+    fun timeline(since: String?, max: String?) = repo.timeline(since, max)
 
 
     /**
