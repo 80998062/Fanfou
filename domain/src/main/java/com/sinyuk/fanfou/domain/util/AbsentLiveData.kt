@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.util
+package com.sinyuk.fanfou.domain.util
 
 import android.arch.lifecycle.LiveData
 

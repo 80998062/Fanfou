@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
+import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.vo.Status
 
@@ -42,5 +43,5 @@ interface StatusDao {
     fun update(status: Status): Int
 
     @Query("SELECT * FROM statuses WHERE id = :id")
-    fun query(id: String): Status?
+    fun query(id: String?): LiveData<Status?>
 }

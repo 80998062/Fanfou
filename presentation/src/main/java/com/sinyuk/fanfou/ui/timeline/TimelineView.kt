@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -90,32 +91,34 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     }
 
 
+    private val refreshOB: Observer<Resource<MutableList<Status>>> by lazy {
+        Observer<Resource<MutableList<Status>>> { t ->
+            when (t?.states) {
+                States.SUCCESS -> {
+                    addBefore(t.data)
+                }
+                States.ERROR -> {
+                    t.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> {
+                    swipeRefreshLayout.isRefreshing = true
+                }
+                null -> TODO()
+            }
+            swipeRefreshLayout.isRefreshing = false
+            resourceLive?.removeObserver(refreshOB)
+        }
+    }
+
+    private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
+
     private fun afterSinceId() {
         if (targetPlayer == null) {
-            val resource: Resource<MutableList<Status>>?
             when (timelinePath) {
-                TIMELINE_HOME -> accountViewModel.timeline(since, null).observe(this@TimelineView, Observer<Resource<MutableList<Status>>> { t ->
-                    if (t?.states == States.SUCCESS) {
-                        addBefore(t.data)
-                    } else {
-                        toast.toastShort(t?.message ?: "jjajajjaj")
-                    }
-                    swipeRefreshLayout.isRefreshing = false
-                })
+                TIMELINE_HOME -> resourceLive = accountViewModel.timeline(since, null).apply { observe(this@TimelineView, refreshOB) }
                 else -> TODO()
             }.run {
-                //                resource?.let {
-//                    when (it.states) {
-//                        States.SUCCESS -> {
-//                            addBefore(it.data)
-//                        }
-//                        States.ERROR -> {
-//                            it.message?.let { toast.toastShort(it) }
-//                        }
-//                        else -> {
-//                        }
-//                    }
-//                }
+
             }
 
         } else {
@@ -125,6 +128,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     private fun addBefore(data: MutableList<Status>?) {
         data?.let {
+            since = data.first().id
             adapter.data.addAll(0, it)
             adapter.notifyDataSetChanged()
         }
