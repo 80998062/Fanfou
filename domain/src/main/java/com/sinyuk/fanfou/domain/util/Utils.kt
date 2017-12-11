@@ -18,17 +18,22 @@
  *
  */
 
-package com.sinyuk.fanfou.viewmodel
+package com.sinyuk.fanfou.domain.util
 
-import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.repo.StatusRepository
-import javax.inject.Inject
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+
 
 /**
- * Created by sinyuk on 2017/12/6.
+ * Created by sinyuk on 2017/12/8.
  */
-class TimelineViewModel @Inject constructor(private val repo: StatusRepository) : ViewModel() {
 
-    fun loadTimeline(path: String, max: String?) = repo.timeline(path, max)
+@SuppressLint("MissingPermission")
 
+fun networkConnected(context: Context): Boolean {
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    val activeNetwork = cm.activeNetworkInfo
+    return activeNetwork != null && activeNetwork.isConnectedOrConnecting
 }

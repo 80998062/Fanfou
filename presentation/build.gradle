@@ -52,6 +52,6 @@ dependencies {
     implementation 'com.github.80998062:MyUtils:2.0.2'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"
     implementation 'com.daimajia.androidanimations:library:2.3@aar'
-
+    implementation "com.github.devlight.navigationtabstrip:navigationtabstrip:1.0.4"
 
 }

@@ -21,14 +21,14 @@
 package com.sinyuk.fanfou.viewmodel
 
 import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.repo.StatusRepository
+import com.sinyuk.fanfou.domain.repo.PlayerRepository
 import javax.inject.Inject
 
 /**
- * Created by sinyuk on 2017/12/6.
+ * Created by sinyuk on 2017/12/8.
  */
-class TimelineViewModel @Inject constructor(private val repo: StatusRepository) : ViewModel() {
+class PlayerViewModel @Inject constructor(val repo: PlayerRepository) : ViewModel() {
 
-    fun loadTimeline(path: String, max: String?) = repo.timeline(path, max)
 
+    fun profile(uniqueId: String, forced: Boolean = false) = repo.profile(uniqueId, forced)
 }

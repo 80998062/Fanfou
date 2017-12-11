@@ -22,16 +22,15 @@ package com.sinyuk.fanfou.domain.repo
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.content.SharedPreferences
-import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.util.AbsentLiveData
-import com.sinyuk.fanfou.domain.vo.*
+import com.sinyuk.fanfou.domain.vo.Authorization
+import com.sinyuk.fanfou.domain.vo.Player
+import com.sinyuk.fanfou.domain.vo.Resource
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -87,46 +86,5 @@ class AccountRepository
 
     }.asLiveData()
 
-    fun timeline(max: String?, forcedUpdate: Boolean = false) =
-            object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
-                override fun onFetchFailed() {
-                    Log.e("timeline", "onFetchFailed")
-                }
 
-                override fun saveCallResult(item: MutableList<Status>?) {
-                    Log.e("timeline", "saveCallResult ")
-                    item?.let { saveStatus(it) }
-                }
-
-                override fun shouldFetch(data: MutableList<Status>?) =
-                        rateLimiter.shouldFetch(KEY) || forcedUpdate || data == null || data.isEmpty()
-
-                override fun loadFromDb(): LiveData<MutableList<Status>?> = if (max == null) {
-                    db.statusDao().initial(PAGE_SIZE)
-                } else {
-                    Transformations.switchMap(db.statusDao().query(max), {
-                        if (it == null) {
-                            AbsentLiveData.create()
-                        } else {
-                            db.statusDao().after(max, PAGE_SIZE)
-                        }
-                    })
-                }
-
-                override fun createCall() = restAPI.fetch_from_path(TIMELINE_HOME, null, max)
-
-            }.asLiveData()
-
-    private fun saveStatus(t: MutableList<Status>) {
-        db.beginTransaction()
-        try {
-            for (status in t) {
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                Log.d("saveStatus", "insert at " + db.statusDao().insert(status))
-            }
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
-        }
-    }
 }

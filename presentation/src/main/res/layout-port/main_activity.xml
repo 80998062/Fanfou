@@ -56,17 +56,27 @@
 
         <ImageView
             android:id="@+id/avatar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/root_action_bar_height"
+            android:layout_height="@dimen/root_action_bar_height"
             android:layout_gravity="center_vertical"
+            android:paddingBottom="@dimen/gap_10"
+            android:paddingLeft="@dimen/gap_16"
+            android:paddingRight="@dimen/gap_16"
+            android:paddingTop="@dimen/gap_10"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_launcher_round" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_size"
-            android:layout_gravity="bottom"
-            android:background="@color/divider_color" />
+
+        <ImageView
+            android:layout_width="@dimen/root_action_bar_height"
+            android:layout_height="@dimen/root_action_bar_height"
+            android:layout_gravity="center_vertical|end"
+            android:paddingBottom="@dimen/gap_10"
+            android:paddingLeft="@dimen/gap_16"
+            android:paddingRight="@dimen/gap_16"
+            android:paddingTop="@dimen/gap_10"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher_round" />
     </FrameLayout>
 
     <LinearLayout

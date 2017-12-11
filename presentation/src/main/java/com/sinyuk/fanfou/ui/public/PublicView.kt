@@ -17,35 +17,36 @@
  *  * limitations under the License.
  *
  */
-
-package com.sinyuk.fanfou.ui.search
+package com.sinyuk.fanfou.ui.public
 
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.util.obtainViewModel
-import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.ui.timeline.TimelineView
+import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/30.
+ *
  */
 class PublicView : AbstractLazyFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.public_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
 
-    private lateinit var accountViewModel: AccountViewModel
 
     @Inject lateinit var toast: ToastUtils
 
 
     override fun lazyDo() {
-
-        accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
-
+        TimelineView.newInstance(TIMELINE_PUBLIC, null).let {
+            addFragmentInFragment(it, R.id.fragment_container, false)
+            it.userVisibleHint = true
+        }
     }
 
 

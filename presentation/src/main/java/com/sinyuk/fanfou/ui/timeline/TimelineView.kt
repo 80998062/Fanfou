@@ -29,6 +29,7 @@ import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.domain.vo.Resource
 import com.sinyuk.fanfou.domain.vo.States
 import com.sinyuk.fanfou.domain.vo.Status
@@ -106,7 +107,6 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 null -> TODO()
             }
             swipeRefreshLayout.isRefreshing = false
-            resourceLive?.removeObserver(refreshOB)
         }
     }
 
@@ -118,20 +118,27 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                     isLoadMore = false
                     if (t.data?.size == PAGE_SIZE) {
                         adapter.loadMoreComplete()
+                        appendAfter(t.data!!)
+
                     } else {
                         adapter.loadMoreEnd(true)
+                        if (t.data?.isNotEmpty() == true) {
+                            appendAfter(t.data!!)
+                        }
                     }
-                    appendAfter(t.data)
                 }
                 States.ERROR -> {
                     isLoadMore = false
                     adapter.loadMoreFail()
                     t.message?.let { toast.toastShort(it) }
                 }
-                States.LOADING -> { isLoadMore = true }
+                States.LOADING -> {
+                    isLoadMore = true
+                }
                 null -> TODO()
             }
             swipeRefreshLayout.isRefreshing = false
+//            resourceLive?.removeObserver(loadmoreOB)
         }
     }
 
@@ -149,12 +156,10 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
     }
 
-    private fun appendAfter(data: MutableList<Status>?) {
-        data?.let {
-            max = data.last().id
-            adapter.data.addAll(it)
-            adapter.notifyDataSetChanged()
-        }
+    private fun appendAfter(data: MutableList<Status>) {
+        max = data.last().id
+        adapter.data.addAll(data)
+        adapter.notifyDataSetChanged()
     }
 
 
@@ -163,12 +168,11 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private fun beforeMaxId() {
         if (isLoadMore) return
         if (targetPlayer == null) {
-            when (timelinePath) {
-                TIMELINE_HOME -> resourceLive = accountViewModel.loadmore(max).apply { observe(this@TimelineView, loadmoreOB) }
+            resourceLive = when (timelinePath) {
+                TIMELINE_HOME -> timelineViewModel.loadTimeline(timelinePath, max)
+                TIMELINE_PUBLIC -> timelineViewModel.loadTimeline(TIMELINE_PUBLIC, max)
                 else -> TODO()
-            }.run {
-//                resourceLive?.removeObserver(loadmoreOB)
-            }
+            }.apply { observe(this@TimelineView, loadmoreOB) }
 
         } else {
             TODO()

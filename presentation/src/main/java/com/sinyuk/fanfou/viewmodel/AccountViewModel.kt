@@ -55,8 +55,6 @@ class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewMo
         }
     })
 
-    fun loadmore(max: String?) = repo.timeline(max)
-
 
     /**
      * 检查是否登录

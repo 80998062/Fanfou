@@ -25,6 +25,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
+import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.vo.Resource
@@ -75,6 +76,7 @@ abstract class NetworkBoundResource<ResultType, RequestType>
             result.removeSource(dbSource)
 
             if (response?.isSuccessful() == true) {
+                Log.d("SaveStatus", "isSuccessful")
                 appExecutors.diskIO().execute {
                     saveCallResult(processResponse(response))
                     appExecutors.mainThread().execute {

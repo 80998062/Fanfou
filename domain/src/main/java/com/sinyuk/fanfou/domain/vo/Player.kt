@@ -48,7 +48,7 @@ data class Player @JvmOverloads constructor(
         @SerializedName("profile_image_url") var profileImageUrl: String? = "",
         @SerializedName("profile_image_url_large") var profileImageUrlLarge: String? = "",
         @SerializedName("url") var url: String? = "",
-        @SerializedName("protected") var protectedX: Boolean? = false,
+        @SerializedName("protected") var protectedX: Boolean? = true,
         @SerializedName("followers_count") var followersCount: Int? = 0,
         @SerializedName("friends_count") var friendsCount: Int? = 0,
         @SerializedName("favourites_count") var favouritesCount: Int? = 0,

@@ -92,7 +92,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/uniqueId"
+        android:id="@+id/userId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/screenName"
@@ -110,7 +110,7 @@
         android:id="@+id/bio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/uniqueId"
+        android:layout_below="@+id/userId"
         android:layout_marginLeft="@dimen/gap_16"
         android:layout_marginRight="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_8"
@@ -126,7 +126,6 @@
         android:layout_marginLeft="@dimen/gap_16"
         android:layout_marginRight="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_8"
-
         android:orientation="horizontal">
 
         <TextView

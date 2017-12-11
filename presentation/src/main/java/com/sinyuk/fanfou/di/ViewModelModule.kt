@@ -24,6 +24,7 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
+import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import dagger.Binds
 import dagger.Module
@@ -37,7 +38,6 @@ import dagger.multibindings.IntoMap
 abstract class ViewModelModule {
 
 
-
     @Binds
     @IntoMap
     @ViewModelKey(AccountViewModel::class)
@@ -49,6 +49,11 @@ abstract class ViewModelModule {
     @ViewModelKey(TimelineViewModel::class)
     abstract fun timelineViewModel(timelineViewModel: TimelineViewModel): ViewModel
 
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PlayerViewModel::class)
+    abstract fun playerViewModel(playerViewModel: PlayerViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: FanfouViewModelFactory): ViewModelProvider.Factory

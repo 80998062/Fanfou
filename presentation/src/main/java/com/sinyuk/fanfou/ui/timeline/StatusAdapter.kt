@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.graphics.Color
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
@@ -28,7 +29,9 @@ import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.QuickSwipeAdapter
+import com.sinyuk.fanfou.util.addFragmentInActivity
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 
@@ -134,6 +137,10 @@ class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(
                 itemView.likeButton.setImageDrawable(null)
             }
 
+            itemView.avatar.setOnClickListener {
+                @Suppress("CAST_NEVER_SUCCEEDS")
+                (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
+            }
 
             itemView.likeButton.setOnClickListener {
                 itemView.swipeLayout.close()

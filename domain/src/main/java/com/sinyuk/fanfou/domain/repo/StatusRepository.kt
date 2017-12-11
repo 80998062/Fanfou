@@ -20,14 +20,18 @@
 
 package com.sinyuk.fanfou.domain.repo
 
+import android.app.Application
 import android.arch.lifecycle.LiveData
-import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
-import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
-import com.sinyuk.fanfou.domain.api.ApiResponse
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
+import android.util.Log
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
+import com.sinyuk.fanfou.domain.util.AbsentLiveData
+import com.sinyuk.fanfou.domain.vo.PlayerExtracts
+import com.sinyuk.fanfou.domain.vo.Resource
 import com.sinyuk.fanfou.domain.vo.Status
 import javax.inject.Inject
 import javax.inject.Named
@@ -38,32 +42,88 @@ import javax.inject.Singleton
  *
  */
 @Singleton
-class StatusRepository @Inject constructor(url: Endpoint,
-                                           interceptor: Oauth1SigningInterceptor,
-                                           private val appExecutors: AppExecutors,
-                                           @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
-                                           @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
+class StatusRepository @Inject constructor(
+        val application: Application,
+        url: Endpoint,
+        interceptor: Oauth1SigningInterceptor,
+        private val appExecutors: AppExecutors,
+        @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
+        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
 
-    fun loadMyHomeTimline() = object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
-        override fun onFetchFailed() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+    fun timeline(path: String, max: String?, forcedUpdate: Boolean = false) =
+            object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
+                override fun onFetchFailed() {}
+
+                override fun saveCallResult(item: MutableList<Status>?) {
+                    val inMemory = when (path) {
+                        TIMELINE_PUBLIC -> true
+                        TIMELINE_HOME -> false
+                        else -> true
+                    }
+                    item?.let { saveStatus(it, inMemory) }
+                }
+
+                override fun shouldFetch(data: MutableList<Status>?) =
+                        /*networkConnected(application) && rateLimiter.shouldFetch(KEY) && */(forcedUpdate || data == null || data.isEmpty())
+
+                override fun loadFromDb(): LiveData<MutableList<Status>?> = loadTimelineFromDb(path, max)
+
+                override fun createCall() = when (path) {
+                    TIMELINE_HOME -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
+                    TIMELINE_PUBLIC -> restAPI.fetch_from_path(TIMELINE_PUBLIC, null, max)
+                    else -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
+                }
+
+            }.asLiveData()
+
+    private fun loadTimelineFromDb(path: String, max: String?) = when (path) {
+        TIMELINE_PUBLIC -> if (max == null) {
+            memory.statusDao().initial(PAGE_SIZE)
+        } else {
+            Transformations.switchMap(memory.statusDao().query(max), {
+                if (it == null) {
+                    AbsentLiveData.create()
+                } else {
+                    memory.statusDao().after(max, PAGE_SIZE)
+                }
+            })
         }
-
-        override fun saveCallResult(item: MutableList<Status>?) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TIMELINE_HOME -> if (max == null) {
+            db.statusDao().initial(PAGE_SIZE)
+        } else {
+            Transformations.switchMap(db.statusDao().query(max), {
+                if (it == null) {
+                    AbsentLiveData.create()
+                } else {
+                    db.statusDao().after(max, PAGE_SIZE)
+                }
+            })
         }
+        else -> TODO()
+    }
 
-        override fun shouldFetch(data: MutableList<Status>?): Boolean {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+    fun fetchTimeline(since: String?): MutableLiveData<Resource<Boolean>> {
+        val task = FetchTimelineTask(db, { restAPI.fetch_from_path(TIMELINE_HOME, since, null) })
+        appExecutors.diskIO().execute(task)
+        return task.liveData
+    }
+
+    private fun saveStatus(t: MutableList<Status>, inMemory: Boolean) {
+        db.beginTransaction()
+        try {
+            for (status in t) {
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                if (inMemory) {
+                    Log.d("saveStatus", "in memory: " + memory.statusDao().insert(status))
+                } else {
+                    Log.d("saveStatus", "in disk: " + db.statusDao().insert(status))
+                }
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
         }
-
-        override fun loadFromDb(): LiveData<MutableList<Status>?> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun createCall(): LiveData<ApiResponse<MutableList<Status>>> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
     }
 }

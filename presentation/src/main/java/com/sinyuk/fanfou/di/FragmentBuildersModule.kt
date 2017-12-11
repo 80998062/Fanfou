@@ -24,7 +24,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.search.PublicView
+import com.sinyuk.fanfou.ui.public.PublicView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

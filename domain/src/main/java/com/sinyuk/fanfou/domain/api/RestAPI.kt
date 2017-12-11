@@ -31,7 +31,7 @@ import retrofit2.http.*
 interface RestAPI {
 
     @GET("users/show.json?format=html")
-    fun user_update(@Query("id") uniqueId: String): LiveData<ApiResponse<Player>>
+    fun show_user(@Query("id") uniqueId: String): LiveData<ApiResponse<Player>>
 
     @GET("account/verify_credentials.json?format=html")
     fun verify_credentials(): LiveData<ApiResponse<Player>>
