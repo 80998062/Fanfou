@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.vo
+package com.sinyuk.fanfou.domain.DO
 
 import android.arch.persistence.room.*
 import android.support.annotation.NonNull

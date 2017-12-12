@@ -26,13 +26,14 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.util.Log
 import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.DO.PlayerExtracts
+import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.util.AbsentLiveData
-import com.sinyuk.fanfou.domain.vo.PlayerExtracts
-import com.sinyuk.fanfou.domain.vo.Resource
-import com.sinyuk.fanfou.domain.vo.Status
+
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -104,8 +105,11 @@ class StatusRepository @Inject constructor(
     }
 
 
-    fun fetchTimeline(since: String?): MutableLiveData<Resource<Boolean>> {
-        val task = FetchTimelineTask(db, { restAPI.fetch_from_path(TIMELINE_HOME, since, null) })
+    fun fetchTimeline(path: String, since: String?, uiqueId: String?): MutableLiveData<Resource<MutableList<Status>>> {
+        val task = when (path) {
+            TIMELINE_HOME, TIMELINE_PUBLIC -> FetchNewTimeLineTask(db, { restAPI.fetch_from_path(path, since, null) })
+            else -> TODO()
+        }
         appExecutors.diskIO().execute(task)
         return task.liveData
     }

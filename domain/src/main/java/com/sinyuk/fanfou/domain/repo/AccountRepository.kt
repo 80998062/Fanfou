@@ -28,9 +28,9 @@ import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.vo.Authorization
-import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.DO.Authorization
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.Resource
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton

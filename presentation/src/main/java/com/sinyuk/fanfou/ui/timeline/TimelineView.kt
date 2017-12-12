@@ -24,16 +24,17 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import com.chad.library.adapter.base.BaseQuickAdapter
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
-import com.sinyuk.fanfou.domain.vo.Resource
-import com.sinyuk.fanfou.domain.vo.States
-import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.domain.repo.FetchNewTimeLineTask
 import com.sinyuk.fanfou.util.CustomLoadMoreView
+import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -88,7 +89,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     }
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { beforeMaxId() }
+        swipeRefreshLayout.setOnRefreshListener { afterSinceId() }
     }
 
 
@@ -96,10 +97,16 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         Observer<Resource<MutableList<Status>>> { t ->
             when (t?.states) {
                 States.SUCCESS -> {
-                    insertBefore(t.data)
+                    insertBefore(t.data!!)
+                    adapter.insertPlaceholder()
                 }
                 States.ERROR -> {
-                    t.message?.let { toast.toastShort(it) }
+                    if (Objects.equals(t.message, FetchNewTimeLineTask.HAS_NEXT)) { // 没有下一页新的了 但是有过滤了的数据
+                        adapter.removePlaceholder()
+                        insertBefore(t.data!!)
+                    } else {
+                        t.message?.let { toast.toastShort(it) }
+                    }
                 }
                 States.LOADING -> {
                     swipeRefreshLayout.isRefreshing = true
@@ -107,6 +114,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 null -> TODO()
             }
             swipeRefreshLayout.isRefreshing = false
+            resourceLive?.removeObserver(refreshOB)
         }
     }
 
@@ -115,16 +123,16 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         Observer<Resource<MutableList<Status>>> { t ->
             when (t?.states) {
                 States.SUCCESS -> {
-                    isLoadMore = false
-                    if (t.data?.size == PAGE_SIZE) {
+                    isLoadMore = if (t.data?.size == PAGE_SIZE) {
                         adapter.loadMoreComplete()
                         appendAfter(t.data!!)
-
+                        false
                     } else {
                         adapter.loadMoreEnd(true)
                         if (t.data?.isNotEmpty() == true) {
                             appendAfter(t.data!!)
                         }
+                        true
                     }
                 }
                 States.ERROR -> {
@@ -138,28 +146,16 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 null -> TODO()
             }
             swipeRefreshLayout.isRefreshing = false
-//            resourceLive?.removeObserver(loadmoreOB)
+            resourceLive?.removeObserver(loadmoreOB)
         }
     }
 
     private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
 
     private fun afterSinceId() {
-
-    }
-
-    private fun insertBefore(data: MutableList<Status>?) {
-        data?.let {
-            since = data.first().id
-            adapter.data.addAll(0, it)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
-    private fun appendAfter(data: MutableList<Status>) {
-        max = data.last().id
-        adapter.data.addAll(data)
-        adapter.notifyDataSetChanged()
+        if (swipeRefreshLayout.isRefreshing) return
+        resourceLive = timelineViewModel.fetchNewTimeline(timelinePath, since, targetPlayer)
+                .apply { observe(this@TimelineView, refreshOB) }
     }
 
 
@@ -167,16 +163,25 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     private fun beforeMaxId() {
         if (isLoadMore) return
-        if (targetPlayer == null) {
-            resourceLive = when (timelinePath) {
-                TIMELINE_HOME -> timelineViewModel.loadTimeline(timelinePath, max)
-                TIMELINE_PUBLIC -> timelineViewModel.loadTimeline(TIMELINE_PUBLIC, max)
-                else -> TODO()
-            }.apply { observe(this@TimelineView, loadmoreOB) }
+        resourceLive = timelineViewModel.loadTimeline(timelinePath, max, targetPlayer)
+                .apply { observe(this@TimelineView, loadmoreOB) }
+    }
 
-        } else {
-            TODO()
-        }
+    private fun insertBefore(data: MutableList<Status>) {
+        adapter.data.addAll(0, data)
+
+        adapter.notifyDataSetChanged()
+
+        since = adapter.data.first().id
+        max = adapter.data.last().id
+    }
+
+    private fun appendAfter(data: MutableList<Status>) {
+        adapter.data.addAll(data)
+        adapter.notifyDataSetChanged()
+
+        since = adapter.data.first().id
+        max = adapter.data.last().id
     }
 
 
@@ -196,6 +201,13 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             disableLoadMoreIfNotFullPage(recyclerView)
             setOnLoadMoreListener({ beforeMaxId() }, recyclerView)
             recyclerView.adapter = this
+            onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
+                when (view.id) {
+                    R.id.placeholder -> {
+
+                    }
+                }
+            }
         }
 
     }

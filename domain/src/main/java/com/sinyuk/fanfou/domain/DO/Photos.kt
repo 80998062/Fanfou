@@ -18,9 +18,20 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.vo
+package com.sinyuk.fanfou.domain.DO
+
+import com.google.gson.annotations.SerializedName
 
 /**
- * Created by sinyuk on 2017/12/6.
+ * Created by sinyuk on 2017/11/30.
  */
-data class Authorization constructor(val token: String?, val secret: String?)
+data class Photos constructor(
+        @SerializedName("url")
+        var url: String? = null,
+        @SerializedName("imageurl")
+        var imageurl: String? = null,
+        @SerializedName("thumburl")
+        var thumburl: String? = null,
+        @SerializedName("largeurl")
+        var largeurl: String? = null
+)

@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.vo
+package com.sinyuk.fanfou.domain.DO
 
 /**
  * A generic class that holds a value with its loading states.

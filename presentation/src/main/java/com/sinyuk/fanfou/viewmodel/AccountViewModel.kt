@@ -27,9 +27,9 @@ import android.arch.lifecycle.ViewModel
 import android.support.annotation.VisibleForTesting
 import com.sinyuk.fanfou.domain.repo.AccountRepository
 import com.sinyuk.fanfou.domain.util.AbsentLiveData
-import com.sinyuk.fanfou.domain.vo.Authorization
-import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.DO.Authorization
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.util.Objects
 import javax.inject.Inject
 

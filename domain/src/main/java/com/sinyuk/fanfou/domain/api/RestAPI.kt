@@ -21,8 +21,8 @@
 package com.sinyuk.fanfou.domain.api
 
 import android.arch.lifecycle.LiveData
-import com.sinyuk.fanfou.domain.vo.Player
-import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.Status
 import retrofit2.http.*
 
 /**

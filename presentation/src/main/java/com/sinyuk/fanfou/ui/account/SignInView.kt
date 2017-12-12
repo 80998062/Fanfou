@@ -28,9 +28,9 @@ import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.vo.Authorization
-import com.sinyuk.fanfou.domain.vo.Resource
-import com.sinyuk.fanfou.domain.vo.States
+import com.sinyuk.fanfou.domain.DO.Authorization
+import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.ui.MainActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel

@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.domain.db.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
-import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.domain.DO.Status
 
 
 /**

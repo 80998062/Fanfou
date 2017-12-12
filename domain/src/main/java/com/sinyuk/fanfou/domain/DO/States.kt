@@ -18,20 +18,19 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.vo
-
-import com.google.gson.annotations.SerializedName
+package com.sinyuk.fanfou.domain.DO
 
 /**
- * Created by sinyuk on 2017/11/30.
+ * Status of a resource that is provided to the UI.
+ *
+ *
+ * These are usually created by the Repository classes where they return
+ * `LiveData<Resource<T>>` to pass back the latest data to the UI with its fetch states.
+ *
+ * https://github.com/googlesamples/android-architecture-components/blob/master/GithubBrowserSample/app/src/main/java/com/android/example/github/vo/Status.java
  */
-data class Photos constructor(
-        @SerializedName("url")
-        var url: String? = null,
-        @SerializedName("imageurl")
-        var imageurl: String? = null,
-        @SerializedName("thumburl")
-        var thumburl: String? = null,
-        @SerializedName("largeurl")
-        var largeurl: String? = null
-)
+enum class States {
+    SUCCESS,
+    ERROR,
+    LOADING
+}

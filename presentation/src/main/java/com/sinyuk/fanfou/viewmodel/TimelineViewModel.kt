@@ -29,6 +29,7 @@ import javax.inject.Inject
  */
 class TimelineViewModel @Inject constructor(private val repo: StatusRepository) : ViewModel() {
 
-    fun loadTimeline(path: String, max: String?) = repo.timeline(path, max)
+    fun loadTimeline(path: String, max: String?, uniqueId: String? = null) = repo.timeline(path, max)
 
+    fun fetchNewTimeline(path: String, since: String?, uniqueId: String? = null) = repo.fetchTimeline(path, since, uniqueId)
 }

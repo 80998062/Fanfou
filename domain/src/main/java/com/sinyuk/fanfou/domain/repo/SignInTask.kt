@@ -27,8 +27,8 @@ import com.sinyuk.fanfou.domain.ACCESS_SECRET
 import com.sinyuk.fanfou.domain.ACCESS_TOKEN
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.util.XauthUtils
-import com.sinyuk.fanfou.domain.vo.Authorization
-import com.sinyuk.fanfou.domain.vo.Resource
+import com.sinyuk.fanfou.domain.DO.Authorization
+import com.sinyuk.fanfou.domain.DO.Resource
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

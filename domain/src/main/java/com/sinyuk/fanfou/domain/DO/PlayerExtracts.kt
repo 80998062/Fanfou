@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.vo
+package com.sinyuk.fanfou.domain.DO
 
 /**
  * Created by sinyuk on 2017/12/1.

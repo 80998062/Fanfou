@@ -27,8 +27,8 @@ import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.api.ApiResponse
-import com.sinyuk.fanfou.domain.vo.Resource
 
 /**
  * A generic class that can provide a resource backed by both the sqlite database and the network.

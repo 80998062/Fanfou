@@ -27,7 +27,7 @@ import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.vo.Player
+import com.sinyuk.fanfou.domain.DO.Player
 import javax.inject.Inject
 import javax.inject.Named
 

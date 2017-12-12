@@ -22,13 +22,16 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.domain.vo.Status
+import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.QuickSwipeAdapter
 import com.sinyuk.fanfou.util.addFragmentInActivity
@@ -38,16 +41,66 @@ import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 /**
  * Created by sinyuk on 2017/12/1.
  */
-class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(R.layout.timeline_view_list_item) {
+class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(null) {
 
     var uniqueId: String? = null
 
-    override fun convert(holder: StatusViewHolder, status: Status?) {
-        if (status == null) {
-            holder.clear()
+    var placeholder = RecyclerView.NO_POSITION
+
+    private val ITEM_PLACEHOLDER = Int.MAX_VALUE
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == ITEM_PLACEHOLDER) {
+        Placeholder(parent)
+    } else {
+        StatusViewHolder(parent)
+    }
+
+    override fun convert(holder: BaseViewHolder, status: Status?) {
+        if (holder.itemViewType == ITEM_PLACEHOLDER) {
+            holder as Placeholder
+            holder.addOnClickListener(R.id.placeholder)
         } else {
-            holder.bindTo(status, uniqueId)
+            holder as StatusViewHolder
+            if (status == null) {
+                holder.clear()
+            } else {
+                holder.bindTo(status, uniqueId)
+            }
         }
+    }
+
+
+    fun insertPlaceholder() {
+        if (placeholder == RecyclerView.NO_POSITION) {
+            placeholder = mData.size
+            notifyItemInserted(mData.size)
+        } else {
+            if (mData.size != placeholder) {
+                val temp = placeholder
+                placeholder = mData.size
+                notifyItemRemoved(temp)
+                notifyItemInserted(placeholder)
+            }
+        }
+    }
+
+    fun removePlaceholder() {
+        if (placeholder != RecyclerView.NO_POSITION) {
+            notifyItemRemoved(placeholder)
+            placeholder = RecyclerView.NO_POSITION
+        }
+    }
+
+    override fun getItemCount() = if (placeholder != RecyclerView.NO_POSITION) {
+        super.getItemCount() + 1
+    } else {
+        super.getItemCount()
+    }
+
+    override fun getItemViewType(position: Int) = if (position == placeholder) {
+        ITEM_PLACEHOLDER
+    } else {
+        super.getItemViewType(position)
     }
 
     private var mItemManger = SwipeItemRecyclerMangerImpl(this)
@@ -95,7 +148,13 @@ class StatusAdapter : QuickSwipeAdapter<Status, StatusAdapter.StatusViewHolder>(
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
 
-    class StatusViewHolder(view: View) : BaseViewHolder(view) {
+    class Placeholder(parent: ViewGroup) : BaseViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_placeholder, parent, false)) {
+
+    }
+
+    class StatusViewHolder(parent: ViewGroup) : BaseViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_item, parent, false)) {
         fun clear() {
             itemView.avatar.setImageDrawable(null)
             itemView.screenName.text = null
