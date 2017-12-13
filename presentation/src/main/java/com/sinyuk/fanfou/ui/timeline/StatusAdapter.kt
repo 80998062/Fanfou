@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,63 +44,21 @@ class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(null) {
 
     var uniqueId: String? = null
 
-    var placeholder = RecyclerView.NO_POSITION
 
-    private val ITEM_PLACEHOLDER = Int.MAX_VALUE
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StatusViewHolder(parent)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == ITEM_PLACEHOLDER) {
-        Placeholder(parent)
-    } else {
-        StatusViewHolder(parent)
-    }
 
     override fun convert(holder: BaseViewHolder, status: Status?) {
-        if (holder.itemViewType == ITEM_PLACEHOLDER) {
-            holder as Placeholder
-            holder.addOnClickListener(R.id.placeholder)
+
+        holder as StatusViewHolder
+        if (status == null) {
+            holder.clear()
         } else {
-            holder as StatusViewHolder
-            if (status == null) {
-                holder.clear()
-            } else {
-                holder.bindTo(status, uniqueId)
-            }
+            holder.bindTo(status, uniqueId)
         }
+
     }
 
-
-    fun insertPlaceholder() {
-        if (placeholder == RecyclerView.NO_POSITION) {
-            placeholder = mData.size
-            notifyItemInserted(mData.size)
-        } else {
-            if (mData.size != placeholder) {
-                val temp = placeholder
-                placeholder = mData.size
-                notifyItemRemoved(temp)
-                notifyItemInserted(placeholder)
-            }
-        }
-    }
-
-    fun removePlaceholder() {
-        if (placeholder != RecyclerView.NO_POSITION) {
-            notifyItemRemoved(placeholder)
-            placeholder = RecyclerView.NO_POSITION
-        }
-    }
-
-    override fun getItemCount() = if (placeholder != RecyclerView.NO_POSITION) {
-        super.getItemCount() + 1
-    } else {
-        super.getItemCount()
-    }
-
-    override fun getItemViewType(position: Int) = if (position == placeholder) {
-        ITEM_PLACEHOLDER
-    } else {
-        super.getItemViewType(position)
-    }
 
     private var mItemManger = SwipeItemRecyclerMangerImpl(this)
 
@@ -146,12 +103,6 @@ class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(null) {
     }
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
-
-
-    class Placeholder(parent: ViewGroup) : BaseViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_placeholder, parent, false)) {
-
-    }
 
     class StatusViewHolder(parent: ViewGroup) : BaseViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_item, parent, false)) {

@@ -28,10 +28,10 @@ import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.ui.public.PublicView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -86,7 +86,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun setupViewPager() {
         val homePage = TimelineView.newInstance(TIMELINE_HOME)
-        val publicPage = TimelineView.newInstance(TIMELINE_PUBLIC)
+        val publicPage = PublicView()
         val signView = SignInView()
         val messagePage = MessageView()
 

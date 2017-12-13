@@ -25,10 +25,10 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
-import com.sinyuk.fanfou.domain.db.dao.PlayerDao
-import com.sinyuk.fanfou.domain.db.dao.StatusDao
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.db.dao.PlayerDao
+import com.sinyuk.fanfou.domain.db.dao.StatusDao
 
 
 /**
@@ -50,7 +50,9 @@ abstract class LocalDatabase : RoomDatabase() {
         fun getInstance(context: Context): LocalDatabase {
             synchronized(lock) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.applicationContext, LocalDatabase::class.java, "fanfou.db").build()
+                    INSTANCE = Room.databaseBuilder(context.applicationContext, LocalDatabase::class.java, "fanfou.db")
+                            .fallbackToDestructiveMigration()
+                            .build()
                 }
                 return INSTANCE!!
             }
@@ -61,7 +63,9 @@ abstract class LocalDatabase : RoomDatabase() {
         fun getInMemory(context: Context): LocalDatabase {
             synchronized(lock) {
                 if (INSTANCE2 == null) {
-                    INSTANCE2 = Room.inMemoryDatabaseBuilder(context.applicationContext, LocalDatabase::class.java).build()
+                    INSTANCE2 = Room.inMemoryDatabaseBuilder(context.applicationContext, LocalDatabase::class.java)
+                            .fallbackToDestructiveMigration()
+                            .build()
                 }
                 return INSTANCE2!!
             }

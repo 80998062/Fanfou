@@ -22,9 +22,6 @@ package com.sinyuk.fanfou.ui.public
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
-import com.sinyuk.fanfou.ui.timeline.TimelineView
-import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import javax.inject.Inject
@@ -43,10 +40,7 @@ class PublicView : AbstractLazyFragment(), Injectable {
 
 
     override fun lazyDo() {
-        TimelineView.newInstance(TIMELINE_PUBLIC, null).let {
-            addFragmentInFragment(it, R.id.fragment_container, false)
-            it.userVisibleHint = true
-        }
+
     }
 
 

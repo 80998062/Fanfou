@@ -32,7 +32,7 @@ import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.FetchNewTimeLineTask
+import com.sinyuk.fanfou.domain.repo.FetchTimelineTask
 import com.sinyuk.fanfou.util.CustomLoadMoreView
 import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -52,12 +52,11 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     companion object {
         private val lock = Any()
 
-        fun newInstance(path: String, playerId: String? = null): TimelineView {
+        fun newInstance(path: String): TimelineView {
             synchronized(lock) {
                 val instance = TimelineView()
                 val args = Bundle()
                 args.putString("path", path)
-                playerId?.let { args.putString("playerId", it) }
                 instance.arguments = args
                 return instance
             }
@@ -66,8 +65,6 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
 
     private val timelinePath: String by lazy { arguments?.getString("path")!! }
-    private val targetPlayer: String?  by lazy { arguments?.getString("playerId") }
-    private var since: String? = null
     private var max: String? = null
 
     override fun layoutId(): Int? = R.layout.timeline_view
@@ -86,104 +83,40 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     override fun lazyDo() {
         setupSwipeRefresh()
         setupRecyclerView()
+
+        loadMoreAfter()
     }
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { afterSinceId() }
+        swipeRefreshLayout.setOnRefreshListener { fetchNew() }
     }
 
-
-    private val refreshOB: Observer<Resource<MutableList<Status>>> by lazy {
-        Observer<Resource<MutableList<Status>>> { t ->
-            when (t?.states) {
-                States.SUCCESS -> {
-                    insertBefore(t.data!!)
-                    adapter.insertPlaceholder()
-                }
-                States.ERROR -> {
-                    if (Objects.equals(t.message, FetchNewTimeLineTask.HAS_NEXT)) { // 没有下一页新的了 但是有过滤了的数据
-                        adapter.removePlaceholder()
-                        insertBefore(t.data!!)
-                    } else {
-                        t.message?.let { toast.toastShort(it) }
-                    }
-                }
-                States.LOADING -> {
-                    swipeRefreshLayout.isRefreshing = true
-                }
-                null -> TODO()
-            }
-            swipeRefreshLayout.isRefreshing = false
-            resourceLive?.removeObserver(refreshOB)
-        }
-    }
-
-
-    private val loadmoreOB: Observer<Resource<MutableList<Status>>> by lazy {
-        Observer<Resource<MutableList<Status>>> { t ->
-            when (t?.states) {
-                States.SUCCESS -> {
-                    isLoadMore = if (t.data?.size == PAGE_SIZE) {
-                        adapter.loadMoreComplete()
-                        appendAfter(t.data!!)
-                        false
-                    } else {
-                        adapter.loadMoreEnd(true)
-                        if (t.data?.isNotEmpty() == true) {
-                            appendAfter(t.data!!)
-                        }
-                        true
-                    }
-                }
-                States.ERROR -> {
-                    isLoadMore = false
-                    adapter.loadMoreFail()
-                    t.message?.let { toast.toastShort(it) }
-                }
-                States.LOADING -> {
-                    isLoadMore = true
-                }
-                null -> TODO()
-            }
-            swipeRefreshLayout.isRefreshing = false
-            resourceLive?.removeObserver(loadmoreOB)
-        }
-    }
 
     private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
 
-    private fun afterSinceId() {
-        if (swipeRefreshLayout.isRefreshing) return
-        resourceLive = timelineViewModel.fetchNewTimeline(timelinePath, since, targetPlayer)
-                .apply { observe(this@TimelineView, refreshOB) }
+    private fun fetchNew() {
+        if (isLoading) return
+        isLoading = true
+        val offset = if (offsetBroken) {
+            max
+        } else {
+            null
+        }
+        resourceLive = timelineViewModel.fetchTimelineAndFiltered(timelinePath, offset).apply { observe(this@TimelineView, fetchNewOB) }
     }
 
 
-    private var isLoadMore = false
-
-    private fun beforeMaxId() {
-        if (isLoadMore) return
-        resourceLive = timelineViewModel.loadTimeline(timelinePath, max, targetPlayer)
-                .apply { observe(this@TimelineView, loadmoreOB) }
+    private var isLoading = true
+    private var isLoadmoreEnd = false
+    private fun loadMoreAfter() {
+        if (isLoading || isLoadmoreEnd) return
+        isLoading = true
+        resourceLive = if (offsetBroken) {
+            timelineViewModel.fetchTimelineAndFiltered(timelinePath, max).apply { observe(this@TimelineView, fetchNewOB) }
+        } else {
+            timelineViewModel.loadTimelineFromDb(timelinePath, max).apply { observe(this@TimelineView, loadmoreOB) }
+        }
     }
-
-    private fun insertBefore(data: MutableList<Status>) {
-        adapter.data.addAll(0, data)
-
-        adapter.notifyDataSetChanged()
-
-        since = adapter.data.first().id
-        max = adapter.data.last().id
-    }
-
-    private fun appendAfter(data: MutableList<Status>) {
-        adapter.data.addAll(data)
-        adapter.notifyDataSetChanged()
-
-        since = adapter.data.first().id
-        max = adapter.data.last().id
-    }
-
 
     private fun setupRecyclerView() {
         LinearLayoutManager(context).apply {
@@ -199,17 +132,89 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             setLoadMoreView(CustomLoadMoreView())
             setEnableLoadMore(true)
             disableLoadMoreIfNotFullPage(recyclerView)
-            setOnLoadMoreListener({ beforeMaxId() }, recyclerView)
+            setOnLoadMoreListener({ loadMoreAfter() }, recyclerView)
             recyclerView.adapter = this
             onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
                 when (view.id) {
-                    R.id.placeholder -> {
-
-                    }
                 }
             }
         }
 
+    }
+
+    private var offsetBroken = false
+    private val fetchNewOB: Observer<Resource<MutableList<Status>>> by lazy {
+        Observer<Resource<MutableList<Status>>> { t ->
+            resourceLive?.removeObserver(fetchNewOB)
+            when (t?.states) {
+                States.SUCCESS -> {
+                    offsetBroken = false
+                    if (t.data?.isNotEmpty() == true) {
+                        adapter.data.addAll(0, t.data!!)
+                        adapter.notifyItemRangeInserted(0, t.data!!.size)
+                    } else {
+                        toast.toastShort(R.string.no_new_statuses)
+                    }
+                }
+                States.ERROR -> {
+                    offsetBroken = if (Objects.equals(t.message, FetchTimelineTask.HAS_BREAK_POINT)) { // 新的数据超过一页
+                        adapter.data.clear()
+                        adapter.data.addAll(t.data!!)
+                        adapter.notifyDataSetChanged()
+                        true
+                    } else {
+                        t.message?.let { toast.toastShort(it) }
+                        false
+                    }
+                }
+                States.LOADING -> {
+                    setRefresh(true)
+                }
+                null -> TODO()
+            }
+            isLoading = false
+            setRefresh(false)
+            if (t.data?.isNotEmpty() == true) {
+                max = adapter.data.last().id
+            }
+        }
+    }
+
+    private fun setRefresh(b: Boolean) {
+        swipeRefreshLayout.isRefreshing = b
+    }
+
+
+    private val loadmoreOB: Observer<Resource<MutableList<Status>>> by lazy {
+        Observer<Resource<MutableList<Status>>> { t ->
+            resourceLive?.removeObserver(loadmoreOB)
+            when (t?.states) {
+                States.SUCCESS -> {
+                    isLoading = false
+                    isLoadmoreEnd = if (t.data?.size == PAGE_SIZE) {
+                        adapter.loadMoreComplete()
+                        adapter.addData(t.data!!) // no need to notify
+                        max = t.data!!.last().id
+                        false
+                    } else {
+                        adapter.loadMoreEnd(true)
+                        if (t.data?.isNotEmpty() == true) {
+                            adapter.addData(t.data!!)
+                            max = t.data!!.last().id
+                        }
+                        true
+                    }
+                }
+                States.ERROR -> {
+                    isLoading = false
+                    adapter.loadMoreFail()
+                    t.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> {
+                }
+                null -> TODO()
+            }
+        }
     }
 
 

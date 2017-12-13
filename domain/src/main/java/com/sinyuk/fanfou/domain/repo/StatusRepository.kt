@@ -33,7 +33,7 @@ import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.util.AbsentLiveData
-
+import com.sinyuk.fanfou.domain.util.networkConnected
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -52,44 +52,32 @@ class StatusRepository @Inject constructor(
         @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
 
 
-    fun timeline(path: String, max: String?, forcedUpdate: Boolean = false) =
+    fun loadTimelineFromDb(path: String, max: String?, forcedUpdate: Boolean = false) =
             object : NetworkBoundResource<MutableList<Status>, MutableList<Status>>(appExecutors) {
                 override fun onFetchFailed() {}
 
                 override fun saveCallResult(item: MutableList<Status>?) {
-                    val inMemory = when (path) {
-                        TIMELINE_PUBLIC -> true
-                        TIMELINE_HOME -> false
-                        else -> true
+                    if (item?.isEmpty() != false) return
+                    for (status in item) {
+                        status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                        Log.d("saveStatus", "in  disk: " + db.statusDao().insert(status))
                     }
-                    item?.let { saveStatus(it, inMemory) }
+
                 }
 
-                override fun shouldFetch(data: MutableList<Status>?) =
-                        /*networkConnected(application) && rateLimiter.shouldFetch(KEY) && */(forcedUpdate || data == null || data.isEmpty())
+                override fun shouldFetch(data: MutableList<Status>?) = networkConnected(application) || (forcedUpdate || data == null || data.isEmpty())
 
-                override fun loadFromDb(): LiveData<MutableList<Status>?> = loadTimelineFromDb(path, max)
+                override fun loadFromDb(): LiveData<MutableList<Status>?> = loadTimelineDb(path, max)
 
                 override fun createCall() = when (path) {
                     TIMELINE_HOME -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
-                    TIMELINE_PUBLIC -> restAPI.fetch_from_path(TIMELINE_PUBLIC, null, max)
                     else -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
                 }
 
             }.asLiveData()
 
-    private fun loadTimelineFromDb(path: String, max: String?) = when (path) {
-        TIMELINE_PUBLIC -> if (max == null) {
-            memory.statusDao().initial(PAGE_SIZE)
-        } else {
-            Transformations.switchMap(memory.statusDao().query(max), {
-                if (it == null) {
-                    AbsentLiveData.create()
-                } else {
-                    memory.statusDao().after(max, PAGE_SIZE)
-                }
-            })
-        }
+    private fun loadTimelineDb(path: String, max: String?) = when (path) {
+
         TIMELINE_HOME -> if (max == null) {
             db.statusDao().initial(PAGE_SIZE)
         } else {
@@ -104,30 +92,11 @@ class StatusRepository @Inject constructor(
         else -> TODO()
     }
 
-
-    fun fetchTimeline(path: String, since: String?, uiqueId: String?): MutableLiveData<Resource<MutableList<Status>>> {
-        val task = when (path) {
-            TIMELINE_HOME, TIMELINE_PUBLIC -> FetchNewTimeLineTask(db, { restAPI.fetch_from_path(path, since, null) })
-            else -> TODO()
-        }
+    fun fetchTimelineAndFiltered(path: String, max: String? = null): MutableLiveData<Resource<MutableList<Status>>> {
+        val task = FetchTimelineTask(restAPI, db, path, max)
         appExecutors.diskIO().execute(task)
         return task.liveData
     }
 
-    private fun saveStatus(t: MutableList<Status>, inMemory: Boolean) {
-        db.beginTransaction()
-        try {
-            for (status in t) {
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                if (inMemory) {
-                    Log.d("saveStatus", "in memory: " + memory.statusDao().insert(status))
-                } else {
-                    Log.d("saveStatus", "in disk: " + db.statusDao().insert(status))
-                }
-            }
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
-        }
-    }
+
 }
