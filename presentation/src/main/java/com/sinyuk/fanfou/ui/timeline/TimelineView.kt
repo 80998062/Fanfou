@@ -24,7 +24,8 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import com.chad.library.adapter.base.BaseQuickAdapter
+import android.util.Log
+import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -46,6 +47,7 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/30.
+ *
  */
 class TimelineView : AbstractLazyFragment(), Injectable {
 
@@ -84,7 +86,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         setupSwipeRefresh()
         setupRecyclerView()
 
-        loadMoreAfter()
+        loadInitial()
     }
 
     private fun setupSwipeRefresh() {
@@ -109,6 +111,11 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private var isLoading = true
     private var isLoadmoreEnd = false
     private fun loadMoreAfter() {
+        if (BuildConfig.DEBUG) {
+            Log.d("loadMoreAfter", "isLoading: " + isLoading)
+            Log.d("loadMoreAfter", "isLoadmoreEnd: " + isLoadmoreEnd)
+            Log.d("loadMoreAfter", "Max: " + max)
+        }
         if (isLoading || isLoadmoreEnd) return
         isLoading = true
         resourceLive = if (offsetBroken) {
@@ -116,6 +123,12 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         } else {
             timelineViewModel.loadTimelineFromDb(timelinePath, max).apply { observe(this@TimelineView, loadmoreOB) }
         }
+    }
+
+
+    private fun loadInitial() {
+        isLoading = true
+        timelineViewModel.loadTimelineFromDb(timelinePath, null).apply { observe(this@TimelineView, initialOB) }
     }
 
     private fun setupRecyclerView() {
@@ -134,10 +147,6 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             disableLoadMoreIfNotFullPage(recyclerView)
             setOnLoadMoreListener({ loadMoreAfter() }, recyclerView)
             recyclerView.adapter = this
-            onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
-                when (view.id) {
-                }
-            }
         }
 
     }
@@ -152,6 +161,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                     if (t.data?.isNotEmpty() == true) {
                         adapter.data.addAll(0, t.data!!)
                         adapter.notifyItemRangeInserted(0, t.data!!.size)
+                        max = t.data!!.last().id
                     } else {
                         toast.toastShort(R.string.no_new_statuses)
                     }
@@ -161,6 +171,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                         adapter.data.clear()
                         adapter.data.addAll(t.data!!)
                         adapter.notifyDataSetChanged()
+                        max = t.data!!.last().id
                         true
                     } else {
                         t.message?.let { toast.toastShort(it) }
@@ -170,13 +181,12 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 States.LOADING -> {
                     setRefresh(true)
                 }
-                null -> TODO()
+                null -> {
+                    toast.toastShort(R.string.no_new_statuses)
+                }
             }
             isLoading = false
             setRefresh(false)
-            if (t.data?.isNotEmpty() == true) {
-                max = adapter.data.last().id
-            }
         }
     }
 
@@ -190,23 +200,17 @@ class TimelineView : AbstractLazyFragment(), Injectable {
             resourceLive?.removeObserver(loadmoreOB)
             when (t?.states) {
                 States.SUCCESS -> {
-                    isLoading = false
-                    isLoadmoreEnd = if (t.data?.size == PAGE_SIZE) {
+                    isLoadmoreEnd = if (t.data?.size == 0) {
+                        adapter.loadMoreEnd(false)
+                        true
+                    } else {
                         adapter.loadMoreComplete()
                         adapter.addData(t.data!!) // no need to notify
                         max = t.data!!.last().id
                         false
-                    } else {
-                        adapter.loadMoreEnd(true)
-                        if (t.data?.isNotEmpty() == true) {
-                            adapter.addData(t.data!!)
-                            max = t.data!!.last().id
-                        }
-                        true
                     }
                 }
                 States.ERROR -> {
-                    isLoading = false
                     adapter.loadMoreFail()
                     t.message?.let { toast.toastShort(it) }
                 }
@@ -214,6 +218,35 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 }
                 null -> TODO()
             }
+            isLoading = false
+        }
+    }
+
+
+    private val initialOB: Observer<Resource<MutableList<Status>>> by lazy {
+        Observer<Resource<MutableList<Status>>> { t ->
+            resourceLive?.removeObserver(initialOB)
+            when (t?.states) {
+                States.SUCCESS -> {
+                    if (t.data?.isEmpty() != false) {
+                        // TODO: show empty layout
+                        toast.toastLong("这城市那么空")
+                    } else {
+                        adapter.addData(t.data!!)
+                        max = t.data!!.last().id
+                    }
+                }
+                States.ERROR -> {
+                    // TODO: show error layout
+                    t.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> {
+                    setRefresh(true)
+                }
+                null -> TODO()
+            }
+            isLoading = false
+            setRefresh(false)
         }
     }
 

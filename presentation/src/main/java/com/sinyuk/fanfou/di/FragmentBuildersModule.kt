@@ -24,7 +24,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.public.PublicView
+import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -43,8 +43,6 @@ abstract class FragmentBuildersModule {
     @ContributesAndroidInjector
     abstract fun homeView(): HomeView
 
-    @ContributesAndroidInjector
-    abstract fun publicView(): PublicView
 
     @ContributesAndroidInjector
     abstract fun playerView(): PlayerView
@@ -52,6 +50,9 @@ abstract class FragmentBuildersModule {
     @ContributesAndroidInjector
     abstract fun messageView(): MessageView
 
+
+    @ContributesAndroidInjector
+    abstract fun seachView(): SearchView
 
     @ContributesAndroidInjector
     abstract fun timelineView(): TimelineView

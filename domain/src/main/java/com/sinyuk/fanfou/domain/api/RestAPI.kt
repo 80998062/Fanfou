@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.domain.api
 import android.arch.lifecycle.LiveData
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
+import retrofit2.Call
 import retrofit2.http.*
 
 /**
@@ -44,8 +45,15 @@ interface RestAPI {
     @GET("statuses/{path}.json?count=10&format=html")
     fun fetch_from_path(@Path("path") path: String, @Query("since_id") since: String?, @Query("max_id") max: String?): LiveData<ApiResponse<MutableList<Status>>>
 
+    @GET("statuses/{path}.json?count=10&format=html")
+    fun fetch_from_path_call(@Path("path") path: String,
+                             @Query("since_id") since: String? = null,
+                             @Query("max_id") max: String? = null): Call<MutableList<Status>>
+
 
     @GET("favorites/id.json?count=10&format=html")
-    fun fetch_favorites(@Query("id") id: String?, @Query("since_id") since: String?, @Query("max_id") max: String?): LiveData<ApiResponse<MutableList<Status>>>
+    fun fetch_favorites(@Query("id") id: String?,
+                        @Query("since_id") since: String? = null,
+                        @Query("max_id") max: String? = null): LiveData<ApiResponse<MutableList<Status>>>
 
 }

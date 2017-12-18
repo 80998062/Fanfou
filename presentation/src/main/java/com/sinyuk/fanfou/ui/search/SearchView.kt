@@ -17,7 +17,7 @@
  *  * limitations under the License.
  *
  */
-package com.sinyuk.fanfou.ui.public
+package com.sinyuk.fanfou.ui.search
 
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
@@ -30,11 +30,10 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/11/30.
  *
  */
-class PublicView : AbstractLazyFragment(), Injectable {
+class SearchView : AbstractLazyFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.public_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
-
 
     @Inject lateinit var toast: ToastUtils
 

@@ -32,49 +32,6 @@ import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 
 abstract class QuickSwipeAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K>, SwipeItemMangerInterface, SwipeAdapterInterface {
 
-//    private var mItemManger = SwipeItemRecyclerMangerImpl(this@QuickSwipeAdapter)
-//
-//    override fun openItem(position: Int) {
-//        mItemManger.openItem(position)
-//    }
-//
-//    override fun closeItem(position: Int) {
-//        mItemManger.closeItem(position)
-//    }
-//
-//    override fun closeAllExcept(layout: SwipeLayout) {
-//        mItemManger.closeAllExcept(layout)
-//    }
-//
-//    override fun closeAllItems() {
-//        mItemManger.closeAllItems()
-//    }
-//
-//    override fun getOpenItems(): List<Int> {
-//        return mItemManger.openItems
-//    }
-//
-//    override fun getOpenLayouts(): List<SwipeLayout> {
-//        return mItemManger.openLayouts
-//    }
-//
-//    override fun removeShownLayouts(layout: SwipeLayout) {
-//        mItemManger.removeShownLayouts(layout)
-//    }
-//
-//    override fun isOpen(position: Int): Boolean {
-//        return mItemManger.isOpen(position)
-//    }
-//
-//    override fun getMode(): Attributes.Mode {
-//        return mItemManger.mode
-//    }
-//
-//    override fun setMode(mode: Attributes.Mode) {
-//        mItemManger.mode = mode
-//    }
-
-
     constructor(layoutResId: Int, data: List<T>?) : super(layoutResId, data)
 
     constructor(data: List<T>?) : super(data)
@@ -84,14 +41,10 @@ abstract class QuickSwipeAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K>
 
     override fun onBindViewHolder(holder: K, position: Int, payloads: List<Any>?) {
         if (payloads == null || payloads.isEmpty()) {
-            onBindViewHolder(holder, position)
+            super.onBindViewHolder(holder, position)
         } else {
             throw TODO("onBindViewHolder( payloads ) Method not implement")
         }
-    }
-
-    override fun onBindViewHolder(holder: K, positions: Int) {
-        super.onBindViewHolder(holder, positions)
     }
 
     fun swapData(data: List<T>) {

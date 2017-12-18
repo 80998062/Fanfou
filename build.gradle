@@ -44,7 +44,7 @@ ext{
     mockitoVersion = '2.8.47'
     runnerVersion = '1.0.1'
     roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha3"
+    pagingVersion = "1.0.0-alpha4"
 
 
     // Architecture Components dependencies

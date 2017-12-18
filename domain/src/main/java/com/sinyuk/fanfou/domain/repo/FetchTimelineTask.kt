@@ -20,9 +20,9 @@
 
 package com.sinyuk.fanfou.domain.repo
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
@@ -42,66 +42,69 @@ class FetchTimelineTask(private val restAPI: RestAPI,
                         private val path: String,
                         private val max: String? = null) : Runnable {
 
-    val liveData: MutableLiveData<Resource<MutableList<Status>>> = MutableLiveData()
+    val liveData = MutableLiveData<Resource<MutableList<Status>>>()
 
     companion object {
         const val HAS_BREAK_POINT = "has_break_point"
+        const val TAG = "FetchTimeline"
+    }
+
+    init {
+        liveData.value = Resource.loading(null)
     }
 
     override fun run() {
         try {
-            liveData.postValue(Resource.loading(null))
-            val apiResponse = createCall().value
-            if (apiResponse?.body == null) {
-                liveData.postValue(null)
-                return
-            } else {
-                if (apiResponse.isSuccessful()) {
-                    if (apiResponse?.body.isEmpty() ||
-                            db.statusDao().query(apiResponse.body.first().id).value != null) {
-                        // 如果连第一条都缓存了 quick return
-                        liveData.postValue(Resource.success(null))
-                        return
-                    }
-
-                    // 如果最后一条未缓存 说明中间仍有未缓存的状态
-                    val broken = db.statusDao().query(apiResponse.body.last().id).value == null
-                    if (broken) {
-                        try {
-                            db.beginTransaction()
-                            saveStatus(apiResponse.body)
-                            db.setTransactionSuccessful()
-                        } finally {
-                            db.endTransaction()
-                            liveData.postValue(Resource.error(HAS_BREAK_POINT, apiResponse.body))
-                        }
-                    } else {
-                        // 没有下一页数据了 过滤重复数据
-                        try {
-                            db.beginTransaction()
-                            db.setTransactionSuccessful()
-                            filterDuplicatedStatusesThenSave(apiResponse.body)
-                            db.statusDao().inserts(apiResponse.body)
-                        } finally {
-                            db.endTransaction()
-                            liveData.postValue(Resource.success(apiResponse.body))
-                        }
-                    }
+            val response = restAPI.fetch_from_path_call(TIMELINE_HOME, null, max).execute()
+            val apiResponse = ApiResponse(response)
+            if (apiResponse.isSuccessful()) {
+                if (apiResponse.body == null) {
+                    liveData.postValue(null)
                 } else {
-                    liveData.postValue(Resource.error(apiResponse.errorMessage, null))
+                    val data = apiResponse.body
+                    when {
+                        db.statusDao().query(data.first().id).value != null -> {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "全都缓存了")
+                            }
+                            liveData.postValue(Resource.success(null))
+                        }
+                        db.statusDao().query(data.last().id).value == null -> // 如果最后一条未缓存 说明中间仍有未缓存的状态 全部删除重来
+                            try {
+                                if (BuildConfig.DEBUG) {
+                                    Log.w(TAG, "除了这个还有未缓存的")
+                                }
+                                db.beginTransaction()
+                                data.add(Status(breakPoint = true, sibling = data.last().id))
+                                saveStatus(data)
+                                db.setTransactionSuccessful()
+                            } finally {
+                                db.endTransaction()
+                                liveData.postValue(Resource.error(HAS_BREAK_POINT, data))
+                            }
+                        else -> // 没有下一页数据了 过滤重复数据
+                            try {
+                                if (BuildConfig.DEBUG) {
+                                    Log.d(TAG, "除了这个没有未缓存的")
+                                }
+                                db.beginTransaction()
+                                filterDuplicatedStatusesThenSave(data)
+                                db.statusDao().inserts(data)
+                                db.setTransactionSuccessful()
+                            } finally {
+                                db.endTransaction()
+                                liveData.postValue(Resource.success(data))
+                            }
+                    }
                 }
-
+            } else {
+                liveData.postValue(Resource.error(null, null))
             }
-
         } catch (e: IOException) {
             liveData.postValue(Resource.error(e.message, null))
         }
     }
 
-    private fun createCall(): LiveData<ApiResponse<MutableList<Status>>> = when (path) {
-        TIMELINE_HOME -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
-        else -> restAPI.fetch_from_path(TIMELINE_HOME, null, max)
-    }
 
     /**
      * 过滤已经保存的

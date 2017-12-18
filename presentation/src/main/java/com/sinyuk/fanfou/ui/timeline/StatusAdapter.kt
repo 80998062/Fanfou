@@ -20,11 +20,8 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.ImageView
 import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
@@ -34,29 +31,22 @@ import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.QuickSwipeAdapter
 import com.sinyuk.fanfou.util.addFragmentInActivity
-import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
-import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 
 /**
  * Created by sinyuk on 2017/12/1.
+ *
  */
-class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(null) {
+class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(R.layout.timeline_view_list_item, null) {
 
     var uniqueId: String? = null
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StatusViewHolder(parent)
-
-
     override fun convert(holder: BaseViewHolder, status: Status?) {
-
-        holder as StatusViewHolder
         if (status == null) {
-            holder.clear()
+            clear(holder)
         } else {
-            holder.bindTo(status, uniqueId)
+            bindTo(holder, status, uniqueId)
         }
-
     }
 
 
@@ -104,66 +94,66 @@ class StatusAdapter : QuickSwipeAdapter<Status, BaseViewHolder>(null) {
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
-    class StatusViewHolder(parent: ViewGroup) : BaseViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.timeline_view_list_item, parent, false)) {
-        fun clear() {
-            itemView.avatar.setImageDrawable(null)
-            itemView.screenName.text = null
-            itemView.content.text = null
-            itemView.createdAt.text = null
-            itemView.image.setImageDrawable(null)
-            itemView.swipeLayout.close(false)
-            itemView.surfaceView.setBackgroundColor(Color.WHITE)
-            itemView.likeButton.setImageDrawable(null)
-            itemView.deleteButton.visibility = View.GONE
+
+    private fun clear(holder: BaseViewHolder) {
+//            itemView.avatar.setImageDrawable(null)
+//            itemView.screenName.text = null
+//            itemView.content.text = null
+//            itemView.createdAt.text = null
+//            itemView.image.setImageDrawable(null)
+//            itemView.swipeLayout.close(false)
+//            itemView.surfaceView.setBackgroundColor(Color.WHITE)
+//            itemView.likeButton.setImageDrawable(null)
+//            itemView.deleteButton.visibility = View.GONE
+    }
+
+    private fun bindTo(holder: BaseViewHolder, status: Status, uniqueId: String?) {
+        holder.getView<ImageView>(R.id.avatar).setImageResource(R.mipmap.ic_launcher_round)
+        holder.getView<ImageView>(R.id.avatar).setOnClickListener {
+            @Suppress("CAST_NEVER_SUCCEEDS")
+            (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
         }
 
-        fun bindTo(status: Status, uniqueId: String?) {
-            itemView.avatar.setImageResource(R.mipmap.ic_launcher_round)
-            itemView.screenName.text = status.playerExtracts?.screenName
-            itemView.content.text = status.text
-            itemView.createdAt.text = status.createdAt?.toString()
-            itemView.image.setImageResource(R.mipmap.ic_launcher_round)
-            itemView.swipeLayout.isClickToClose = true
+        holder.setText(R.id.screenName, status.playerExtracts?.screenName)
+        holder.setText(R.id.content, status.text)
+        holder.setText(R.id.createdAt, status.createdAt?.toString())
+        holder.setImageResource(R.id.image, R.mipmap.ic_launcher_round)
+        holder.getView<SwipeLayout>(R.id.swipeLayout).isClickToClose = true
 
+//
+//        if (status.playerExtracts?.uniqueId == uniqueId || status.repostUserId == uniqueId || status.inReplyToUserId == uniqueId) {
+//            itemView.surfaceView.setBackgroundColor(Color.GRAY)
+//        } else {
+//            itemView.surfaceView.setBackgroundColor(Color.WHITE)
+//        }
+//
+//
+//        if (status.playerExtracts?.uniqueId == uniqueId) {
+//            itemView.deleteButton.visibility = View.VISIBLE
+//        } else {
+//            itemView.deleteButton.visibility = View.GONE
+//        }
+//
+//
+//        if (status.favorited) {
+//            itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
+//        } else {
+//            itemView.likeButton.setImageDrawable(null)
+//        }
+//
+//
+//        itemView.likeButton.setOnClickListener {
+//            itemView.swipeLayout.close()
+//        }
+//        itemView.repostButton.setOnClickListener {
+//            itemView.swipeLayout.close()
+//        }
+//        itemView.overflowButton.setOnClickListener {
+//            itemView.swipeLayout.close()
+//        }
+//        itemView.deleteButton.setOnClickListener {
+//            itemView.swipeLayout.close()
+//        }
 
-            if (status.playerExtracts?.uniqueId == uniqueId || status.repostUserId == uniqueId || status.inReplyToUserId == uniqueId) {
-                itemView.surfaceView.setBackgroundColor(Color.GRAY)
-            } else {
-                itemView.surfaceView.setBackgroundColor(Color.WHITE)
-            }
-
-
-            if (status.playerExtracts?.uniqueId == uniqueId) {
-                itemView.deleteButton.visibility = View.VISIBLE
-            } else {
-                itemView.deleteButton.visibility = View.GONE
-            }
-
-
-            if (status.favorited) {
-                itemView.likeButton.setImageResource(R.mipmap.ic_launcher_round)
-            } else {
-                itemView.likeButton.setImageDrawable(null)
-            }
-
-            itemView.avatar.setOnClickListener {
-                @Suppress("CAST_NEVER_SUCCEEDS")
-                (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
-            }
-
-            itemView.likeButton.setOnClickListener {
-                itemView.swipeLayout.close()
-            }
-            itemView.repostButton.setOnClickListener {
-                itemView.swipeLayout.close()
-            }
-            itemView.overflowButton.setOnClickListener {
-                itemView.swipeLayout.close()
-            }
-            itemView.deleteButton.setOnClickListener {
-                itemView.swipeLayout.close()
-            }
-        }
     }
 }

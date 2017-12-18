@@ -33,7 +33,6 @@ import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.util.AbsentLiveData
-import com.sinyuk.fanfou.domain.util.networkConnected
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -57,15 +56,21 @@ class StatusRepository @Inject constructor(
                 override fun onFetchFailed() {}
 
                 override fun saveCallResult(item: MutableList<Status>?) {
-                    if (item?.isEmpty() != false) return
-                    for (status in item) {
-                        status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                        Log.d("saveStatus", "in  disk: " + db.statusDao().insert(status))
+                    item?.let {
+                        try {
+                            db.beginTransaction()
+                            for (status in item) {
+                                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                                Log.d("saveStatus", "in  disk: " + db.statusDao().insert(status))
+                            }
+                            db.setTransactionSuccessful()
+                        } finally {
+                            db.endTransaction()
+                        }
                     }
-
                 }
 
-                override fun shouldFetch(data: MutableList<Status>?) = networkConnected(application) || (forcedUpdate || data == null || data.isEmpty())
+                override fun shouldFetch(data: MutableList<Status>?) = /*networkConnected(application) &&*/ (forcedUpdate || data == null || data.isEmpty())
 
                 override fun loadFromDb(): LiveData<MutableList<Status>?> = loadTimelineDb(path, max)
 
@@ -77,7 +82,6 @@ class StatusRepository @Inject constructor(
             }.asLiveData()
 
     private fun loadTimelineDb(path: String, max: String?) = when (path) {
-
         TIMELINE_HOME -> if (max == null) {
             db.statusDao().initial(PAGE_SIZE)
         } else {
@@ -93,6 +97,7 @@ class StatusRepository @Inject constructor(
     }
 
     fun fetchTimelineAndFiltered(path: String, max: String? = null): MutableLiveData<Resource<MutableList<Status>>> {
+        Log.d("Task: ", "fetchTimelineAndFiltered")
         val task = FetchTimelineTask(restAPI, db, path, max)
         appExecutors.diskIO().execute(task)
         return task.liveData

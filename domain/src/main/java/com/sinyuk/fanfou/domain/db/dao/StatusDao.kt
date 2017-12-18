@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.domain.db.dao
 
 import android.arch.lifecycle.LiveData
+import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.DO.Status
 
@@ -58,4 +59,7 @@ interface StatusDao {
 
     @Query("SELECT * from statuses ORDER BY createdAt DESC LIMIT :limit")
     fun initial(limit: Int): LiveData<MutableList<Status>?>
+
+    @Query("SELECT * from statuses ORDER BY createdAt DESC")
+    fun home(): DataSource.Factory<Int, Status>
 }

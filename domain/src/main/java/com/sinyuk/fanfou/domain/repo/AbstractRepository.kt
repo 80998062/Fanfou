@@ -20,6 +20,8 @@
 
 package com.sinyuk.fanfou.domain.repo
 
+import android.util.Log
+import com.facebook.stetho.okhttp3.BuildConfig
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -42,7 +44,29 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
 
     private val MAX_HTTP_CACHE = (1024 * 1024 * 100).toLong()
     private val TIMEOUT: Long = 10
-    protected var okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+                .addNetworkInterceptor(interceptor)
+                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(false)
+                .also {
+                    if (BuildConfig.DEBUG) {
+                        val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
+                            Log.d("FANFOU", it)
+                        })
+                        logging.level = HttpLoggingInterceptor.Level.BODY
+                        it.addInterceptor(logging).addNetworkInterceptor(StethoInterceptor())
+                    } else {
+                        val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
+                            Log.d("FANFOU", it)
+                        })
+                        logging.level = HttpLoggingInterceptor.Level.HEADERS
+                        it.addInterceptor(logging)
+                    }
+                }.build()
+    }
     private val gson: Gson = GsonBuilder()
             // Blank fields are included as null instead of being omitted.
             .serializeNulls()
@@ -53,28 +77,10 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
 
     protected val rateLimiter = RateLimiter<String>(30, TimeUnit.MINUTES)
 
-    protected val KEY = "for_all_request"
-
     init {
-
-        val logging = HttpLoggingInterceptor()
-        logging.level = HttpLoggingInterceptor.Level.BODY
-
-        okHttpClient = OkHttpClient.Builder()
-                .addNetworkInterceptor(interceptor)
-                .addInterceptor(logging)
-                .addNetworkInterceptor(StethoInterceptor())
-                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .retryOnConnectionFailure(true)
-                .build()
-
-
         restAPI = Retrofit.Builder()
                 .baseUrl(endpoint.baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(LiveDataCallAdapterFactory())
                 .client(okHttpClient)
                 .build()

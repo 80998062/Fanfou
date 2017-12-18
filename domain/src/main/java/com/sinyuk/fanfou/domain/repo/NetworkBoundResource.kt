@@ -25,7 +25,6 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
-import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.api.ApiResponse
@@ -69,14 +68,9 @@ abstract class NetworkBoundResource<ResultType, RequestType>
 
     private fun fetchFromNetwork(dbSource: LiveData<ResultType?>) {
         val apiResponse = createCall()
-        // we re-attach dbSource as a new source, it will dispatch its latest value quickly
-        result.addSource(dbSource) { newData -> setValue(Resource.loading(newData)) }
-        result.addSource<ApiResponse<RequestType>>(apiResponse) { response ->
-            result.removeSource<ApiResponse<RequestType>>(apiResponse)
-            result.removeSource(dbSource)
-
+        result.addSource(apiResponse) { response ->
+            result.removeSource(apiResponse)
             if (response?.isSuccessful() == true) {
-                Log.d("SaveStatus", "isSuccessful")
                 appExecutors.diskIO().execute {
                     saveCallResult(processResponse(response))
                     appExecutors.mainThread().execute {

@@ -31,7 +31,7 @@ import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.public.PublicView
+import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -86,11 +86,11 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun setupViewPager() {
         val homePage = TimelineView.newInstance(TIMELINE_HOME)
-        val publicPage = PublicView()
+        val saerchPage = SearchView()
         val signView = SignInView()
         val messagePage = MessageView()
 
-        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, publicPage, signView, messagePage))
+        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, saerchPage, signView, messagePage))
 
         viewPager.offscreenPageLimit = 4
         viewPager.adapter = adapter
