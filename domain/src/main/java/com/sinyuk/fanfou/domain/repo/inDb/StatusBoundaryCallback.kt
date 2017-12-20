@@ -55,7 +55,7 @@ class StatusBoundaryCallback(
     @MainThread
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            webservice.fetch_from_path_call(path).enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path_call(path, networkPageSize).enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -65,7 +65,7 @@ class StatusBoundaryCallback(
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-            webservice.fetch_from_path_call(path, null, itemAtEnd.id).enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path_call(path, networkPageSize, null, itemAtEnd.id).enqueue(createWebserviceCallback(it))
         }
     }
 

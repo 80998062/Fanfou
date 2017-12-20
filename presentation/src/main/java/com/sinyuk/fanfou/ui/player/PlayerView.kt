@@ -34,6 +34,7 @@ import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
@@ -44,6 +45,7 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/12/7.
+ *
  */
 class PlayerView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.player_view
@@ -62,7 +64,7 @@ class PlayerView : AbstractFragment(), Injectable {
 
     @Inject lateinit var factory: FanfouViewModelFactory
 
-    private val accountViewModel: AccountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
+    private val accountViewModel: AccountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     private val playerViewModel: PlayerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
 

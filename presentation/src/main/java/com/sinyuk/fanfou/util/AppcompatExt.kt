@@ -74,5 +74,9 @@ fun Fragment.addFragmentInFragment(fragment: Fragment, resId: Int, addToBackStac
     }
 }
 
-fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
+fun <T : ViewModel> Fragment.obtainViewModelFromActivity(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
         ViewModelProviders.of(this.activity as AppCompatActivity, viewModelFactory).get(viewModelClass)
+
+
+fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
+        ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)

@@ -31,6 +31,7 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/30.
+ *
  */
 class HomeView : AbstractLazyFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.home_view

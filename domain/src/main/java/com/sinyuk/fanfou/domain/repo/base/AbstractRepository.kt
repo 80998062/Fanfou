@@ -18,33 +18,34 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo
+package com.sinyuk.fanfou.domain.repo.base
 
 import android.util.Log
-import com.facebook.stetho.okhttp3.BuildConfig
 import com.facebook.stetho.okhttp3.StethoInterceptor
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.google.gson.*
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.LiveDataCallAdapterFactory
-import com.sinyuk.fanfou.domain.util.RateLimiter
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) {
 
     private val MAX_HTTP_CACHE = (1024 * 1024 * 100).toLong()
     private val TIMEOUT: Long = 10
-    private val okHttpClient: OkHttpClient by lazy {
+    val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
                 .addNetworkInterceptor(interceptor)
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
@@ -52,30 +53,36 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(false)
                 .also {
+                    val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
+                        Log.d("FANFOU", it)
+                    })
                     if (BuildConfig.DEBUG) {
-                        val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
-                            Log.d("FANFOU", it)
-                        })
                         logging.level = HttpLoggingInterceptor.Level.BODY
                         it.addInterceptor(logging).addNetworkInterceptor(StethoInterceptor())
                     } else {
-                        val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
-                            Log.d("FANFOU", it)
-                        })
                         logging.level = HttpLoggingInterceptor.Level.HEADERS
                         it.addInterceptor(logging)
                     }
+
                 }.build()
     }
     private val gson: Gson = GsonBuilder()
             // Blank fields are included as null instead of being omitted.
             .serializeNulls()
-            // convert timestamp to date
-            .setDateFormat("EEE MMM dd hh:mm:ss zzzz yyyy")
+            .registerTypeAdapter(Date::class.java, JsonDeserializer<Date> { json, _, _ ->
+                if (json == null) {
+                    Date()
+                } else {
+                    formatter.timeZone = TimeZone.getDefault()
+                    formatter.parse(json.asString)
+                }
+            })
+            .registerTypeAdapter(Date::class.java, JsonSerializer<Date> { src, _, _ ->
+                formatter.timeZone = TimeZone.getTimeZone("UTC+8")
+                JsonPrimitive(formatter.format(src))
+            })
             .create()
     protected val restAPI: RestAPI
-
-    protected val rateLimiter = RateLimiter<String>(30, TimeUnit.MINUTES)
 
     init {
         restAPI = Retrofit.Builder()
@@ -85,5 +92,9 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
                 .client(okHttpClient)
                 .build()
                 .create(RestAPI::class.java)
+    }
+
+    companion object {
+        val formatter = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)
     }
 }

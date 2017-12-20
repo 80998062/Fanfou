@@ -31,7 +31,7 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-ext{
+ext {
     // Sdk and tools
     minSdkVersion = 21
     targetSdkVersion = 26
@@ -44,9 +44,10 @@ ext{
     mockitoVersion = '2.8.47'
     runnerVersion = '1.0.1'
     roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha4"
+    pagingVersion = "1.0.0-alpha4-1"
 
-
+    glideVersion = "4.4.0"
+    transformationVersion = "3.0.1"
     // Architecture Components dependencies
     archLifecycleVersion = "1.0.0"
 

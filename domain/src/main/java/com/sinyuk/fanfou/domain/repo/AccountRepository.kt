@@ -24,13 +24,14 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.SharedPreferences
 import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.DO.Authorization
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.DO.Authorization
-import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -78,7 +79,7 @@ class AccountRepository
             }
         }
 
-        override fun shouldFetch(data: Player?): Boolean = rateLimiter.shouldFetch(KEY) || forcedUpdate || data == null
+        override fun shouldFetch(data: Player?): Boolean = forcedUpdate || data == null
 
         override fun loadFromDb(): LiveData<Player?> = db.playerDao().query(uniqueId())
 

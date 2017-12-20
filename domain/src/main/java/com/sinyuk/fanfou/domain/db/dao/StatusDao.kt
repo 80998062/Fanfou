@@ -43,9 +43,13 @@ interface StatusDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(status: Status): Int
 
-    @Query("SELECT * FROM statuses WHERE id = :id")
-    fun query(id: String?): LiveData<Status?>
 
+    @Query("SELECT * FROM statuses WHERE id = :id")
+    fun query(id: String): Status?
+
+
+    @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) LIMIT 1")
+    fun queryNext(id: String): Status?
 
     @Query("SELECT * from statuses WHERE createdAt > (SELECT createdAt FROM statuses WHERE id = :since)" +
             " ORDER BY createdAt DESC LIMIT :limit")

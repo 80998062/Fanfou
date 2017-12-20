@@ -86,11 +86,11 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun setupViewPager() {
         val homePage = TimelineView.newInstance(TIMELINE_HOME)
-        val saerchPage = SearchView()
+        val searchPage = SearchView()
         val signView = SignInView()
         val messagePage = MessageView()
 
-        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, saerchPage, signView, messagePage))
+        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, searchPage, signView, messagePage))
 
         viewPager.offscreenPageLimit = 4
         viewPager.adapter = adapter

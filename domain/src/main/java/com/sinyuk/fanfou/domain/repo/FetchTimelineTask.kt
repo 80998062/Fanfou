@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.domain.repo
 
 import android.arch.lifecycle.MutableLiveData
+import android.support.annotation.WorkerThread
 import android.util.Log
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
@@ -40,14 +41,10 @@ import java.io.IOException
 class FetchTimelineTask(private val restAPI: RestAPI,
                         private val db: LocalDatabase,
                         private val path: String,
-                        private val max: String? = null) : Runnable {
+                        private val max: String,
+                        private val pageSize: Int) : Runnable {
 
-    val liveData = MutableLiveData<Resource<MutableList<Status>>>()
-
-    companion object {
-        const val HAS_BREAK_POINT = "has_break_point"
-        const val TAG = "FetchTimeline"
-    }
+    val liveData = MutableLiveData<Resource<Boolean>>()
 
     init {
         liveData.value = Resource.loading(null)
@@ -55,69 +52,61 @@ class FetchTimelineTask(private val restAPI: RestAPI,
 
     override fun run() {
         try {
-            val response = restAPI.fetch_from_path_call(TIMELINE_HOME, null, max).execute()
+            val response = restAPI.fetch_from_path_call(TIMELINE_HOME, pageSize, null, max).execute()
             val apiResponse = ApiResponse(response)
             if (apiResponse.isSuccessful()) {
-                if (apiResponse.body == null) {
+                removeBreakChain()
+                if (apiResponse.body == null || apiResponse.body.isEmpty()) {
                     liveData.postValue(null)
                 } else {
                     val data = apiResponse.body
-                    when {
-                        db.statusDao().query(data.first().id).value != null -> {
-                            if (BuildConfig.DEBUG) {
-                                Log.d(TAG, "全都缓存了")
+                    insertResultIntoDb(path, data)
+                    if (data.size < pageSize) {
+                        liveData.postValue(Resource.success(true))
+                    } else {
+                        val newResponse = restAPI.fetch_from_path_call(TIMELINE_HOME, 1, null, data.last().id).execute()
+                        if (newResponse.isSuccessful && newResponse.body()?.isNotEmpty() == true) {
+                            val status = newResponse.body()!!.last()
+                            try {
+                                db.beginTransaction()
+                                if (db.statusDao().queryNext(data.last().id) != null && db.statusDao().query(status.id) == null) {
+                                    status.breakChain = true
+                                    db.statusDao().insert(status)
+                                }
+                                db.setTransactionSuccessful()
+                            } finally {
+                                db.endTransaction()
+                                liveData.postValue(Resource.success(true))
                             }
-                            liveData.postValue(Resource.success(null))
                         }
-                        db.statusDao().query(data.last().id).value == null -> // 如果最后一条未缓存 说明中间仍有未缓存的状态 全部删除重来
-                            try {
-                                if (BuildConfig.DEBUG) {
-                                    Log.w(TAG, "除了这个还有未缓存的")
-                                }
-                                db.beginTransaction()
-                                data.add(Status(breakPoint = true, sibling = data.last().id))
-                                saveStatus(data)
-                                db.setTransactionSuccessful()
-                            } finally {
-                                db.endTransaction()
-                                liveData.postValue(Resource.error(HAS_BREAK_POINT, data))
-                            }
-                        else -> // 没有下一页数据了 过滤重复数据
-                            try {
-                                if (BuildConfig.DEBUG) {
-                                    Log.d(TAG, "除了这个没有未缓存的")
-                                }
-                                db.beginTransaction()
-                                filterDuplicatedStatusesThenSave(data)
-                                db.statusDao().inserts(data)
-                                db.setTransactionSuccessful()
-                            } finally {
-                                db.endTransaction()
-                                liveData.postValue(Resource.success(data))
-                            }
                     }
                 }
             } else {
-                liveData.postValue(Resource.error(null, null))
+                liveData.postValue(Resource.error(null, false))
             }
         } catch (e: IOException) {
-            liveData.postValue(Resource.error(e.message, null))
+            liveData.postValue(Resource.error(e.message, false))
         }
     }
 
-
-    /**
-     * 过滤已经保存的
-     */
-    private fun filterDuplicatedStatusesThenSave(t: MutableList<Status>) {
-        t.takeWhile { db.statusDao().query(it.id).value != null }.forEach { t.remove(it) }
-        saveStatus(t)
+    private fun removeBreakChain() {
+        db.runInTransaction {
+            db.statusDao().query(max)?.let {
+                if (it.breakChain) {
+                    it.breakChain = false
+                    db.statusDao().update(it)
+                }
+            }
+        }
     }
 
-    private fun saveStatus(t: MutableList<Status>) {
-        for (status in t) {
-            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            Log.d("saveStatus", "in disk: " + db.statusDao().insert(status))
+    @WorkerThread
+    private fun insertResultIntoDb(path: String, body: MutableList<Status>?) {
+        if (body?.isNotEmpty() == true) {
+            for (status in body) {
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                if (BuildConfig.DEBUG) Log.d("saveStatus", "in disk or memory: " + db.statusDao().insert(status))
+            }
         }
     }
 }

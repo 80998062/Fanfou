@@ -20,23 +20,21 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
+import android.arch.paging.PagedList
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
-import com.sinyuk.fanfou.BuildConfig
+import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.FetchTimelineTask
-import com.sinyuk.fanfou.util.CustomLoadMoreView
-import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
@@ -75,60 +73,33 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
 
-    private val accountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
+    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     @Inject lateinit var toast: ToastUtils
 
-    private val adapter: StatusAdapter by lazy { StatusAdapter() }
-
+    lateinit var adapter: StatusAdapter
 
     override fun lazyDo() {
+        timelineViewModel.setPath(timelinePath)
         setupSwipeRefresh()
         setupRecyclerView()
-
-        loadInitial()
     }
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { fetchNew() }
+        timelineViewModel.refreshState.observe(this, Observer {
+            if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
+                setRefresh(false)
+                it.msg?.let { toast.toastShort(it) }
+            } else {
+                setRefresh(NetworkState.LOADING == it)
+            }
+        })
+        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.refresh() }
     }
 
 
-    private var resourceLive: LiveData<Resource<MutableList<Status>>>? = null
-
-    private fun fetchNew() {
-        if (isLoading) return
-        isLoading = true
-        val offset = if (offsetBroken) {
-            max
-        } else {
-            null
-        }
-        resourceLive = timelineViewModel.fetchTimelineAndFiltered(timelinePath, offset).apply { observe(this@TimelineView, fetchNewOB) }
-    }
-
-
-    private var isLoading = true
-    private var isLoadmoreEnd = false
-    private fun loadMoreAfter() {
-        if (BuildConfig.DEBUG) {
-            Log.d("loadMoreAfter", "isLoading: " + isLoading)
-            Log.d("loadMoreAfter", "isLoadmoreEnd: " + isLoadmoreEnd)
-            Log.d("loadMoreAfter", "Max: " + max)
-        }
-        if (isLoading || isLoadmoreEnd) return
-        isLoading = true
-        resourceLive = if (offsetBroken) {
-            timelineViewModel.fetchTimelineAndFiltered(timelinePath, max).apply { observe(this@TimelineView, fetchNewOB) }
-        } else {
-            timelineViewModel.loadTimelineFromDb(timelinePath, max).apply { observe(this@TimelineView, loadmoreOB) }
-        }
-    }
-
-
-    private fun loadInitial() {
-        isLoading = true
-        timelineViewModel.loadTimelineFromDb(timelinePath, null).apply { observe(this@TimelineView, initialOB) }
+    private fun setRefresh(constraint: Boolean) {
+        swipeRefreshLayout.isRefreshing = constraint
     }
 
     private fun setupRecyclerView() {
@@ -140,115 +111,27 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
         recyclerView.setHasFixedSize(true)
 
-        adapter.apply {
-            setHeaderFooterEmpty(false, false)
-            setLoadMoreView(CustomLoadMoreView())
-            setEnableLoadMore(true)
-            disableLoadMoreIfNotFullPage(recyclerView)
-            setOnLoadMoreListener({ loadMoreAfter() }, recyclerView)
-            recyclerView.adapter = this
-        }
+        adapter = StatusAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, { load(it) })
+        recyclerView.adapter = adapter
 
+        timelineViewModel.statuses.observe(this, Observer<PagedList<Status>> {
+            adapter.setList(it)
+        })
+
+        timelineViewModel.networkState.observe(this, Observer {
+            adapter.setNetworkState(it)
+        })
     }
 
-    private var offsetBroken = false
-    private val fetchNewOB: Observer<Resource<MutableList<Status>>> by lazy {
-        Observer<Resource<MutableList<Status>>> { t ->
-            resourceLive?.removeObserver(fetchNewOB)
-            when (t?.states) {
-                States.SUCCESS -> {
-                    offsetBroken = false
-                    if (t.data?.isNotEmpty() == true) {
-                        adapter.data.addAll(0, t.data!!)
-                        adapter.notifyItemRangeInserted(0, t.data!!.size)
-                        max = t.data!!.last().id
-                    } else {
-                        toast.toastShort(R.string.no_new_statuses)
+    private fun load(id: String?) {
+        id?.let {
+            timelineViewModel.load(id).observe(this@TimelineView, Observer<Resource<Boolean>> {
+                when (it?.states) {
+                    States.ERROR -> it.message?.let { toast.toastShort(it) }
+                    else -> {
                     }
                 }
-                States.ERROR -> {
-                    offsetBroken = if (Objects.equals(t.message, FetchTimelineTask.HAS_BREAK_POINT)) { // 新的数据超过一页
-                        adapter.data.clear()
-                        adapter.data.addAll(t.data!!)
-                        adapter.notifyDataSetChanged()
-                        max = t.data!!.last().id
-                        true
-                    } else {
-                        t.message?.let { toast.toastShort(it) }
-                        false
-                    }
-                }
-                States.LOADING -> {
-                    setRefresh(true)
-                }
-                null -> {
-                    toast.toastShort(R.string.no_new_statuses)
-                }
-            }
-            isLoading = false
-            setRefresh(false)
+            })
         }
     }
-
-    private fun setRefresh(b: Boolean) {
-        swipeRefreshLayout.isRefreshing = b
-    }
-
-
-    private val loadmoreOB: Observer<Resource<MutableList<Status>>> by lazy {
-        Observer<Resource<MutableList<Status>>> { t ->
-            resourceLive?.removeObserver(loadmoreOB)
-            when (t?.states) {
-                States.SUCCESS -> {
-                    isLoadmoreEnd = if (t.data?.size == 0) {
-                        adapter.loadMoreEnd(false)
-                        true
-                    } else {
-                        adapter.loadMoreComplete()
-                        adapter.addData(t.data!!) // no need to notify
-                        max = t.data!!.last().id
-                        false
-                    }
-                }
-                States.ERROR -> {
-                    adapter.loadMoreFail()
-                    t.message?.let { toast.toastShort(it) }
-                }
-                States.LOADING -> {
-                }
-                null -> TODO()
-            }
-            isLoading = false
-        }
-    }
-
-
-    private val initialOB: Observer<Resource<MutableList<Status>>> by lazy {
-        Observer<Resource<MutableList<Status>>> { t ->
-            resourceLive?.removeObserver(initialOB)
-            when (t?.states) {
-                States.SUCCESS -> {
-                    if (t.data?.isEmpty() != false) {
-                        // TODO: show empty layout
-                        toast.toastLong("这城市那么空")
-                    } else {
-                        adapter.addData(t.data!!)
-                        max = t.data!!.last().id
-                    }
-                }
-                States.ERROR -> {
-                    // TODO: show error layout
-                    t.message?.let { toast.toastShort(it) }
-                }
-                States.LOADING -> {
-                    setRefresh(true)
-                }
-                null -> TODO()
-            }
-            isLoading = false
-            setRefresh(false)
-        }
-    }
-
-
 }

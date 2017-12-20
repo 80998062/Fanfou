@@ -51,7 +51,6 @@ data class Status constructor(
         @SerializedName("favorited") var favorited: Boolean = false,
         @SerializedName("repost_user_id") var repostUserId: String? = null,
         @SerializedName("in_reply_to_user_id") var inReplyToUserId: String? = null,
-        var breakPoint: Boolean = false,
-        var sibling: String? = null
+        var breakChain: Boolean = false
 
 )
