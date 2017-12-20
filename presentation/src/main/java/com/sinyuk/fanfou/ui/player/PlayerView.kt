@@ -24,7 +24,6 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
-import android.util.Log
 import android.view.View
 import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
@@ -33,6 +32,9 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -78,7 +80,6 @@ class PlayerView : AbstractFragment(), Injectable {
         if (uniqueId == null) {
             accountViewModel.user.observe(this@PlayerView, playerObserver)
         } else {
-            Log.d("PlayerView", "uniqueId: " + uniqueId)
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
         }
     }
@@ -112,8 +113,10 @@ class PlayerView : AbstractFragment(), Injectable {
             if (it.protectedX == true) {
 
             } else {
-                setupViewPager()
+
             }
+
+            setupViewPager()
 
             if (uniqueId == null) {
                 // isSelf
@@ -128,21 +131,19 @@ class PlayerView : AbstractFragment(), Injectable {
         }
     }
 
-    private val statusesView by lazy { Fragment() }
-    private val photosView by lazy { Fragment() }
-    private val favoritesView by lazy { Fragment() }
+    private val statusesView = TimelineView.newInstance(TIMELINE_USER, uniqueId)
+    private val photosView = SignInView()
+    private val favoritesView = Fragment()
     private val fragmentList = arrayListOf(statusesView, photosView, favoritesView)
-    private val adapter by lazy {
-        object : FragmentPagerAdapter(activity!!.supportFragmentManager) {
+
+
+    private fun setupViewPager() {
+        viewPager.offscreenPageLimit = 2
+        viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
             override fun getItem(position: Int) = fragmentList[position]
 
             override fun getCount() = fragmentList.size
         }
-    }
-
-    private fun setupViewPager() {
-        viewPager.offscreenPageLimit = 1
-        viewPager.adapter = adapter
         tabStrip.setTabIndex(0, true)
         tabStrip.onTabStripSelectedIndexListener = object : NavigationTabStrip.OnTabStripSelectedIndexListener {
             override fun onStartTabSelected(title: String?, index: Int) {

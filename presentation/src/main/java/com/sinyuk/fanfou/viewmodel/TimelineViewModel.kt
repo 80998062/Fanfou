@@ -36,6 +36,8 @@ class TimelineViewModel @Inject constructor(private val repo: DbStatusRepository
 
     private val pathLive = MutableLiveData<String>()
 
+    var uniqueId: String? = null
+
     fun setPath(path: String): Boolean {
         if (pathLive.value == path) {
             return false
@@ -44,7 +46,7 @@ class TimelineViewModel @Inject constructor(private val repo: DbStatusRepository
         return true
     }
 
-    private val repoResult = map(pathLive, { repo.statusesInPath(it, PAGE_SIZE) })
+    private val repoResult = map(pathLive, { repo.statusesInPath(path = it, pageSize = PAGE_SIZE, uniqueId = uniqueId) })
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
     val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
     val refreshState = Transformations.switchMap(repoResult, { it.refreshState })!!
@@ -57,5 +59,5 @@ class TimelineViewModel @Inject constructor(private val repo: DbStatusRepository
         listing?.retry?.invoke()
     }
 
-    fun load(max: String) = repo.load(pathLive.value!!, max, PAGE_SIZE)
+    fun load(max: String) = repo.load(path = pathLive.value!!, uniqueId = uniqueId, max = max, pageSize = PAGE_SIZE)
 }

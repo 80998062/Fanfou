@@ -35,22 +35,14 @@ import java.util.*
 @TypeConverters(DateConverter::class)
 data class Status constructor(
         @PrimaryKey @NonNull @SerializedName("id") var id: String = "",
-        @SerializedName("rawid") var rawid: Int? = 0,
         @SerializedName("text") var text: String? = null,
         @SerializedName("source") var source: String? = null,
-        @SerializedName("in_reply_to_status_id") var inReplyToStatusId: String? = null,
-        @SerializedName("in_reply_to_screen_name") var inReplyToScreenName: String? = null,
-        @SerializedName("repost_screen_name") var repostScreenName: String? = null,
-        @SerializedName("repost_status_id") var repostStatusId: String? = null,
         @SerializedName("location") var location: String? = null,
         @Ignore @SerializedName("user") var user: Player? = null,
         @SerializedName("created_at") var createdAt: Date? = null,
-        @Embedded(prefix = "player") var playerExtracts: PlayerExtracts? = null,
-        @Embedded(prefix = "photo") @SerializedName("photo") var photos: Photos? = null,
+        @Embedded(prefix = "player_") var playerExtracts: PlayerExtracts? = null,
+        @Embedded(prefix = "photo_") @SerializedName("photo") var photos: Photos? = null,
         @SerializedName("isSelf") var isSelf: Boolean = false,
         @SerializedName("favorited") var favorited: Boolean = false,
-        @SerializedName("repost_user_id") var repostUserId: String? = null,
-        @SerializedName("in_reply_to_user_id") var inReplyToUserId: String? = null,
         var breakChain: Boolean = false
-
 )

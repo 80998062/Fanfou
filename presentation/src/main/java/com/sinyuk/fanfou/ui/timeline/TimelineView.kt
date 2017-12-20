@@ -52,11 +52,12 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     companion object {
         private val lock = Any()
 
-        fun newInstance(path: String): TimelineView {
+        fun newInstance(path: String, uniqueId: String? = null): TimelineView {
             synchronized(lock) {
                 val instance = TimelineView()
                 val args = Bundle()
                 args.putString("path", path)
+                uniqueId?.let { args.putString("uniqueId", it) }
                 instance.arguments = args
                 return instance
             }
@@ -65,7 +66,6 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
 
     private val timelinePath: String by lazy { arguments?.getString("path")!! }
-    private var max: String? = null
 
     override fun layoutId(): Int? = R.layout.timeline_view
 
@@ -77,10 +77,13 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    lateinit var adapter: StatusAdapter
+    private lateinit var adapter: StatusAdapter
 
     override fun lazyDo() {
         timelineViewModel.setPath(timelinePath)
+        if (arguments?.containsKey("uniqueId") == true) {
+            timelineViewModel.uniqueId = arguments!!.getString("uniqueId")
+        }
         setupSwipeRefresh()
         setupRecyclerView()
     }

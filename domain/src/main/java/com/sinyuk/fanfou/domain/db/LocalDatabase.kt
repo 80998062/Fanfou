@@ -40,7 +40,6 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun statusDao(): StatusDao
-
     companion object {
 
         private var INSTANCE: LocalDatabase? = null

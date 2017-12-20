@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
-import android.arch.lifecycle.LiveData
 import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.DO.Status
@@ -28,6 +27,7 @@ import com.sinyuk.fanfou.domain.DO.Status
 
 /**
  * Created by sinyuk on 2017/11/30.
+ *
  */
 @Dao
 interface StatusDao {
@@ -51,19 +51,22 @@ interface StatusDao {
     @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) LIMIT 1")
     fun queryNext(id: String): Status?
 
-    @Query("SELECT * from statuses WHERE createdAt > (SELECT createdAt FROM statuses WHERE id = :since)" +
-            " ORDER BY createdAt DESC LIMIT :limit")
-    fun before(since: String?, limit: Int): LiveData<MutableList<Status>?>
+    @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) AND playeruniqueId = :uniqueId LIMIT 1")
+    fun queryNextUsers(uniqueId: String?, id: String): Status?
 
 
-    @Query("SELECT * from statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :max)" +
-            " ORDER BY createdAt DESC LIMIT :limit")
-    fun after(max: String?, limit: Int): LiveData<MutableList<Status>?>
-
-
-    @Query("SELECT * from statuses ORDER BY createdAt DESC LIMIT :limit")
-    fun initial(limit: Int): LiveData<MutableList<Status>?>
-
-    @Query("SELECT * from statuses ORDER BY createdAt DESC")
+    @Query("SELECT * FROM statuses ORDER BY createdAt DESC")
     fun home(): DataSource.Factory<Int, Status>
+
+    @Query("SELECT * FROM statuses WHERE playeruniqueId = :uniqueId ORDER BY createdAt DESC")
+    fun user(uniqueId: String?): DataSource.Factory<Int, Status>
+
+
+    @Query("SELECT * FROM statuses WHERE favorited = 1 AND playeruniqueId = :uniqueId ORDER BY createdAt DESC")
+    fun like(uniqueId: String?): DataSource.Factory<Int, Status>
+
+    fun self(): DataSource.Factory<Int, Status>
+
+    fun favorites(): DataSource.Factory<Int, Status>
+
 }

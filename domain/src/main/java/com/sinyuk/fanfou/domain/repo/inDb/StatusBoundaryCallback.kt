@@ -25,6 +25,7 @@ import android.support.annotation.MainThread
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
 import retrofit2.Call
@@ -39,9 +40,8 @@ import retrofit2.Response
  * rate limiting using the PagingRequestHelper class.
  */
 class StatusBoundaryCallback(
-        private val path: String,
         private val webservice: RestAPI,
-        private val handleResponse: (String, MutableList<Status>?) -> Unit,
+        private val handleResponse: (MutableList<Status>?) -> Unit,
         private val appExecutors: AppExecutors,
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
@@ -55,7 +55,7 @@ class StatusBoundaryCallback(
     @MainThread
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            webservice.fetch_from_path_call(path, networkPageSize).enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path(path = TIMELINE_HOME, count = networkPageSize).enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -65,7 +65,7 @@ class StatusBoundaryCallback(
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-            webservice.fetch_from_path_call(path, networkPageSize, null, itemAtEnd.id).enqueue(createWebserviceCallback(it))
+          webservice.fetch_from_path(path = TIMELINE_HOME, count = networkPageSize, max = itemAtEnd.id).enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -77,7 +77,7 @@ class StatusBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            handleResponse(path, response.body())
+            handleResponse(response.body())
             it.recordSuccess()
         }
     }

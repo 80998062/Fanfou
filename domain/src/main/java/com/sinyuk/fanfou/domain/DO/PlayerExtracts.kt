@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.domain.DO
 
 /**
  * Created by sinyuk on 2017/12/1.
+ *
  */
 data class PlayerExtracts constructor(
         var uniqueId: String = "",

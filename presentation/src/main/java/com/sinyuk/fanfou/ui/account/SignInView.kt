@@ -61,7 +61,7 @@ class SignInView : AbstractFragment(), Injectable {
 
     private fun onLogin() {
         accountViewModel.sign(
-                "sinyuk.7@qq.com"/*accountEt.text.toString()*/,
+                "80998062@qq.com"/*accountEt.text.toString()*/,
                 "rabbit7run" /*passwordEt.text.toString()*/)
                 .observe(this@SignInView, Observer<Resource<Authorization>> {
                     when (it?.states) {

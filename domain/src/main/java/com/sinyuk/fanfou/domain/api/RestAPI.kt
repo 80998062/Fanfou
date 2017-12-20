@@ -45,23 +45,19 @@ interface RestAPI {
     fun update_profile(@Body player: Player): LiveData<ApiResponse<Player>>
 
 
-    @GET("statuses/{path}.json&format=html")
-    fun fetch_from_path(@Path("path") path: String,
-                        @Query("count") count: Int,
-                        @Query("since_id") since: String?,
-                        @Query("max_id") max: String?): LiveData<ApiResponse<MutableList<Status>>>
 
     @GET("statuses/{path}.json?format=html")
-    fun fetch_from_path_call(@Path("path") path: String,
-                             @Query("count") count: Int,
-                             @Query("since_id") since: String? = null,
-                             @Query("max_id") max: String? = null): Call<MutableList<Status>>
+    fun fetch_from_path(@Path("path") path: String,
+                        @Query("count") count: Int,
+                        @Query("since_id") since: String? = null,
+                        @Query("max_id") max: String? = null,
+                        @Query("id") id: String? = null): Call<MutableList<Status>>
 
 
     @GET("favorites/id.json?format=html")
     fun fetch_favorites(@Query("id") id: String? = null,
                         @Query("count") count: Int,
                         @Query("since_id") since: String? = null,
-                        @Query("max_id") max: String? = null): LiveData<ApiResponse<MutableList<Status>>>
+                        @Query("max_id") max: String? = null): Call<MutableList<Status>>
 
 }

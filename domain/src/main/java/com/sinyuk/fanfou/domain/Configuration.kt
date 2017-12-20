@@ -33,12 +33,6 @@ const val TIMELINE_HOME = "home_timeline"
 /**
  * 显示指定用户及其好友的消息
  */
-const val TIMELINE_PUBLIC = "public_timeline"
-
-
-/**
- * 显示指定用户及其好友的消息
- */
 const val TIMELINE_FAVORITES = "favorites_timeline"
 
 /**
