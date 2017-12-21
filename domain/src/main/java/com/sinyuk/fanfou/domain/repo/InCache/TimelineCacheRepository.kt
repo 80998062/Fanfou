@@ -21,14 +21,15 @@
 package com.sinyuk.fanfou.domain.repo.InMemory
 
 import android.app.Application
+import android.arch.lifecycle.MutableLiveData
 import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
+import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
-import com.sinyuk.fanfou.domain.db.LocalDatabase
+import com.sinyuk.fanfou.domain.repo.InCache.TimelineCacheTask
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -36,10 +37,21 @@ import javax.inject.Singleton
  *
  */
 @Singleton
-class MemoryStatusRepository  @Inject constructor(
+class TimelineCacheRepository @Inject constructor(
         val application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
-        private val appExecutors: AppExecutors,
-        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
+        private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
+
+    fun fetchAfterTop(path: String, uniqueId: String, max: String, page: Int): MutableLiveData<Resource<MutableList<Status>>> {
+        val task = TimelineCacheTask(path = path,
+                uniqueId = uniqueId,
+                webservice = cacheAPI,
+                max = max,
+                page = page)
+        appExecutors.networkIO().execute(task)
+        return task.liveData
+    }
+
+
 }

@@ -20,6 +20,12 @@
 
 package com.sinyuk.fanfou.domain
 
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+
+
 enum class Status {
     RUNNING,
     SUCCESS,
@@ -35,4 +41,12 @@ data class NetworkState private constructor(
         val LOADING = NetworkState(Status.RUNNING)
         fun error(msg: String?) = NetworkState(Status.FAILED, msg)
     }
+}
+
+
+@SuppressLint("MissingPermission")
+fun isOnline(application: Application): Boolean {
+    val connMgr = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val networkInfo = connMgr.activeNetworkInfo
+    return networkInfo != null && networkInfo.isConnected
 }

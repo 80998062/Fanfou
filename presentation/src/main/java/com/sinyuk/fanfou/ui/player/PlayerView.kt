@@ -32,7 +32,6 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -131,7 +130,7 @@ class PlayerView : AbstractFragment(), Injectable {
         }
     }
 
-    private val statusesView = TimelineView.newInstance(TIMELINE_USER, uniqueId)
+    private val statusesView = TimelineView()
     private val photosView = SignInView()
     private val favoritesView = Fragment()
     private val fragmentList = arrayListOf(statusesView, photosView, favoritesView)

@@ -25,7 +25,9 @@ import android.arch.lifecycle.LiveData
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -39,11 +41,6 @@ interface RestAPI {
 
     @GET("account/verify_credentials.json?format=html")
     fun verify_credentials(): LiveData<ApiResponse<Player>>
-
-    @FormUrlEncoded
-    @POST("account/update_profile.json?format=html")
-    fun update_profile(@Body player: Player): LiveData<ApiResponse<Player>>
-
 
 
     @GET("statuses/{path}.json?format=html")

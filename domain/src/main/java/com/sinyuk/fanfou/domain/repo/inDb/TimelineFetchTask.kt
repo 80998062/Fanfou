@@ -25,10 +25,7 @@ import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_MENTIONS
-import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.db.LocalDatabase
@@ -39,7 +36,7 @@ import java.io.IOException
  *
  *
  */
-class FetchTimelineTask(private val restAPI: RestAPI,
+class TimelineFetchTask(private val restAPI: RestAPI,
                         private val db: LocalDatabase,
                         private val max: String,
                         private val pageSize: Int) : Runnable {
@@ -64,23 +61,14 @@ class FetchTimelineTask(private val restAPI: RestAPI,
                     if (data.size < pageSize) {
                         liveData.postValue(Resource.success(true))
                     } else {
-                        val newResponse = when (path) {
-                            TIMELINE_HOME, TIMELINE_USER, TIMELINE_MENTIONS -> restAPI.fetch_from_path(path = path, count = 1, max = data.last().id)
-                            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = 1, max = data.last().id)
-                            else -> TODO("Can't fetch data from path: $path")
-                        }.execute()
+                        val newResponse = restAPI.fetch_from_path(path = TIMELINE_HOME, count = 1, max = data.last().id).execute()
 
                         if (newResponse.isSuccessful && newResponse.body()?.isNotEmpty() == true) {
                             val status = newResponse.body()!!.last()
                             try {
                                 db.beginTransaction()
                                 if (nextItem(status.id) != null && db.statusDao().query(status.id) == null) { // 如果 item 之后有数据 但是 item 不在数据库里 so it's a break point
-                                    when (path) {
-                                        TIMELINE_HOME -> status.breakInPublic = true
-                                        TIMELINE_USER -> status.breakInPost = true
-                                        TIMELINE_FAVORITES -> status.breakInFavorites = true
-                                        else -> TODO("Can't save data of $path in Disk")
-                                    }
+                                    status.breakChain = true
                                     status.user?.let { status.playerExtracts = PlayerExtracts(it) }
                                     db.statusDao().insert(status)
                                 }
@@ -100,23 +88,15 @@ class FetchTimelineTask(private val restAPI: RestAPI,
         }
     }
 
-    private fun nextItem(id: String) = when (path) {
-        TIMELINE_HOME -> db.statusDao().queryNextHome(id)
-        TIMELINE_USER -> db.statusDao().queryNextSelf(id)
-        TIMELINE_FAVORITES -> db.statusDao().queryNextFavorites(id)
-        else -> TODO("Can't query next item from path: $path")
-    }
+    private fun nextItem(id: String) = db.statusDao().queryNext(id)
 
     private fun removeBreakChain() {
         db.runInTransaction {
             db.statusDao().query(max)?.let {
-                when (path) {
-                    TIMELINE_HOME -> it.breakInPublic = false
-                    TIMELINE_USER -> it.breakInPost = false
-                    TIMELINE_FAVORITES -> it.breakInFavorites = false
-                    else -> TODO("Can't remove break flag of $path in Disk")
+                if (it.breakChain) {
+                    it.breakChain = false
+                    db.statusDao().update(it)
                 }
-                db.statusDao().update(it)
             }
         }
     }
@@ -126,7 +106,6 @@ class FetchTimelineTask(private val restAPI: RestAPI,
         if (body?.isNotEmpty() == true) {
             for (status in body) {
                 status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-
             }
             db.statusDao().inserts(body)
         }

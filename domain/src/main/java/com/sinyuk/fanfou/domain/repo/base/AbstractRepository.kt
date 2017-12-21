@@ -20,18 +20,22 @@
 
 package com.sinyuk.fanfou.domain.repo.base
 
+import android.app.Application
 import android.util.Log
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.*
 import com.sinyuk.fanfou.domain.BuildConfig
+import com.sinyuk.fanfou.domain.api.CacheInterceptor
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.LiveDataCallAdapterFactory
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -41,7 +45,7 @@ import java.util.concurrent.TimeUnit
  * Created by sinyuk on 2017/11/28.
  *
  */
-abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) {
+abstract class AbstractRepository constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) {
 
     private val MAX_HTTP_CACHE = (1024 * 1024 * 100).toLong()
     private val TIMEOUT: Long = 10
@@ -51,10 +55,32 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .retryOnConnectionFailure(false)
+                .retryOnConnectionFailure(true)
                 .also {
                     val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
                         Log.d("FANFOU", it)
+                    })
+                    if (BuildConfig.DEBUG) {
+                        logging.level = HttpLoggingInterceptor.Level.BODY
+                        it.addInterceptor(logging).addNetworkInterceptor(StethoInterceptor())
+                    } else {
+                        logging.level = HttpLoggingInterceptor.Level.HEADERS
+                        it.addInterceptor(logging)
+                    }
+
+                }.build()
+    }
+
+    val cacheClient: OkHttpClient by lazy {
+        val cache = Cache(File("okhttp"), 1024 * 1024 * 10)
+        OkHttpClient.Builder()
+                .addNetworkInterceptor(interceptor)
+                .cache(cache)
+                .addNetworkInterceptor(CacheInterceptor(application))
+                .retryOnConnectionFailure(false)
+                .also {
+                    val logging = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
+                        Log.d("CACHE", it)
                     })
                     if (BuildConfig.DEBUG) {
                         logging.level = HttpLoggingInterceptor.Level.BODY
@@ -82,10 +108,9 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
                 JsonPrimitive(formatter.format(src))
             })
             .create()
-    protected val restAPI: RestAPI
 
-    init {
-        restAPI = Retrofit.Builder()
+    protected val restAPI: RestAPI by lazy {
+        Retrofit.Builder()
                 .baseUrl(endpoint.baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(LiveDataCallAdapterFactory())
@@ -93,6 +118,18 @@ abstract class AbstractRepository constructor(endpoint: Endpoint, interceptor: O
                 .build()
                 .create(RestAPI::class.java)
     }
+
+
+    protected val cacheAPI: RestAPI by lazy {
+        Retrofit.Builder()
+                .baseUrl(endpoint.baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(LiveDataCallAdapterFactory())
+                .client(cacheClient)
+                .build()
+                .create(RestAPI::class.java)
+    }
+
 
     companion object {
         val formatter = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)

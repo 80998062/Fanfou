@@ -39,7 +39,7 @@ import retrofit2.Response
  * The boundary callback might be called multiple times for the same direction so it does its own
  * rate limiting using the PagingRequestHelper class.
  */
-class StatusBoundaryCallback(
+class TimelineBoundaryCallback(
         private val webservice: RestAPI,
         private val handleResponse: (MutableList<Status>?) -> Unit,
         private val appExecutors: AppExecutors,

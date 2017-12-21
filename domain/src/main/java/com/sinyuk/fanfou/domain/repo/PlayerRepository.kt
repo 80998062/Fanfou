@@ -24,10 +24,10 @@ import android.app.Application
 import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
 import javax.inject.Inject
 import javax.inject.Named
@@ -40,7 +40,7 @@ class PlayerRepository @Inject constructor(
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
-        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(url, interceptor) {
+        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(application,url, interceptor) {
 
     fun profile(uniqueId: String, forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
         override fun onFetchFailed() {

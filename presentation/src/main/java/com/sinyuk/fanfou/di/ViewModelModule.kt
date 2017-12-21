@@ -33,10 +33,10 @@ import dagger.multibindings.IntoMap
 
 /**
  * Created by sinyuk on 2017/12/6.
+ *
  */
 @Module
 abstract class ViewModelModule {
-
 
     @Binds
     @IntoMap
@@ -48,7 +48,6 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TimelineViewModel::class)
     abstract fun timelineViewModel(timelineViewModel: TimelineViewModel): ViewModel
-
 
     @Binds
     @IntoMap

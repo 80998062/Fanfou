@@ -20,9 +20,6 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.arch.paging.PagedListAdapter
-import android.support.v7.recyclerview.extensions.DiffCallback
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
 import com.daimajia.swipe.SwipeLayout
@@ -32,85 +29,21 @@ import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.ui.BreakChainItemViewHolder
-import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
+import com.sinyuk.fanfou.util.QuickAdapter
 
 /**
- * Created by sinyuk on 2017/12/18.
+ * Created by sinyuk on 2017/12/21.
  *
- * Adapter implementation that shows status.
  */
 class StatusAdapter(
         private val glide: RequestManager,
-        private val retryCallback: () -> Unit,
-        private val loadCallable: (max: String?) -> Unit,
-        private val uniqueId: String? = null) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
-    private var networkState: NetworkState? = null
-    private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
+        private val uniqueId: String? = null) : QuickAdapter<Status, StatusViewHolder>(null), SwipeItemMangerInterface, SwipeAdapterInterface {
 
-    override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
-        R.layout.network_state_item
-    } else {
-        if (getItem(position)?.breakChain == true) {
-            R.layout.list_break_chain_item
-        } else {
-            R.layout.timeline_view_list_item
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StatusViewHolder.create(parent, glide, uniqueId)
+
+    override fun convert(helper: StatusViewHolder, item: Status) {
+        helper.bind(item)
     }
-
-
-    override fun getItemCount() = super.getItemCount() + if (hasExtraRow()) 1 else 0
-
-    fun setNetworkState(newNetworkState: NetworkState?) {
-        val previousState = this.networkState
-        val hadExtraRow = hasExtraRow()
-        this.networkState = newNetworkState
-        val hasExtraRow = hasExtraRow()
-        if (hadExtraRow != hasExtraRow) {
-            if (hadExtraRow) {
-                notifyItemRemoved(super.getItemCount())
-            } else {
-                notifyItemInserted(super.getItemCount())
-            }
-        } else if (hasExtraRow && previousState != newNetworkState) {
-            notifyItemChanged(itemCount - 1)
-        }
-    }
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
-        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
-        R.layout.list_break_chain_item -> BreakChainItemViewHolder.create(parent, loadCallable)
-        else -> throw IllegalArgumentException("unknown view type $viewType")
-    }
-
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        if (payloads?.isNotEmpty() == true) {
-            TODO()
-        } else {
-            onBindViewHolder(holder, position)
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
-        when (getItemViewType(position)) {
-            R.layout.timeline_view_list_item -> (holder as StatusViewHolder).bind(getItem(position))
-            R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bind(networkState)
-            R.layout.list_break_chain_item -> (holder as BreakChainItemViewHolder).bind(getItem(position))
-        }
-    }
-
-
-    companion object {
-        val COMPARATOR = object : DiffCallback<Status>() {
-            override fun areContentsTheSame(oldItem: Status, newItem: Status) = true
-            override fun areItemsTheSame(oldItem: Status, newItem: Status) = oldItem.id == newItem.id
-        }
-    }
-
 
     /**
      * Swipe implementing
@@ -159,5 +92,4 @@ class StatusAdapter(
     }
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
-
 }

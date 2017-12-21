@@ -21,11 +21,11 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
+import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.ui.player.PlayerView
@@ -38,7 +38,7 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  *
  * A RecyclerView ViewHolder that displays a status.
  */
-class StatusViewHolder(private val view: View, private val glide: RequestManager, private val uniqueId: String?) : RecyclerView.ViewHolder(view) {
+class StatusViewHolder(private val view: View, private val glide: RequestManager, private val uniqueId: String?) : BaseViewHolder(view) {
     fun bind(status: Status?) {
         if (status == null) {
 

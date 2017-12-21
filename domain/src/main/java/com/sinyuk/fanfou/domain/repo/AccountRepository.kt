@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.repo
 
+import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.SharedPreferences
@@ -41,11 +42,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class AccountRepository
-@Inject constructor(url: Endpoint,
-                    interceptor: Oauth1SigningInterceptor,
-                    private val appExecutors: AppExecutors,
-                    @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
-                    @Named(TYPE_GLOBAL) val prefs: SharedPreferences) : AbstractRepository(url, interceptor) {
+@Inject constructor(
+        application: Application,
+        url: Endpoint,
+        interceptor: Oauth1SigningInterceptor,
+        private val appExecutors: AppExecutors,
+        @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
+        @Named(TYPE_GLOBAL) val prefs: SharedPreferences) : AbstractRepository(application, url, interceptor) {
 
 
     fun uniqueId(): String? = prefs.getString(UNIQUE_ID, null)

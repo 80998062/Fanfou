@@ -52,28 +52,14 @@ class TimelineRepository @Inject constructor(
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
-        @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(url, interceptor) {
+        @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application,url, interceptor) {
 
 
     /**
-     * Inserts the response into the database while also assigning position indices to items.
+     * 加载最新的状态
+     *
+     * @param pageSize 一次请求的条数
      */
-    // override
-    @WorkerThread
-    private fun insertResultIntoDb(body: MutableList<Status>?) {
-        if (body?.isNotEmpty() == true) {
-            for (status in body) {
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            }
-            db.statusDao().inserts(body)
-        }
-    }
-
-    // override
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun provideDataSourceFactory() = db.statusDao().home()
-
-    // override
     fun refresh(pageSize: Int): LiveData<NetworkState> {
         val networkState = MutableLiveData<NetworkState>()
         networkState.value = NetworkState.LOADING
@@ -97,49 +83,28 @@ class TimelineRepository @Inject constructor(
         return networkState
     }
 
-    private fun fetchNextItem(networkState: MutableLiveData<NetworkState>, max: String) {
-        restAPI.fetch_from_path(path = TIMELINE_HOME, count = 1, max = max).enqueue(object : Callback<MutableList<Status>> {
-            override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
-                networkState.value = NetworkState.error(t?.message)
-            }
 
-            override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
-                if (response?.body()?.isNotEmpty() == true) {
-                    response.body()!!.last().let { appExecutors.diskIO().execute { saveBreakChain(it) } }
-                }
-                networkState.value = NetworkState.LOADED
-            }
-        })
-    }
-
-    private fun saveBreakChain(status: Status) {
-        try {
-            db.beginTransaction()
-            if (db.statusDao().query(status.id) == null) {
-                status.breakChain = true
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                db.statusDao().insert(status)
-            }
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
-        }
-    }
-
-
-    fun load( max: String, pageSize: Int): MutableLiveData<Resource<Boolean>> {
-        val task = FetchTimelineTask(restAPI, db, max, pageSize)
+    /**
+     * 加载指定消息之后的状态
+     *
+     * @param pageSize 一次请求的条数
+     * @param max 起始位置
+     */
+    fun fetchAfter(max: String, pageSize: Int): MutableLiveData<Resource<Boolean>> {
+        val task = TimelineFetchTask(restAPI, db, max, pageSize)
         appExecutors.networkIO().execute(task)
         return task.liveData
     }
 
-    // override
-    fun statusesInPath(path: String, pageSize: Int): Listing<Status> {
+    /**
+     * 加载保存的所有状态,并自动请求新的旧状态
+     * @param pageSize 一次请求的条数
+     */
+    fun timeline(pageSize: Int): Listing<Status> {
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
-        val boundaryCallback = StatusBoundaryCallback(
+        val boundaryCallback = TimelineBoundaryCallback(
                 webservice = restAPI,
-                path = path,
                 handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
@@ -166,4 +131,50 @@ class TimelineRepository @Inject constructor(
                 refreshState = refreshState
         )
     }
+
+
+    @WorkerThread
+    private fun fetchNextItem(networkState: MutableLiveData<NetworkState>, max: String) {
+        restAPI.fetch_from_path(path = TIMELINE_HOME, count = 1, max = max).enqueue(object : Callback<MutableList<Status>> {
+            override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
+                networkState.value = NetworkState.error(t?.message)
+            }
+
+            override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
+                if (response?.body()?.isNotEmpty() == true) {
+                    response.body()!!.last().let { appExecutors.diskIO().execute { saveBreakChain(it) } }
+                }
+                networkState.value = NetworkState.LOADED
+            }
+        })
+    }
+
+    @WorkerThread
+    private fun saveBreakChain(status: Status) {
+        try {
+            db.beginTransaction()
+            if (db.statusDao().query(status.id) == null) {
+                status.breakChain = true
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                db.statusDao().insert(status)
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+
+    @WorkerThread
+    private fun insertResultIntoDb(body: MutableList<Status>?) {
+        if (body?.isNotEmpty() == true) {
+            for (status in body) {
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+            }
+            db.statusDao().inserts(body)
+        }
+    }
+
+    @Suppress("IMPLICIT_CAST_TO_ANY")
+    private fun provideDataSourceFactory() = db.statusDao().timeline()
 }

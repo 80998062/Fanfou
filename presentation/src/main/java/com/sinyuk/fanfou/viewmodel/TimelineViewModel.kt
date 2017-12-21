@@ -20,44 +20,20 @@
 
 package com.sinyuk.fanfou.viewmodel
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
-import android.arch.lifecycle.Transformations.map
 import android.arch.lifecycle.ViewModel
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.inDb.DbStatusRepository
+import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/12/6.
  *
  */
-class TimelineViewModel @Inject constructor(private val repo: DbStatusRepository) : ViewModel() {
+class TimelineViewModel @Inject constructor(private val timelineRepo: TimelineRepository) : ViewModel() {
 
-    private val pathLive = MutableLiveData<String>()
+    val dbResult by lazy { timelineRepo.timeline(pageSize = PAGE_SIZE) }
 
-    var uniqueId: String? = null
+    fun afterTopFromDb(max: String) = timelineRepo.fetchAfter(max = max, pageSize = PAGE_SIZE)
 
-    fun setPath(path: String): Boolean {
-        if (pathLive.value == path) {
-            return false
-        }
-        pathLive.value = path
-        return true
-    }
 
-    private val repoResult = map(pathLive, { repo.statusesInPath(path = it, pageSize = PAGE_SIZE, uniqueId = uniqueId) })
-    val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
-    val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
-    val refreshState = Transformations.switchMap(repoResult, { it.refreshState })!!
-    fun refresh() {
-        repoResult.value?.refresh?.invoke()
-    }
-
-    fun retry() {
-        val listing = repoResult?.value
-        listing?.retry?.invoke()
-    }
-
-    fun load(max: String) = repo.load(path = pathLive.value!!, uniqueId = uniqueId, max = max, pageSize = PAGE_SIZE)
 }

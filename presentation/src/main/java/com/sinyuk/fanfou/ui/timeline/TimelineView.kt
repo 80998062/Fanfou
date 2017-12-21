@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
-import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
@@ -33,7 +32,6 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -49,47 +47,25 @@ import javax.inject.Inject
  */
 class TimelineView : AbstractLazyFragment(), Injectable {
 
-    companion object {
-        private val lock = Any()
-
-        fun newInstance(path: String, uniqueId: String? = null): TimelineView {
-            synchronized(lock) {
-                val instance = TimelineView()
-                val args = Bundle()
-                args.putString("path", path)
-                uniqueId?.let { args.putString("uniqueId", it) }
-                instance.arguments = args
-                return instance
-            }
-        }
-    }
-
-
-    private val timelinePath: String by lazy { arguments?.getString("path")!! }
-
     override fun layoutId(): Int? = R.layout.timeline_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
 
-    private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
+    private val timelineViewModel by lazy { obtainViewModelFromActivity(factory, TimelineViewModel::class.java) }
 
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     @Inject lateinit var toast: ToastUtils
 
-    private lateinit var adapter: StatusAdapter
+    private lateinit var adapter: TimelineAdapter
 
     override fun lazyDo() {
-        timelineViewModel.setPath(timelinePath)
-        if (arguments?.containsKey("uniqueId") == true) {
-            timelineViewModel.uniqueId = arguments!!.getString("uniqueId")
-        }
         setupSwipeRefresh()
         setupRecyclerView()
     }
 
     private fun setupSwipeRefresh() {
-        timelineViewModel.refreshState.observe(this, Observer {
+        timelineViewModel.dbResult.refreshState.observe(this, Observer {
             if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
                 setRefresh(false)
                 it.msg?.let { toast.toastShort(it) }
@@ -97,7 +73,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 setRefresh(NetworkState.LOADING == it)
             }
         })
-        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.refresh() }
+        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.dbResult.refresh.invoke() }
     }
 
 
@@ -114,21 +90,21 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
         recyclerView.setHasFixedSize(true)
 
-        adapter = StatusAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, { load(it) })
+        adapter = TimelineAdapter(Glide.with(this@TimelineView), { timelineViewModel.dbResult.retry.invoke() }, { load(it) })
         recyclerView.adapter = adapter
 
-        timelineViewModel.statuses.observe(this, Observer<PagedList<Status>> {
+        timelineViewModel.dbResult.pagedList.observe(this, Observer<PagedList<Status>> {
             adapter.setList(it)
         })
 
-        timelineViewModel.networkState.observe(this, Observer {
+        timelineViewModel.dbResult.networkState.observe(this, Observer {
             adapter.setNetworkState(it)
         })
     }
 
     private fun load(id: String?) {
         id?.let {
-            timelineViewModel.load(id).observe(this@TimelineView, Observer<Resource<Boolean>> {
+            timelineViewModel.afterTopFromDb(id).observe(this@TimelineView, Observer<Resource<Boolean>> {
                 when (it?.states) {
                     States.ERROR -> it.message?.let { toast.toastShort(it) }
                     else -> {
