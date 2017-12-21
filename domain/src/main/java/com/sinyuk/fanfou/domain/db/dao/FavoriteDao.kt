@@ -20,11 +20,34 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
-import android.arch.persistence.room.Dao
+import android.arch.paging.DataSource
+import android.arch.persistence.room.*
+import com.sinyuk.fanfou.domain.DO.Favorite
 
 /**
  * Created by sinyuk on 2017/12/21.
+ *
  */
 @Dao
 interface FavoriteDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun inserts(statuses: MutableList<Favorite>): MutableList<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(status: Favorite): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updates(statuses: MutableList<Favorite>): Int
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun update(status: Favorite): Int
+
+    @Query("SELECT * FROM favorites WHERE id = :id")
+    fun query(id: String): Favorite?
+
+    @Query("SELECT * FROM favorites WHERE createdAt < (SELECT createdAt FROM favorites WHERE id = :id) AND player_uniqueId = uniqueId LIMIT 1")
+    fun queryNext(id: String, uniqueId: String): Favorite?
+
+    @Query("SELECT * FROM favorites WHERE player_uniqueId = :uniqueId ORDER BY createdAt DESC")
+    fun favorites(uniqueId: String): DataSource.Factory<Int, Favorite>
 }

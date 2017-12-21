@@ -22,6 +22,7 @@
 package com.sinyuk.fanfou.domain.api
 
 import android.arch.lifecycle.LiveData
+import com.sinyuk.fanfou.domain.DO.Favorite
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import retrofit2.Call
@@ -55,6 +56,6 @@ interface RestAPI {
     fun fetch_favorites(@Query("id") id: String? = null,
                         @Query("count") count: Int,
                         @Query("since_id") since: String? = null,
-                        @Query("max_id") max: String? = null): Call<MutableList<Status>>
+                        @Query("max_id") max: String? = null): Call<MutableList<Favorite>>
 
 }
