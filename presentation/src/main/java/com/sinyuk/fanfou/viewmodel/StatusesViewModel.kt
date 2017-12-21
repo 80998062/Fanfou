@@ -20,20 +20,18 @@
 
 package com.sinyuk.fanfou.viewmodel
 
+import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.tl.TimelineRepository
+import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.repo.InMemory.TimelineCacheRepository
 import javax.inject.Inject
 
 /**
- * Created by sinyuk on 2017/12/6.
+ * Created by sinyuk on 2017/12/21.
  *
  */
-class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
+class StatusesViewModel @Inject constructor(private val repo: TimelineCacheRepository) : ViewModel() {
+    val result by lazy { MediatorLiveData<MutableList<Status>>() }
 
-    val dbResult by lazy { repo.timeline(pageSize = PAGE_SIZE) }
-
-    fun afterTopFromDb(max: String) = repo.fetchAfter(max = max, pageSize = PAGE_SIZE)
-
-
+    lateinit var path:String
 }

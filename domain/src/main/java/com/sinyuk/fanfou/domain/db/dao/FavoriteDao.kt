@@ -18,22 +18,13 @@
  *
  */
 
-package com.sinyuk.fanfou.viewmodel
+package com.sinyuk.fanfou.domain.db.dao
 
-import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.tl.TimelineRepository
-import javax.inject.Inject
+import android.arch.persistence.room.Dao
 
 /**
- * Created by sinyuk on 2017/12/6.
- *
+ * Created by sinyuk on 2017/12/21.
  */
-class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
-
-    val dbResult by lazy { repo.timeline(pageSize = PAGE_SIZE) }
-
-    fun afterTopFromDb(max: String) = repo.fetchAfter(max = max, pageSize = PAGE_SIZE)
-
-
+@Dao
+interface FavoriteDao {
 }

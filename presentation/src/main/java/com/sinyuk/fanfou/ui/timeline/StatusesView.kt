@@ -27,8 +27,10 @@ import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.ui.CustomLoadMoreView
+import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
+import com.sinyuk.fanfou.viewmodel.StatusesViewModel
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.statuses_view.*
@@ -57,7 +59,7 @@ class StatusesView : AbstractLazyFragment(), Injectable {
     @Inject lateinit var factory: FanfouViewModelFactory
 
     private val timelineViewModel by lazy { obtainViewModelFromActivity(factory, TimelineViewModel::class.java) }
-    
+    private val statusesViewModel by lazy { obtainViewModel(factory, StatusesViewModel::class.java) }
 
     @Inject lateinit var toast: ToastUtils
 

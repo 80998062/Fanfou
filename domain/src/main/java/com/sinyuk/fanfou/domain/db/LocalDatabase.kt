@@ -25,8 +25,10 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
+import com.sinyuk.fanfou.domain.DO.Favorite
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.db.dao.FavoriteDao
 import com.sinyuk.fanfou.domain.db.dao.PlayerDao
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
 
@@ -35,11 +37,13 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
  * Created by sinyuk on 2017/11/27.
  *
  */
-@Database(entities = arrayOf(Player::class, Status::class),
+@Database(entities = arrayOf(Player::class, Status::class,Favorite::class),
         version = BuildConfig.VERSION_CODE, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun statusDao(): StatusDao
+    abstract fun favoriteDao(): FavoriteDao
+
     companion object {
 
         private var INSTANCE: LocalDatabase? = null

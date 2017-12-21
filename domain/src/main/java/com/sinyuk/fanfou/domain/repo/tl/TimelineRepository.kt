@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inDb
+package com.sinyuk.fanfou.domain.repo.tl
 
 import android.app.Application
 import android.arch.lifecycle.LiveData
