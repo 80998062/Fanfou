@@ -56,38 +56,6 @@ class TimelineRepository @Inject constructor(
 
 
     /**
-     * 加载最新的状态
-     *
-     * @param pageSize 一次请求的条数
-     */
-    fun refresh(path: String, pageSize: Int): LiveData<NetworkState> {
-        val networkState = MutableLiveData<NetworkState>()
-        networkState.value = NetworkState.LOADING
-        when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize)
-            else -> restAPI.fetch_from_path(path = path, count = pageSize)
-        }.enqueue(object : Callback<MutableList<Status>?> {
-            override fun onFailure(call: Call<MutableList<Status>?>, t: Throwable) {
-                // retrofit calls this on main thread so safe to call set value
-                networkState.value = NetworkState.error(t.message)
-            }
-
-            override fun onResponse(
-                    call: Call<MutableList<Status>?>,
-                    response: Response<MutableList<Status>?>) {
-                appExecutors.diskIO().execute { db.runInTransaction { insertResultIntoDb(path, response.body()) } }
-                if (response.body()?.size != PAGE_SIZE) { // since we are in bg thread now, post the result.
-                    networkState.value = NetworkState.LOADED
-                } else {
-                    fetchNextItem(networkState, path, response.body()!!.last().id)
-                }
-            }
-        })
-        return networkState
-    }
-
-
-    /**
      * 加载指定消息之后的状态
      *
      * @param pageSize 一次请求的条数
@@ -168,10 +136,18 @@ class TimelineRepository @Inject constructor(
     private fun saveBreakChain(path: String, status: Status) {
         try {
             db.beginTransaction()
-            status.addPathFlag(path)
-            status.addBreakFlag(path)
-            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            db.statusDao().insert(status)
+            val flag = when (path) {
+                TIMELINE_HOME -> STATUS_PUBLIC_FLAG
+                TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+                TIMELINE_USER -> STATUS_POST_FLAG
+                else -> TODO()
+            }
+            if (db.statusDao().query(id = status.id, path = flag) == null) {
+                status.addPathFlag(path)
+                status.addBreakFlag(path)
+                db.statusDao().insert(status)
+                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+            }
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
@@ -192,4 +168,36 @@ class TimelineRepository @Inject constructor(
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun provideDataSourceFactory(path: Int) = db.statusDao().timeline(path)
+
+
+    /**
+     * 加载最新的状态
+     *
+     * @param pageSize 一次请求的条数
+     */
+    private fun refresh(path: String, pageSize: Int): LiveData<NetworkState> {
+        val networkState = MutableLiveData<NetworkState>()
+        networkState.value = NetworkState.LOADING
+        when (path) {
+            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize)
+            else -> restAPI.fetch_from_path(path = path, count = pageSize)
+        }.enqueue(object : Callback<MutableList<Status>?> {
+            override fun onFailure(call: Call<MutableList<Status>?>, t: Throwable) {
+                // retrofit calls this on main thread so safe to call set value
+                networkState.value = NetworkState.error(t.message)
+            }
+
+            override fun onResponse(
+                    call: Call<MutableList<Status>?>,
+                    response: Response<MutableList<Status>?>) {
+                appExecutors.diskIO().execute { db.runInTransaction { insertResultIntoDb(path, response.body()) } }
+                if (response.body()?.size != PAGE_SIZE) { // since we are in bg thread now, post the result.
+                    networkState.value = NetworkState.LOADED
+                } else {
+                    fetchNextItem(networkState, path, response.body()!!.last().id)
+                }
+            }
+        })
+        return networkState
+    }
 }

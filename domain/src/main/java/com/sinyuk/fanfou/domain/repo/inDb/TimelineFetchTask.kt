@@ -81,7 +81,7 @@ class TimelineFetchTask(private val restAPI: RestAPI,
                             val status = newResponse.body()!!.last()
                             try {
                                 db.beginTransaction()
-                                if (isBreakPoint(status)) {
+                                if (isBreakPoint(data.last().id, status)) {
                                     status.addBreakFlag(path)
                                     status.addPathFlag(path)
                                     status.user?.let { status.playerExtracts = PlayerExtracts(it) }
@@ -104,16 +104,16 @@ class TimelineFetchTask(private val restAPI: RestAPI,
     }
 
     // 如果 item 之后有数据 但是 item 不在数据库里 so it's a break point
-    private fun isBreakPoint(status: Status) = if (db.statusDao().query(status.id) != null) {
+    private fun isBreakPoint(max: String, nextItem: Status) = if (db.statusDao().query(id = nextItem.id, path = pathFlag) != null) { // 前后数据是连贯的
         false
-    } else {
-        db.statusDao().queryNext(id = status.id, path = pathFlag) != null
+    } else { // 前后数据不连贯,但是也有可能后面没有数据了 比如第一次刷新
+        db.statusDao().queryNext(id = max, path = pathFlag) != null
     }
 
 
     private fun removeBreakChain() {
         db.runInTransaction {
-            db.statusDao().query(max)?.let {
+            db.statusDao().query(id = max, path = pathFlag)?.let {
                 it.removeBreakFlag(path)
                 db.statusDao().update(it)
             }

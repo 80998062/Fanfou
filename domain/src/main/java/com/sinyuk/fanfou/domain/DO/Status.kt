@@ -59,11 +59,6 @@ data class Status constructor(
         and(breakFlag)
     }
 
-
-    fun isGuest(test: Int): Boolean {
-        return test and 0x00000001 != 0
-    }
-
     private fun addPath(flags: Int) {
         pathFlag = pathFlag or flags
     }

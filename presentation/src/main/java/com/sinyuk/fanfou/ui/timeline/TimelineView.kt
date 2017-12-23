@@ -33,6 +33,7 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
+import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -58,7 +59,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     @Inject lateinit var factory: FanfouViewModelFactory
 
-    private val timelineViewModel by lazy { obtainViewModelFromActivity(factory, TimelineViewModel::class.java) }
+    private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
 
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 

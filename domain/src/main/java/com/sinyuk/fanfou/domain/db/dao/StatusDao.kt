@@ -43,12 +43,12 @@ interface StatusDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(status: Status): Int
 
-    @Query("SELECT * FROM statuses WHERE id = :id")
-    fun query(id: String): Status?
+    @Query("SELECT * FROM statuses WHERE id = :id AND pathFlag & :path = :path LIMIT 1")
+    fun query(id: String, path: Int): Status?
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path !=0 AND createdAt < (SELECT createdAt FROM statuses WHERE id = :id) LIMIT 1")
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND createdAt < (SELECT createdAt FROM statuses WHERE id = :id) LIMIT 1")
     fun queryNext(id: String, path: Int): Status?
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path != 0 ORDER BY createdAt DESC")
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path ORDER BY createdAt DESC")
     fun timeline(path: Int): DataSource.Factory<Int, Status>
 }
