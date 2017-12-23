@@ -45,17 +45,18 @@ class TimelineAdapter(
         private val glide: RequestManager,
         private val retryCallback: () -> Unit,
         private val loadCallable: (max: String?) -> Unit,
-        private val uniqueId: String? = null) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
+        private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
     override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
         R.layout.network_state_item
     } else {
-        if (getItem(position)?.breakChain == true) {
-            R.layout.list_break_chain_item
-        } else {
+        if (getItem(position)?.andBreak(path) == 0) {
             R.layout.timeline_view_list_item
+
+        } else {
+            R.layout.list_break_chain_item
         }
     }
 
@@ -80,7 +81,7 @@ class TimelineAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
+        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, null)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
         R.layout.list_break_chain_item -> BreakChainItemViewHolder.create(parent, loadCallable)
         else -> throw IllegalArgumentException("unknown view type $viewType")

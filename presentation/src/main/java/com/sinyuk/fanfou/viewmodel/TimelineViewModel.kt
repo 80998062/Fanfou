@@ -20,9 +20,12 @@
 
 package com.sinyuk.fanfou.viewmodel
 
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
+import android.arch.lifecycle.Transformations.map
 import android.arch.lifecycle.ViewModel
 import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.repo.tl.TimelineRepository
+import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
 import javax.inject.Inject
 
 /**
@@ -31,9 +34,29 @@ import javax.inject.Inject
  */
 class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
 
-    val dbResult by lazy { repo.timeline(pageSize = PAGE_SIZE) }
+    private val pathLive = MutableLiveData<String>()
 
-    fun afterTopFromDb(max: String) = repo.fetchAfter(max = max, pageSize = PAGE_SIZE)
+    fun setPath(path: String): Boolean {
+        if (pathLive.value == path) {
+            return false
+        }
+        pathLive.value = path
+        return true
+    }
 
+    private val repoResult = map(pathLive, { repo.timeline(path = it, pageSize = PAGE_SIZE) })
+    val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
+    val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
+    val refreshState = Transformations.switchMap(repoResult, { it.refreshState })!!
 
+    fun refresh() {
+        repoResult.value?.refresh?.invoke()
+    }
+
+    fun retry() {
+        val listing = repoResult?.value
+        listing?.retry?.invoke()
+    }
+
+    fun fetchAfterTop(max: String) = repo.fetchAfter(path = pathLive.value!!, max = max, pageSize = PAGE_SIZE)
 }

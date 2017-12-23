@@ -18,16 +18,14 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.tl
+package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.WorkerThread
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
-import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.db.LocalDatabase
@@ -45,9 +43,16 @@ class TimelineFetchTask(private val restAPI: RestAPI,
                         private val pageSize: Int) : Runnable {
 
     val liveData = MutableLiveData<Resource<Boolean>>()
+    var pathFlag: Int = 0
 
     init {
         liveData.value = Resource.loading(null)
+        pathFlag = when (path) {
+            TIMELINE_HOME -> STATUS_PUBLIC_FLAG
+            TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+            TIMELINE_USER -> STATUS_POST_FLAG
+            else -> TODO()
+        }
     }
 
     override fun run() {
@@ -99,19 +104,10 @@ class TimelineFetchTask(private val restAPI: RestAPI,
     }
 
     // 如果 item 之后有数据 但是 item 不在数据库里 so it's a break point
-    private fun isBreakPoint(status: Status): Boolean {
-        if (db.statusDao().query(status.id) != null) {
-            return false
-        } else {
-            when (path) {
-                TIMELINE_HOME -> db.statusDao().nextHome(status.id)
-                TIMELINE_FAVORITES -> db.statusDao().nextFavorited(status.id)
-                TIMELINE_USER -> db.statusDao().nextUser(status.id)
-                else -> TODO()
-            }.let {
-                return it != null
-            }
-        }
+    private fun isBreakPoint(status: Status) = if (db.statusDao().query(status.id) != null) {
+        false
+    } else {
+        db.statusDao().queryNext(id = status.id, path = pathFlag) != null
     }
 
 

@@ -46,21 +46,9 @@ interface StatusDao {
     @Query("SELECT * FROM statuses WHERE id = :id")
     fun query(id: String): Status?
 
-    @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) AND pathPublic = 1 LIMIT 1")
-    fun nextHome(id: String): Status?
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path !=0 AND createdAt < (SELECT createdAt FROM statuses WHERE id = :id) LIMIT 1")
+    fun queryNext(id: String, path: Int): Status?
 
-    @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) AND pathUser = 1 LIMIT 1")
-    fun nextUser(id: String): Status?
-
-    @Query("SELECT * FROM statuses WHERE createdAt < (SELECT createdAt FROM statuses WHERE id = :id) AND pathFavorited = 1 LIMIT 1")
-    fun nextFavorited(id: String): Status?
-
-    @Query("SELECT * FROM statuses WHERE pathPublic = 1 ORDER BY createdAt DESC ")
-    fun home(): DataSource.Factory<Int, Status>
-
-    @Query("SELECT * FROM statuses WHERE pathUser = 1 ORDER BY createdAt DESC ")
-    fun user(): DataSource.Factory<Int, Status>
-
-    @Query("SELECT * FROM statuses  WHERE pathFavorited = 1 ORDER BY createdAt DESC")
-    fun favorited(): DataSource.Factory<Int, Status>
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path != 0 ORDER BY createdAt DESC")
+    fun timeline(path: Int): DataSource.Factory<Int, Status>
 }

@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
+import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
@@ -47,6 +48,12 @@ import javax.inject.Inject
  */
 class TimelineView : AbstractLazyFragment(), Injectable {
 
+    companion object {
+        fun newInstance(path: String) = TimelineView().apply {
+            arguments = Bundle().apply { putString("path", path) }
+        }
+    }
+
     override fun layoutId(): Int? = R.layout.timeline_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
@@ -59,13 +66,17 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     private lateinit var adapter: TimelineAdapter
 
+    private val timelinePath by lazy { arguments!!.getString("path") }
+
     override fun lazyDo() {
+        timelineViewModel.setPath(timelinePath)
         setupSwipeRefresh()
         setupRecyclerView()
     }
 
+
     private fun setupSwipeRefresh() {
-        timelineViewModel.dbResult.refreshState.observe(this, Observer {
+        timelineViewModel.refreshState.observe(this, Observer {
             if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
                 setRefresh(false)
                 it.msg?.let { toast.toastShort(it) }
@@ -73,7 +84,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                 setRefresh(NetworkState.LOADING == it)
             }
         })
-        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.dbResult.refresh.invoke() }
+        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.refresh() }
     }
 
 
@@ -90,21 +101,21 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
         recyclerView.setHasFixedSize(true)
 
-        adapter = TimelineAdapter(Glide.with(this@TimelineView), { timelineViewModel.dbResult.retry.invoke() }, { load(it) })
+        adapter = TimelineAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, { load(it) }, timelinePath)
         recyclerView.adapter = adapter
 
-        timelineViewModel.dbResult.pagedList.observe(this, Observer<PagedList<Status>> {
+        timelineViewModel.statuses.observe(this, Observer<PagedList<Status>> {
             adapter.setList(it)
         })
 
-        timelineViewModel.dbResult.networkState.observe(this, Observer {
+        timelineViewModel.networkState.observe(this, Observer {
             adapter.setNetworkState(it)
         })
     }
 
     private fun load(id: String?) {
         id?.let {
-            timelineViewModel.afterTopFromDb(id).observe(this@TimelineView, Observer<Resource<Boolean>> {
+            timelineViewModel.fetchAfterTop(id).observe(this@TimelineView, Observer<Resource<Boolean>> {
                 when (it?.states) {
                     States.ERROR -> it.message?.let { toast.toastShort(it) }
                     else -> {

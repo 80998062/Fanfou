@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.tl
+package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.app.Application
 import android.arch.lifecycle.LiveData
@@ -113,8 +113,14 @@ class TimelineRepository @Inject constructor(
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
         // create a data source factory from Room
-        val dataSourceFactory = provideDataSourceFactory(path)
-
+        val dataSourceFactory = when (path) {
+            TIMELINE_HOME -> STATUS_PUBLIC_FLAG
+            TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+            TIMELINE_USER -> STATUS_POST_FLAG
+            else -> TODO()
+        }.let {
+            provideDataSourceFactory(it)
+        }
         val builder = LivePagedListBuilder(dataSourceFactory, pageSize).setBoundaryCallback(boundaryCallback)
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
@@ -185,10 +191,5 @@ class TimelineRepository @Inject constructor(
     }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun provideDataSourceFactory(path: String) = when (path) {
-        TIMELINE_HOME -> db.statusDao().home()
-        TIMELINE_FAVORITES -> db.statusDao().favorited()
-        TIMELINE_USER -> db.statusDao().user()
-        else -> TODO()
-    }
+    private fun provideDataSourceFactory(path: Int) = db.statusDao().timeline(path)
 }

@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
@@ -84,7 +85,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
     private fun setupViewPager() {
-        val homePage = TimelineView()
+        val homePage = TimelineView.newInstance(TIMELINE_HOME)
         val searchPage = SearchView()
         val signView = SignInView()
         val messagePage = MessageView()

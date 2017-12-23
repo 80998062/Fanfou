@@ -23,9 +23,7 @@ package com.sinyuk.fanfou.domain.DO
 import android.arch.persistence.room.*
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
-import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.db.DateConverter
 import java.util.*
 
@@ -48,43 +46,61 @@ data class Status constructor(
         @Embedded(prefix = "photo_") @SerializedName("photo") var photos: Photos? = null,
         @SerializedName("isSelf") var isSelf: Boolean = false,
         @SerializedName("favorited") var favorited: Boolean = false,
-        var pathPublic: Boolean? = null,
-        var pathUser: Boolean? = null,
-        var pathFavorited: Boolean? = null,
-        var breakFavorited: Boolean? = null,
-        var breakUser: Boolean? = null,
-        var breakPublic: Boolean? = null,
-        var xxx: Int = 0
+        var pathFlag: Int = 0,
+        var breakFlag: Int = 0
 ) {
 
-    fun isBreak(path: String) = when (path) {
-        TIMELINE_HOME -> pathPublic
-        TIMELINE_FAVORITES -> pathFavorited
-        TIMELINE_USER -> pathUser
-        else -> false
+    fun andBreak(path: String) = when (path) {
+        TIMELINE_HOME -> STATUS_PUBLIC_FLAG
+        TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+        TIMELINE_USER -> STATUS_POST_FLAG
+        else -> TODO()
+    }.run {
+        and(breakFlag)
+    }
+
+
+    fun isGuest(test: Int): Boolean {
+        return test and 0x00000001 != 0
+    }
+
+    private fun addPath(flags: Int) {
+        pathFlag = pathFlag or flags
+    }
+
+    private fun removePath(flags: Int) {
+        pathFlag = pathFlag and flags.inv()
+    }
+
+    private fun addBreak(flags: Int) {
+        breakFlag = breakFlag or flags
+    }
+
+    private fun removeBreak(flags: Int) {
+        breakFlag = breakFlag and flags.inv()
     }
 
     fun addPathFlag(path: String) {
         when (path) {
-            TIMELINE_HOME -> pathPublic = true
-            TIMELINE_FAVORITES -> pathFavorited = true
-            TIMELINE_USER -> pathUser = true
+            TIMELINE_HOME -> addPath(STATUS_PUBLIC_FLAG)
+            TIMELINE_FAVORITES -> addPath(STATUS_FAVORTITED_FLAG)
+            TIMELINE_USER -> addPath(STATUS_POST_FLAG)
         }
     }
 
     fun removeBreakFlag(path: String) {
         when (path) {
-            TIMELINE_HOME -> breakPublic = false
-            TIMELINE_FAVORITES -> breakFavorited = false
-            TIMELINE_USER -> breakUser = false
+            TIMELINE_HOME -> removeBreak(STATUS_PUBLIC_FLAG)
+            TIMELINE_FAVORITES -> removeBreak(STATUS_FAVORTITED_FLAG)
+            TIMELINE_USER -> removeBreak(STATUS_POST_FLAG)
         }
     }
 
     fun addBreakFlag(path: String) {
         when (path) {
-            TIMELINE_HOME -> breakPublic = true
-            TIMELINE_FAVORITES -> breakFavorited = true
-            TIMELINE_USER -> breakUser = true
+            TIMELINE_HOME -> addBreak(STATUS_PUBLIC_FLAG)
+            TIMELINE_FAVORITES -> addBreak(STATUS_FAVORTITED_FLAG)
+            TIMELINE_USER -> addBreak(STATUS_POST_FLAG)
         }
     }
 

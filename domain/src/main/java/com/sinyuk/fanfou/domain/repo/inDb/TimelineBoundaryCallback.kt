@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.tl
+package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
