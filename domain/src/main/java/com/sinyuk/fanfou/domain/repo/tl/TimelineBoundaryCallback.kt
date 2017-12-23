@@ -25,7 +25,7 @@ import android.support.annotation.MainThread
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
 import retrofit2.Call
@@ -41,7 +41,8 @@ import retrofit2.Response
  */
 class TimelineBoundaryCallback(
         private val webservice: RestAPI,
-        private val handleResponse: (MutableList<Status>?) -> Unit,
+        private val handleResponse: (String, MutableList<Status>?) -> Unit,
+        private val path: String,
         private val appExecutors: AppExecutors,
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
@@ -55,7 +56,10 @@ class TimelineBoundaryCallback(
     @MainThread
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            webservice.fetch_from_path(path = TIMELINE_HOME, count = networkPageSize).enqueue(createWebserviceCallback(it))
+            when (path) {
+                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize)
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize)
+            }.enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -65,7 +69,10 @@ class TimelineBoundaryCallback(
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-          webservice.fetch_from_path(path = TIMELINE_HOME, count = networkPageSize, max = itemAtEnd.id).enqueue(createWebserviceCallback(it))
+            when (path) {
+                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, max = itemAtEnd.id)
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id)
+            }.enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -77,7 +84,7 @@ class TimelineBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            handleResponse(response.body())
+            handleResponse(path, response.body())
             it.recordSuccess()
         }
     }

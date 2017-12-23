@@ -23,11 +23,15 @@ package com.sinyuk.fanfou.domain.DO
 import android.arch.persistence.room.*
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.domain.db.DateConverter
 import java.util.*
 
 /**
  * Created by sinyuk on 2017/3/28.
+ *
  */
 
 @Entity(tableName = "statuses",
@@ -44,5 +48,44 @@ data class Status constructor(
         @Embedded(prefix = "photo_") @SerializedName("photo") var photos: Photos? = null,
         @SerializedName("isSelf") var isSelf: Boolean = false,
         @SerializedName("favorited") var favorited: Boolean = false,
-        var breakChain: Boolean = false
-)
+        var pathPublic: Boolean? = null,
+        var pathUser: Boolean? = null,
+        var pathFavorited: Boolean? = null,
+        var breakFavorited: Boolean? = null,
+        var breakUser: Boolean? = null,
+        var breakPublic: Boolean? = null,
+        var xxx: Int = 0
+) {
+
+    fun isBreak(path: String) = when (path) {
+        TIMELINE_HOME -> pathPublic
+        TIMELINE_FAVORITES -> pathFavorited
+        TIMELINE_USER -> pathUser
+        else -> false
+    }
+
+    fun addPathFlag(path: String) {
+        when (path) {
+            TIMELINE_HOME -> pathPublic = true
+            TIMELINE_FAVORITES -> pathFavorited = true
+            TIMELINE_USER -> pathUser = true
+        }
+    }
+
+    fun removeBreakFlag(path: String) {
+        when (path) {
+            TIMELINE_HOME -> breakPublic = false
+            TIMELINE_FAVORITES -> breakFavorited = false
+            TIMELINE_USER -> breakUser = false
+        }
+    }
+
+    fun addBreakFlag(path: String) {
+        when (path) {
+            TIMELINE_HOME -> breakPublic = true
+            TIMELINE_FAVORITES -> breakFavorited = true
+            TIMELINE_USER -> breakUser = true
+        }
+    }
+
+}

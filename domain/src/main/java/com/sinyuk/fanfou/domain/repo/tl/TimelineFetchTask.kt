@@ -25,7 +25,9 @@ import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.db.LocalDatabase
@@ -38,6 +40,7 @@ import java.io.IOException
  */
 class TimelineFetchTask(private val restAPI: RestAPI,
                         private val db: LocalDatabase,
+                        private val path: String,
                         private val max: String,
                         private val pageSize: Int) : Runnable {
 
@@ -49,7 +52,10 @@ class TimelineFetchTask(private val restAPI: RestAPI,
 
     override fun run() {
         try {
-            val response = restAPI.fetch_from_path(TIMELINE_HOME, pageSize, null, max).execute()
+            val response = when (path) {
+                TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize, max = max)
+                else -> restAPI.fetch_from_path(path = path, count = pageSize, max = max)
+            }.execute()
             val apiResponse = ApiResponse(response)
             if (apiResponse.isSuccessful()) {
                 removeBreakChain()
@@ -61,14 +67,18 @@ class TimelineFetchTask(private val restAPI: RestAPI,
                     if (data.size < pageSize) {
                         liveData.postValue(Resource.success(true))
                     } else {
-                        val newResponse = restAPI.fetch_from_path(path = TIMELINE_HOME, count = 1, max = data.last().id).execute()
+                        val newResponse = when (path) {
+                            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = 1, max = data.last().id)
+                            else -> restAPI.fetch_from_path(path = path, count = 1, max = data.last().id)
+                        }.execute()
 
                         if (newResponse.isSuccessful && newResponse.body()?.isNotEmpty() == true) {
                             val status = newResponse.body()!!.last()
                             try {
                                 db.beginTransaction()
-                                if (nextItem(status.id) != null && db.statusDao().query(status.id) == null) { // 如果 item 之后有数据 但是 item 不在数据库里 so it's a break point
-                                    status.breakChain = true
+                                if (isBreakPoint(status)) {
+                                    status.addBreakFlag(path)
+                                    status.addPathFlag(path)
                                     status.user?.let { status.playerExtracts = PlayerExtracts(it) }
                                     db.statusDao().insert(status)
                                 }
@@ -88,15 +98,28 @@ class TimelineFetchTask(private val restAPI: RestAPI,
         }
     }
 
-    private fun nextItem(id: String) = db.statusDao().queryNext(id)
+    // 如果 item 之后有数据 但是 item 不在数据库里 so it's a break point
+    private fun isBreakPoint(status: Status): Boolean {
+        if (db.statusDao().query(status.id) != null) {
+            return false
+        } else {
+            when (path) {
+                TIMELINE_HOME -> db.statusDao().nextHome(status.id)
+                TIMELINE_FAVORITES -> db.statusDao().nextFavorited(status.id)
+                TIMELINE_USER -> db.statusDao().nextUser(status.id)
+                else -> TODO()
+            }.let {
+                return it != null
+            }
+        }
+    }
+
 
     private fun removeBreakChain() {
         db.runInTransaction {
             db.statusDao().query(max)?.let {
-                if (it.breakChain) {
-                    it.breakChain = false
-                    db.statusDao().update(it)
-                }
+                it.removeBreakFlag(path)
+                db.statusDao().update(it)
             }
         }
     }
@@ -106,6 +129,7 @@ class TimelineFetchTask(private val restAPI: RestAPI,
         if (body?.isNotEmpty() == true) {
             for (status in body) {
                 status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                status.addPathFlag(path)
             }
             db.statusDao().inserts(body)
         }

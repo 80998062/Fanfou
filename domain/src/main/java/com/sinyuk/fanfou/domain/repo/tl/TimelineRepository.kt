@@ -52,7 +52,7 @@ class TimelineRepository @Inject constructor(
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
-        @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application,url, interceptor) {
+        @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
 
     /**
@@ -60,10 +60,13 @@ class TimelineRepository @Inject constructor(
      *
      * @param pageSize 一次请求的条数
      */
-    fun refresh(pageSize: Int): LiveData<NetworkState> {
+    fun refresh(path: String, pageSize: Int): LiveData<NetworkState> {
         val networkState = MutableLiveData<NetworkState>()
         networkState.value = NetworkState.LOADING
-        restAPI.fetch_from_path(TIMELINE_HOME, pageSize).enqueue(object : Callback<MutableList<Status>?> {
+        when (path) {
+            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize)
+            else -> restAPI.fetch_from_path(path = path, count = pageSize)
+        }.enqueue(object : Callback<MutableList<Status>?> {
             override fun onFailure(call: Call<MutableList<Status>?>, t: Throwable) {
                 // retrofit calls this on main thread so safe to call set value
                 networkState.value = NetworkState.error(t.message)
@@ -72,11 +75,11 @@ class TimelineRepository @Inject constructor(
             override fun onResponse(
                     call: Call<MutableList<Status>?>,
                     response: Response<MutableList<Status>?>) {
-                appExecutors.diskIO().execute { db.runInTransaction { insertResultIntoDb(response.body()) } }
+                appExecutors.diskIO().execute { db.runInTransaction { insertResultIntoDb(path, response.body()) } }
                 if (response.body()?.size != PAGE_SIZE) { // since we are in bg thread now, post the result.
                     networkState.value = NetworkState.LOADED
                 } else {
-                    fetchNextItem(networkState, response.body()!!.last().id)
+                    fetchNextItem(networkState, path, response.body()!!.last().id)
                 }
             }
         })
@@ -90,8 +93,8 @@ class TimelineRepository @Inject constructor(
      * @param pageSize 一次请求的条数
      * @param max 起始位置
      */
-    fun fetchAfter(max: String, pageSize: Int): MutableLiveData<Resource<Boolean>> {
-        val task = TimelineFetchTask(restAPI, db, max, pageSize)
+    fun fetchAfter(path: String, max: String, pageSize: Int): MutableLiveData<Resource<Boolean>> {
+        val task = TimelineFetchTask(restAPI, db, path, max, pageSize)
         appExecutors.networkIO().execute(task)
         return task.liveData
     }
@@ -100,23 +103,25 @@ class TimelineRepository @Inject constructor(
      * 加载保存的所有状态,并自动请求新的旧状态
      * @param pageSize 一次请求的条数
      */
-    fun timeline(pageSize: Int): Listing<Status> {
+    fun timeline(path: String, pageSize: Int): Listing<Status> {
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
         val boundaryCallback = TimelineBoundaryCallback(
                 webservice = restAPI,
+                path = path,
                 handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
         // create a data source factory from Room
-        val dataSourceFactory = provideDataSourceFactory()
+        val dataSourceFactory = provideDataSourceFactory(path)
+
         val builder = LivePagedListBuilder(dataSourceFactory, pageSize).setBoundaryCallback(boundaryCallback)
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val refreshTrigger = MutableLiveData<Unit>()
         val refreshState = Transformations.switchMap(refreshTrigger, {
-            refresh(pageSize)
+            refresh(path, pageSize)
         })
 
         return Listing(
@@ -134,30 +139,33 @@ class TimelineRepository @Inject constructor(
 
 
     @WorkerThread
-    private fun fetchNextItem(networkState: MutableLiveData<NetworkState>, max: String) {
-        restAPI.fetch_from_path(path = TIMELINE_HOME, count = 1, max = max).enqueue(object : Callback<MutableList<Status>> {
-            override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
-                networkState.value = NetworkState.error(t?.message)
-            }
+    private fun fetchNextItem(networkState: MutableLiveData<NetworkState>, path: String, max: String) {
+        when (path) {
+            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = 1, max = max)
+            else -> restAPI.fetch_from_path(path = path, count = 1, max = max)
+        }
+                .enqueue(object : Callback<MutableList<Status>> {
+                    override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
+                        networkState.value = NetworkState.error(t?.message)
+                    }
 
-            override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
-                if (response?.body()?.isNotEmpty() == true) {
-                    response.body()!!.last().let { appExecutors.diskIO().execute { saveBreakChain(it) } }
-                }
-                networkState.value = NetworkState.LOADED
-            }
-        })
+                    override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
+                        if (response?.body()?.isNotEmpty() == true) {
+                            response.body()!!.last().let { appExecutors.diskIO().execute { saveBreakChain(path, it) } }
+                        }
+                        networkState.value = NetworkState.LOADED
+                    }
+                })
     }
 
     @WorkerThread
-    private fun saveBreakChain(status: Status) {
+    private fun saveBreakChain(path: String, status: Status) {
         try {
             db.beginTransaction()
-            if (db.statusDao().query(status.id) == null) {
-                status.breakChain = true
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                db.statusDao().insert(status)
-            }
+            status.addPathFlag(path)
+            status.addBreakFlag(path)
+            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+            db.statusDao().insert(status)
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
@@ -166,15 +174,21 @@ class TimelineRepository @Inject constructor(
 
 
     @WorkerThread
-    private fun insertResultIntoDb(body: MutableList<Status>?) {
+    private fun insertResultIntoDb(path: String, body: MutableList<Status>?) {
         if (body?.isNotEmpty() == true) {
             for (status in body) {
                 status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                status.addPathFlag(path)
             }
             db.statusDao().inserts(body)
         }
     }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun provideDataSourceFactory() = db.statusDao().timeline()
+    private fun provideDataSourceFactory(path: String) = when (path) {
+        TIMELINE_HOME -> db.statusDao().home()
+        TIMELINE_FAVORITES -> db.statusDao().favorited()
+        TIMELINE_USER -> db.statusDao().user()
+        else -> TODO()
+    }
 }
