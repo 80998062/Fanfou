@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.di
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.player.NavigationView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.StatusesView
@@ -60,4 +61,7 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun statusesView(): StatusesView
+
+    @ContributesAndroidInjector
+    abstract fun navigationView(): NavigationView
 }

@@ -57,35 +57,12 @@
                 app:layout_collapseMode="parallax" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_anchor="@+id/appBarLayout"
-            app:layout_anchorGravity="bottom">
-
-            <com.gigamole.navigationtabstrip.NavigationTabStrip
-                android:id="@+id/tabStrip"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/root_action_bar_height"
-                app:nts_active_color="@color/colorAccent"
-                app:nts_animation_duration="250"
-                app:nts_color="@color/colorAccent"
-                app:nts_corners_radius="1.5dp"
-                app:nts_factor="2.5"
-                app:nts_gravity="bottom"
-                app:nts_inactive_color="@color/textColorSecondary"
-                app:nts_size="@dimen/text_14"
-                app:nts_titles="@array/player_tab_titles"
-                app:nts_type="point"
-                app:nts_weight="2dp" />
-        </FrameLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <com.sinyuk.fanfou.ui.FreezeViewPager
-        android:id="@+id/viewPager"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorAccent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
 </android.support.design.widget.CoordinatorLayout>

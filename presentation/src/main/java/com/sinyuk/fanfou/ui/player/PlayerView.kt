@@ -22,25 +22,19 @@ package com.sinyuk.fanfou.ui.player
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentPagerAdapter
 import android.view.View
-import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.ui.account.SignInView
-import com.sinyuk.fanfou.ui.timeline.TimelineView
-import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import com.sinyuk.myutils.system.ToastUtils
-import kotlinx.android.synthetic.main.player_view.*
 import kotlinx.android.synthetic.main.player_view_header.*
 import javax.inject.Inject
 
@@ -52,14 +46,8 @@ class PlayerView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.player_view
 
     companion object {
-        fun newInstance(uniqueId: String? = null): PlayerView {
-            val instance = PlayerView()
-            uniqueId?.let {
-                val args = Bundle()
-                args.putString("uniqueId", uniqueId)
-                instance.arguments = args
-            }
-            return instance
+        fun newInstance(uniqueId: String? = null) = PlayerView().apply {
+            arguments = Bundle().apply { putString("uniqueId", uniqueId) }
         }
     }
 
@@ -67,7 +55,7 @@ class PlayerView : AbstractFragment(), Injectable {
 
     private val accountViewModel: AccountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
-    private val playerViewModel: PlayerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
+    private val playerViewModel: PlayerViewModel by lazy { obtainViewModelFromActivity(factory, PlayerViewModel::class.java) }
 
 
     @Inject lateinit var toast: ToastUtils
@@ -81,6 +69,8 @@ class PlayerView : AbstractFragment(), Injectable {
         } else {
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
         }
+
+        addFragmentInFragment(NavigationView.newInstance(uniqueId), R.id.fragment_container, false)
     }
 
     private val playerObserver by lazy { Observer<Resource<Player>> { subscribe(it) } }
@@ -115,8 +105,6 @@ class PlayerView : AbstractFragment(), Injectable {
 
             }
 
-            setupViewPager()
-
             if (uniqueId == null) {
                 // isSelf
                 followOrEdit.text = getString(R.string.action_edit_profile)
@@ -130,28 +118,5 @@ class PlayerView : AbstractFragment(), Injectable {
         }
     }
 
-    private val statusesView = TimelineView()
-    private val photosView = SignInView()
-    private val favoritesView = Fragment()
-    private val fragmentList = arrayListOf(statusesView, photosView, favoritesView)
 
-
-    private fun setupViewPager() {
-        viewPager.offscreenPageLimit = 2
-        viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
-            override fun getItem(position: Int) = fragmentList[position]
-
-            override fun getCount() = fragmentList.size
-        }
-        tabStrip.setTabIndex(0, true)
-        tabStrip.onTabStripSelectedIndexListener = object : NavigationTabStrip.OnTabStripSelectedIndexListener {
-            override fun onStartTabSelected(title: String?, index: Int) {
-
-            }
-
-            override fun onEndTabSelected(title: String?, index: Int) {
-                viewPager.setCurrentItem(index, true)
-            }
-        }
-    }
 }
