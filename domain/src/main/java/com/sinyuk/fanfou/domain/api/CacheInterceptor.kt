@@ -50,7 +50,7 @@ class CacheInterceptor(val application: Application) : Interceptor {
         } else {
             response.newBuilder()
                     .removeHeader("Pragma")
-                    .addHeader("Cache-Control", "public, only-if-cached, max-stale=2419200")
+                    .addHeader("Cache-Control", "public, only-if-cached, max-stale=300000")
                     .build()
         }
     }

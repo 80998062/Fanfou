@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
+import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.interfaces.SwipeAdapterInterface
@@ -37,11 +38,12 @@ import com.sinyuk.fanfou.util.QuickAdapter
  */
 class StatusAdapter(
         private val glide: RequestManager,
-        private val uniqueId: String? = null) : QuickAdapter<Status, StatusViewHolder>(null), SwipeItemMangerInterface, SwipeAdapterInterface {
+        private val uniqueId: String? = null) : QuickAdapter<Status, BaseViewHolder>(null), SwipeItemMangerInterface, SwipeAdapterInterface {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StatusViewHolder.create(parent, glide, uniqueId)
+    override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int) = StatusViewHolder.create(parent, glide, uniqueId)
 
-    override fun convert(helper: StatusViewHolder, item: Status) {
+    override fun convert(helper: BaseViewHolder, item: Status) {
+        helper as StatusViewHolder
         helper.bind(item)
     }
 

@@ -20,11 +20,15 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
+import android.arch.lifecycle.Observer
+import android.content.Context
+import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.ui.CustomLoadMoreView
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -44,17 +48,50 @@ class StatusesView : AbstractLazyFragment(), Injectable {
 
     override fun layoutId() = R.layout.statuses_view
 
-    override fun lazyDo() {
-        setupRecyclerView()
-
+    companion object {
+        fun newInstance(path: String, uniqueId: String) = StatusesView().apply {
+            arguments = Bundle().apply {
+                putString("path", path)
+                putString("uniqueId", uniqueId)
+            }
+        }
     }
 
-    private val uniqueId by lazy { arguments!!.getString("uniqueId") }
+    lateinit var uniqueId: String
 
-    private val adapter: StatusAdapter by lazy { StatusAdapter(Glide.with(this@StatusesView), uniqueId) }
+    lateinit var path: String
 
-    private var max: String? = null
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        uniqueId = arguments!!.getString("uniqueId")
+        path = arguments!!.getString("path")
+    }
 
+    override fun lazyDo() {
+        setupRecyclerView()
+        statusesViewModel.listing.observe(this@StatusesView, Observer {
+            when (it?.states) {
+                States.SUCCESS -> {
+                    if (it.data == null) {
+                        adapter.loadMoreEnd(false)
+                    } else {
+                        adapter.loadMoreComplete()
+                        adapter.setNewData(it.data)
+                    }
+                }
+                States.LOADING -> {
+
+                }
+                States.ERROR -> {
+                    adapter.loadMoreFail()
+                }
+            }
+        })
+
+        refresh()
+    }
+
+    private lateinit var adapter: StatusAdapter
 
     @Inject lateinit var factory: FanfouViewModelFactory
 
@@ -71,18 +108,21 @@ class StatusesView : AbstractLazyFragment(), Injectable {
             recyclerView.layoutManager = this
         }
         recyclerView.setHasFixedSize(true)
+        adapter = StatusAdapter(Glide.with(this@StatusesView), uniqueId)
+        adapter.setLoadMoreView(CustomLoadMoreView())
+        adapter.setOnLoadMoreListener({ fetchAfterTop() }, recyclerView)
+//        adapter.disableLoadMoreIfNotFullPage(recyclerView)
 
-        adapter.apply {
-            setLoadMoreView(CustomLoadMoreView())
-            setOnLoadMoreListener({ fetchAfterTop(max) }, recyclerView)
-            disableLoadMoreIfNotFullPage(recyclerView)
-        }.let {
-            recyclerView.adapter = it
-        }
+        recyclerView.adapter = adapter
     }
 
 
-    fun fetchAfterTop(max: String?) {
+    private fun refresh() {
+        statusesViewModel.refresh(path = path, uniqueId = uniqueId, owner = this@StatusesView)
 
+    }
+
+    private fun fetchAfterTop() {
+        statusesViewModel.fetchAfterTop(path = path, uniqueId = uniqueId, max = adapter.data.last().id, owner = this@StatusesView)
     }
 }

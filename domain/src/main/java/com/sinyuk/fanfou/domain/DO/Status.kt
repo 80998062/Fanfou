@@ -52,7 +52,7 @@ data class Status constructor(
 
     fun andBreak(path: String) = when (path) {
         TIMELINE_HOME -> STATUS_PUBLIC_FLAG
-        TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+        TIMELINE_FAVORITES -> STATUS_FAVORITED_FLAG
         TIMELINE_USER -> STATUS_POST_FLAG
         else -> TODO()
     }.run {
@@ -78,7 +78,7 @@ data class Status constructor(
     fun addPathFlag(path: String) {
         when (path) {
             TIMELINE_HOME -> addPath(STATUS_PUBLIC_FLAG)
-            TIMELINE_FAVORITES -> addPath(STATUS_FAVORTITED_FLAG)
+            TIMELINE_FAVORITES -> addPath(STATUS_FAVORITED_FLAG)
             TIMELINE_USER -> addPath(STATUS_POST_FLAG)
         }
     }
@@ -86,7 +86,7 @@ data class Status constructor(
     fun removeBreakFlag(path: String) {
         when (path) {
             TIMELINE_HOME -> removeBreak(STATUS_PUBLIC_FLAG)
-            TIMELINE_FAVORITES -> removeBreak(STATUS_FAVORTITED_FLAG)
+            TIMELINE_FAVORITES -> removeBreak(STATUS_FAVORITED_FLAG)
             TIMELINE_USER -> removeBreak(STATUS_POST_FLAG)
         }
     }
@@ -94,7 +94,7 @@ data class Status constructor(
     fun addBreakFlag(path: String) {
         when (path) {
             TIMELINE_HOME -> addBreak(STATUS_PUBLIC_FLAG)
-            TIMELINE_FAVORITES -> addBreak(STATUS_FAVORTITED_FLAG)
+            TIMELINE_FAVORITES -> addBreak(STATUS_FAVORITED_FLAG)
             TIMELINE_USER -> addBreak(STATUS_POST_FLAG)
         }
     }

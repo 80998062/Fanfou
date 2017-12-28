@@ -25,5 +25,5 @@ package com.sinyuk.fanfou.domain
  */
 
 const val STATUS_PUBLIC_FLAG = 0x00000001
-const val STATUS_FAVORTITED_FLAG = 0x00000010
+const val STATUS_FAVORITED_FLAG = 0x00000010
 const val STATUS_POST_FLAG = 0x00000100

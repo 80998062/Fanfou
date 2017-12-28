@@ -49,7 +49,7 @@ class TimelineFetchTask(private val restAPI: RestAPI,
         liveData.value = Resource.loading(null)
         pathFlag = when (path) {
             TIMELINE_HOME -> STATUS_PUBLIC_FLAG
-            TIMELINE_FAVORITES -> STATUS_FAVORTITED_FLAG
+            TIMELINE_FAVORITES -> STATUS_FAVORITED_FLAG
             TIMELINE_USER -> STATUS_POST_FLAG
             else -> TODO()
         }

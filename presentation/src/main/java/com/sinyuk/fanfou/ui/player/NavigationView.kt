@@ -30,6 +30,7 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.ui.timeline.StatusesView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import kotlinx.android.synthetic.main.navigation_view.*
 
@@ -54,7 +55,7 @@ class NavigationView : AbstractFragment(), Injectable {
         fragmentList = if (uniqueId == null) {
             arrayListOf(TimelineView.newInstance(TIMELINE_USER), Fragment(), TimelineView.newInstance(TIMELINE_FAVORITES))
         } else {
-            arrayListOf(Fragment(), Fragment(), Fragment())
+            arrayListOf(StatusesView.newInstance(TIMELINE_USER, uniqueId!!), Fragment(), StatusesView.newInstance(TIMELINE_FAVORITES, uniqueId!!))
         }
 
         setupViewPager()
@@ -76,7 +77,7 @@ class NavigationView : AbstractFragment(), Injectable {
             }
 
             override fun onEndTabSelected(title: String?, index: Int) {
-                viewPager.setCurrentItem(index, true)
+                viewPager.setCurrentItem(index, false)
             }
         }
     }

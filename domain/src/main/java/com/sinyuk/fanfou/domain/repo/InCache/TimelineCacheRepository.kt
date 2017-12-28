@@ -22,13 +22,15 @@ package com.sinyuk.fanfou.domain.repo.InMemory
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
-import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
-import com.sinyuk.fanfou.domain.repo.InCache.TimelineCacheTask
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,17 +42,29 @@ import javax.inject.Singleton
 class TimelineCacheRepository @Inject constructor(
         val application: Application,
         url: Endpoint,
-        interceptor: Oauth1SigningInterceptor,
-        private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
+        interceptor: Oauth1SigningInterceptor) : AbstractRepository(application, url, interceptor) {
 
-    fun fetchAfterTop(path: String, uniqueId: String, max: String, page: Int): MutableLiveData<Resource<MutableList<Status>>> {
-        val task = TimelineCacheTask(path = path,
-                uniqueId = uniqueId,
-                webservice = cacheAPI,
-                max = max,
-                page = page)
-        appExecutors.networkIO().execute(task)
-        return task.liveData
+    fun fetchAfterTop(path: String, uniqueId: String, max: String? = null, pageSize: Int): MutableLiveData<Resource<MutableList<Status>>> {
+        val live = MutableLiveData<Resource<MutableList<Status>>>()
+        live.value = Resource.loading(null)
+        when (path) {
+            TIMELINE_FAVORITES -> cacheAPI.fetch_favorites(id = uniqueId, max = max, count = pageSize)
+            else -> cacheAPI.fetch_from_path(path = path, id = uniqueId, max = max, count = pageSize)
+        }.enqueue(object : Callback<MutableList<Status>> {
+            override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
+                if (response?.body() == null) {
+                    live.value = Resource.error(null, null)
+                } else {
+                    live.value = Resource.success(response.body())
+                }
+            }
+
+            override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
+                live.value = Resource.error(t?.message, null)
+            }
+        })
+
+        return live
     }
 
 

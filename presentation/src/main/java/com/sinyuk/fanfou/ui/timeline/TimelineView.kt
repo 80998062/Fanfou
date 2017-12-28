@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -65,9 +66,12 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    private lateinit var adapter: TimelineAdapter
+    private lateinit var timelinePath: String
 
-    private val timelinePath by lazy { arguments!!.getString("path") }
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        timelinePath = arguments!!.getString("path")
+    }
 
     override fun lazyDo() {
         timelineViewModel.setPath(timelinePath)
@@ -102,8 +106,7 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
         recyclerView.setHasFixedSize(true)
 
-        adapter = TimelineAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, { load(it) }, timelinePath)
-        recyclerView.adapter = adapter
+        val adapter = StatusPagedListAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, { load(it) }, timelinePath)
 
         timelineViewModel.statuses.observe(this, Observer<PagedList<Status>> {
             adapter.setList(it)
@@ -112,6 +115,8 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         timelineViewModel.networkState.observe(this, Observer {
             adapter.setNetworkState(it)
         })
+
+        recyclerView.adapter = adapter
     }
 
     private fun load(id: String?) {

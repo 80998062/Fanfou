@@ -41,7 +41,7 @@ import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
  *
  * Adapter implementation that shows status.
  */
-class TimelineAdapter(
+class StatusPagedListAdapter(
         private val glide: RequestManager,
         private val retryCallback: () -> Unit,
         private val loadCallable: (max: String?) -> Unit,
