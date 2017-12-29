@@ -20,11 +20,14 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
@@ -39,27 +42,64 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  * A RecyclerView ViewHolder that displays a status.
  */
 class StatusViewHolder(private val view: View, private val glide: RequestManager, private val uniqueId: String?) : BaseViewHolder(view) {
-    fun bind(status: Status?) {
-        if (status == null) {
+    fun bind(status: Status) {
+        view.swipeLayout.isRightSwipeEnabled = true
+        view.swipeLayout.isClickToClose = true
+        glide.asDrawable()
+                .load(status.playerExtracts?.profileImageUrl)
+                .apply(RequestOptions().circleCrop())
+                .transition(withCrossFade())
+                .into(view.avatar)
 
+        view.avatar.setOnClickListener {
+            @Suppress("CAST_NEVER_SUCCEEDS")
+            (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
+        }
+        
+        view.screenName.background = null
+        view.createdAt.background = null
+        view.content.background = null
+        view.screenName.text = status.playerExtracts?.screenName
+        if (status.createdAt == null) {
+            view.createdAt.text = null
         } else {
-            view.swipeLayout.isClickToClose = true
-            view.avatar.setImageResource(R.mipmap.ic_launcher_round)
-            view.avatar.setOnClickListener {
-                @Suppress("CAST_NEVER_SUCCEEDS")
-                (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
-            }
-            view.screenName.text = status.playerExtracts?.screenName
-            if (status.createdAt == null) {
-                view.createdAt.text = null
-            } else {
-                view.createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
-            }
-            view.content.text = status.text
-            view.image.setImageResource(R.mipmap.ic_launcher_round)
+            view.createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
+        }
+        view.content.text = status.text
+
+        val url = when {
+            status.photos?.thumburl != null -> status.photos?.thumburl
+            status.photos?.largeurl != null -> status.photos?.largeurl
+            else -> status.photos?.imageurl
+        }
+
+        if (url == null) {
+            glide.clear(view.image)
+            view.image.visibility = View.GONE
+        } else {
+            view.image.visibility = View.VISIBLE
+            glide.asDrawable()
+                    .load(url)
+                    .apply(RequestOptions().centerCrop())
+                    .transition(withCrossFade())
+                    .into(view.image)
         }
     }
 
+
+    fun clear() {
+        view.swipeLayout.isRightSwipeEnabled = false
+        view.avatar.setOnClickListener(null)
+        view.screenName.setBackgroundColor(ContextCompat.getColor(view.context, R.color.textColorHint))
+        view.createdAt.setBackgroundColor(ContextCompat.getColor(view.context, R.color.textColorHint))
+        view.content.setBackgroundColor(ContextCompat.getColor(view.context, R.color.textColorHint))
+        view.screenName.text = null
+        view.createdAt.text = null
+        view.content.text = null
+        glide.clear(view.image)
+        view.image.visibility = View.VISIBLE
+        glide.clear(view.avatar)
+    }
 
     companion object {
         fun create(parent: ViewGroup, glide: RequestManager, uniqueId: String?): StatusViewHolder {

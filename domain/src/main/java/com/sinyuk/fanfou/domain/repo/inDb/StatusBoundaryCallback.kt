@@ -22,8 +22,10 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
+import android.util.Log
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.RestAPI
@@ -39,15 +41,29 @@ import retrofit2.Response
  * The boundary callback might be called multiple times for the same direction so it does its own
  * rate limiting using the PagingRequestHelper class.
  */
-class TimelineBoundaryCallback(
+class StatusBoundaryCallback(
         private val webservice: RestAPI,
-        private val handleResponse: (String, MutableList<Status>?) -> Unit,
+        private val handleResponse: (String, String?, MutableList<Status>?) -> Unit,
         private val path: String,
+        private val uniqueId: String?,
         private val appExecutors: AppExecutors,
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
 
-    val helper = PagingRequestHelper(appExecutors.networkIO())
+    val helper = PagingRequestHelper(appExecutors.networkIO()).apply {
+        addListener({
+            // merge multiple states per request type into one, or dispatch separately depending on
+            // your application logic.
+            if (BuildConfig.DEBUG) {
+                when {
+                    it.hasRunning() -> Log.d("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.RUNNING)
+                // can also obtain the error via {@link StatusReport#getErrorFor(RequestType)}
+                    it.hasError() -> Log.e("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.FAILED)
+                    else -> Log.e("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.SUCCESS)
+                }
+            }
+        })
+    }
     val networkState = helper.createStatusLiveData()
 
     /**
@@ -57,8 +73,8 @@ class TimelineBoundaryCallback(
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
             when (path) {
-                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize)
-                else -> webservice.fetch_from_path(path = path, count = networkPageSize)
+                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, id = uniqueId)
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }
@@ -68,10 +84,13 @@ class TimelineBoundaryCallback(
      */
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
+        if (BuildConfig.DEBUG) {
+            Log.d("StatusBoundaryCallback", "onItemAtEndLoaded: " + itemAtEnd.id)
+        }
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
             when (path) {
-                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, max = itemAtEnd.id)
-                else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id)
+                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }
@@ -84,7 +103,7 @@ class TimelineBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            handleResponse(path, response.body())
+            handleResponse(path, uniqueId, response.body())
             it.recordSuccess()
         }
     }

@@ -25,19 +25,16 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
 import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
-import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -59,43 +56,46 @@ class TimelineRepository @Inject constructor(
      * 加载指定消息之后的状态
      *
      * @param pageSize 一次请求的条数
-     * @param max 起始位置
+     * @param since 起始位置
      */
-    fun fetchAfter(path: String, max: String, pageSize: Int): MutableLiveData<Resource<Boolean>> {
-        val task = TimelineFetchTask(restAPI, db, path, max, pageSize)
+    fun fetchBeforeTop(path: String, since: String, uniqueId: String?, pageSize: Int): MutableLiveData<NetworkState> {
+        val task = FetchBeforeTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, since = since, pageSize = pageSize, db = db)
         appExecutors.networkIO().execute(task)
-        return task.liveData
+        return task.networkState
     }
 
     /**
      * 加载保存的所有状态,并自动请求新的旧状态
      * @param pageSize 一次请求的条数
      */
-    fun timeline(path: String, pageSize: Int): Listing<Status> {
+    fun timeline(path: String, uniqueId: String?, pageSize: Int): Listing<Status> {
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
-        val boundaryCallback = TimelineBoundaryCallback(
+        val boundaryCallback = StatusBoundaryCallback(
                 webservice = restAPI,
                 path = path,
+                uniqueId = uniqueId,
                 handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
+
+        val config = PagedList.Config.Builder()
+                .setPageSize(pageSize)
+                .setEnablePlaceholders(true)
+                .setPrefetchDistance(pageSize)
+                .setInitialLoadSizeHint(2 * pageSize)
+
+
         // create a data source factory from Room
-        val dataSourceFactory = when (path) {
-            TIMELINE_HOME -> STATUS_PUBLIC_FLAG
-            TIMELINE_FAVORITES -> STATUS_FAVORITED_FLAG
-            TIMELINE_USER -> STATUS_POST_FLAG
-            else -> TODO()
-        }.let {
-            provideDataSourceFactory(it)
-        }
-        val builder = LivePagedListBuilder(dataSourceFactory, pageSize).setBoundaryCallback(boundaryCallback)
+        val dataSourceFactory = db.statusDao().timeline(convertPathToFlag(path))
+
+        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback)
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val refreshTrigger = MutableLiveData<Unit>()
         val refreshState = Transformations.switchMap(refreshTrigger, {
-            refresh(path, pageSize)
+            refresh(path, uniqueId)
         })
 
         return Listing(
@@ -111,93 +111,23 @@ class TimelineRepository @Inject constructor(
         )
     }
 
-
-    @WorkerThread
-    private fun fetchNextItem(networkState: MutableLiveData<NetworkState>, path: String, max: String) {
-        when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = 1, max = max)
-            else -> restAPI.fetch_from_path(path = path, count = 1, max = max)
-        }
-                .enqueue(object : Callback<MutableList<Status>> {
-                    override fun onFailure(call: Call<MutableList<Status>>?, t: Throwable?) {
-                        networkState.value = NetworkState.error(t?.message)
-                    }
-
-                    override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>?) {
-                        if (response?.body()?.isNotEmpty() == true) {
-                            response.body()!!.last().let { appExecutors.diskIO().execute { saveBreakChain(path, it) } }
-                        }
-                        networkState.value = NetworkState.LOADED
-                    }
-                })
+    private fun refresh(path: String, uniqueId: String?): LiveData<NetworkState> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     @WorkerThread
-    private fun saveBreakChain(path: String, status: Status) {
-        try {
-            db.beginTransaction()
-            val flag = when (path) {
-                TIMELINE_HOME -> STATUS_PUBLIC_FLAG
-                TIMELINE_FAVORITES -> STATUS_FAVORITED_FLAG
-                TIMELINE_USER -> STATUS_POST_FLAG
-                else -> TODO()
-            }
-            if (db.statusDao().query(id = status.id, path = flag) == null) {
-                status.addPathFlag(path)
-                status.addBreakFlag(path)
-                db.statusDao().insert(status)
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            }
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
-        }
-    }
-
-
-    @WorkerThread
-    private fun insertResultIntoDb(path: String, body: MutableList<Status>?) {
+    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?) {
         if (body?.isNotEmpty() == true) {
             for (status in body) {
                 status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                db.statusDao().query(status.id)?.let {
+                    status.addPath(it.pathFlag)
+                }
                 status.addPathFlag(path)
             }
             db.statusDao().inserts(body)
         }
     }
 
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun provideDataSourceFactory(path: Int) = db.statusDao().timeline(path)
 
-
-    /**
-     * 加载最新的状态
-     *
-     * @param pageSize 一次请求的条数
-     */
-    private fun refresh(path: String, pageSize: Int): LiveData<NetworkState> {
-        val networkState = MutableLiveData<NetworkState>()
-        networkState.value = NetworkState.LOADING
-        when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize)
-            else -> restAPI.fetch_from_path(path = path, count = pageSize)
-        }.enqueue(object : Callback<MutableList<Status>?> {
-            override fun onFailure(call: Call<MutableList<Status>?>, t: Throwable) {
-                // retrofit calls this on main thread so safe to call set value
-                networkState.value = NetworkState.error(t.message)
-            }
-
-            override fun onResponse(
-                    call: Call<MutableList<Status>?>,
-                    response: Response<MutableList<Status>?>) {
-                appExecutors.diskIO().execute { db.runInTransaction { insertResultIntoDb(path, response.body()) } }
-                if (response.body()?.size != PAGE_SIZE) { // since we are in bg thread now, post the result.
-                    networkState.value = NetworkState.LOADED
-                } else {
-                    fetchNextItem(networkState, path, response.body()!!.last().id)
-                }
-            }
-        })
-        return networkState
-    }
 }

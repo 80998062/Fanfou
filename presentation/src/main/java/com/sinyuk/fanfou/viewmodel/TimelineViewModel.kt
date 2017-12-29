@@ -34,29 +34,26 @@ import javax.inject.Inject
  */
 class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
 
-    private val pathLive = MutableLiveData<String>()
+    data class PathAndPlayer(val path: String, val uniqueId: String?)
 
-    fun setPath(path: String): Boolean {
-        if (pathLive.value == path) {
+    private val paramLive = MutableLiveData<PathAndPlayer>()
+
+    fun setParams(params: PathAndPlayer): Boolean {
+        if (paramLive.value == params) {
             return false
         }
-        pathLive.value = path
+        paramLive.value = params
         return true
     }
 
-    private val repoResult = map(pathLive, { repo.timeline(path = it, pageSize = PAGE_SIZE) })
+    private val repoResult = map(paramLive, { repo.timeline(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE) })
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
     val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
-    val refreshState = Transformations.switchMap(repoResult, { it.refreshState })!!
-
-    fun refresh() {
-        repoResult.value?.refresh?.invoke()
-    }
 
     fun retry() {
         val listing = repoResult?.value
         listing?.retry?.invoke()
     }
 
-    fun fetchAfterTop(max: String) = repo.fetchAfter(path = pathLive.value!!, max = max, pageSize = PAGE_SIZE)
+    fun fetchBeforeTop(since: String) = repo.fetchBeforeTop(path = paramLive.value!!.path, uniqueId = paramLive.value!!.uniqueId, since = since, pageSize = PAGE_SIZE)
 }

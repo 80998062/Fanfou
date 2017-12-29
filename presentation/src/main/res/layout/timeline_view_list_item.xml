@@ -65,11 +65,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/gap_8"
-                android:minWidth="40dp"
+                android:minWidth="56dp"
                 android:textColor="@color/textColorPrimary"
                 android:textSize="@dimen/text_16"
                 android:textStyle="bold"
-                tools:text="Sinyuk" />
+                tools:background="@color/textColorHint" />
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
@@ -81,9 +81,10 @@
                 android:id="@+id/createdAt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="36dp"
                 android:textColor="@color/textColorHint"
                 android:textSize="@dimen/text_12"
-                tools:text="Sinyuk" />
+                tools:background="@color/textColorHint" />
         </LinearLayout>
 
 
@@ -105,14 +106,15 @@
                 android:minHeight="56dp"
                 android:textColor="@color/textStatusContent"
                 android:textSize="@dimen/text_16"
-                tools:text="343435sfdhksad\nhfhadskfhksa\ndhfksa\njdhfkjhdsaksdhfk" />
+                tools:background="@color/textColorHint" />
 
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_marginLeft="@dimen/gap_8"
-                android:src="@color/textColorPrimary" />
+                android:layout_marginStart="@dimen/gap_8"
+                android:background="@color/textColorHint"
+                android:contentDescription="TODO" />
         </LinearLayout>
 
     </RelativeLayout>

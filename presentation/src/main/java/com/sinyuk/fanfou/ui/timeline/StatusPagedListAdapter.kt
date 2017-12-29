@@ -33,7 +33,6 @@ import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.ui.BreakChainItemViewHolder
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
 
 /**
@@ -44,20 +43,14 @@ import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
 class StatusPagedListAdapter(
         private val glide: RequestManager,
         private val retryCallback: () -> Unit,
-        private val loadCallable: (max: String?) -> Unit,
-        private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
+        private val uniqueId: String?) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
     override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
         R.layout.network_state_item
     } else {
-        if (getItem(position)?.andBreak(path) == 0) {
-            R.layout.timeline_view_list_item
-
-        } else {
-            R.layout.list_break_chain_item
-        }
+        R.layout.timeline_view_list_item
     }
 
 
@@ -81,9 +74,8 @@ class StatusPagedListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, null)
+        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
-        R.layout.list_break_chain_item -> BreakChainItemViewHolder.create(parent, loadCallable)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 
@@ -98,9 +90,15 @@ class StatusPagedListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         when (getItemViewType(position)) {
-            R.layout.timeline_view_list_item -> (holder as StatusViewHolder).bind(getItem(position))
+            R.layout.timeline_view_list_item -> {
+                holder as StatusViewHolder
+                if (getItem(position) == null) {
+                    holder.clear()
+                } else {
+                    holder.bind(getItem(position)!!)
+                }
+            }
             R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bind(networkState)
-            R.layout.list_break_chain_item -> (holder as BreakChainItemViewHolder).bind(getItem(position))
         }
     }
 
