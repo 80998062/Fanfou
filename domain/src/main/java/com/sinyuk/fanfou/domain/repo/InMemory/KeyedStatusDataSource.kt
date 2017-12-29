@@ -33,10 +33,10 @@ import java.io.IOException
  * Created by sinyuk on 2017/12/28.
  *
  */
-class InMemoryStatusDataSource(private val restAPI: RestAPI,
-                               private val path: String,
-                               private val uniqueId: String?,
-                               private val appExecutors: AppExecutors) : ItemKeyedDataSource<String, Status>() {
+class KeyedStatusDataSource(private val restAPI: RestAPI,
+                            private val path: String,
+                            private val uniqueId: String?,
+                            private val appExecutors: AppExecutors) : ItemKeyedDataSource<String, Status>() {
 
     // keep a function reference for the retry event
     private var retry: (() -> Any)? = null
@@ -79,13 +79,8 @@ class InMemoryStatusDataSource(private val restAPI: RestAPI,
         // triggered by a refresh, we better execute sync
         try {
             val response = request.execute()
-            val items = if (response.body() == null) {
-                mutableListOf()
-            } else {
-                response.body()
-            }
             retry = null
-            callback.onResult(items!!)
+            callback.onResult(response.body()!!)
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
 
@@ -98,6 +93,7 @@ class InMemoryStatusDataSource(private val restAPI: RestAPI,
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
+
         val request = when (path) {
             TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, max = params.key)
             else -> restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId, max = params.key)
@@ -114,8 +110,17 @@ class InMemoryStatusDataSource(private val restAPI: RestAPI,
                     response.body()
                 }
                 retry = null
-                callback.onResult(items!!)
-                networkState.postValue(NetworkState.LOADED)
+                when (items?.size) {
+                    0 -> networkState.postValue(NetworkState.TERMINAL)
+                    params.requestedLoadSize -> {
+                        callback.onResult(items)
+                        networkState.postValue(NetworkState.LOADED)
+                    }
+                    else -> {
+                        items?.let { callback.onResult(it) }
+                        networkState.postValue(NetworkState.TERMINAL)
+                    }
+                }
             } else {
                 retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))

@@ -42,9 +42,12 @@ import com.sinyuk.fanfou.domain.Status
 class NetworkStateItemViewHolder(view: View,
                                  private val retryCallback: () -> Unit)
     : RecyclerView.ViewHolder(view) {
-    private val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
-    private val retry = view.findViewById<Button>(R.id.retry_button)
-    private val errorMsg = view.findViewById<TextView>(R.id.error_msg)
+    private val viewAnimator = view.findViewById<BetterViewAnimator>(R.id.viewAnimator)
+
+    private val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+    private val retry = view.findViewById<Button>(R.id.retryButton)
+    private val errorMsg = view.findViewById<TextView>(R.id.errorMsg)
+    private val finishedMsg = view.findViewById<TextView>(R.id.finishedMsg)
 
     init {
         retry.setOnClickListener {
@@ -53,9 +56,14 @@ class NetworkStateItemViewHolder(view: View,
     }
 
     fun bind(networkState: NetworkState?) {
-        progressBar.visibility = toVisibility(networkState?.status == Status.RUNNING)
-        retry.visibility = toVisibility(networkState?.status == Status.FAILED)
-        errorMsg.visibility = toVisibility(networkState?.msg != null)
+        when (networkState?.status) {
+            Status.TERMINAL -> viewAnimator.displayedChildId = R.id.finishedLayout
+            Status.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
+            Status.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
+            Status.SUCCESS -> TODO()
+        }
+
+        progressBar.isIndeterminate = networkState?.status == Status.RUNNING
         errorMsg.text = networkState?.msg
     }
 
@@ -64,14 +72,6 @@ class NetworkStateItemViewHolder(view: View,
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.network_state_item, parent, false)
             return NetworkStateItemViewHolder(view, retryCallback)
-        }
-
-        fun toVisibility(constraint: Boolean): Int {
-            return if (constraint) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
         }
     }
 }

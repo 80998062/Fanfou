@@ -51,24 +51,11 @@ class TimelineRepository @Inject constructor(
         private val appExecutors: AppExecutors,
         @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
-
-    /**
-     * 加载指定消息之后的状态
-     *
-     * @param pageSize 一次请求的条数
-     * @param since 起始位置
-     */
-    fun fetchBeforeTop(path: String, since: String, uniqueId: String?, pageSize: Int): MutableLiveData<NetworkState> {
-        val task = FetchBeforeTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, since = since, pageSize = pageSize, db = db)
-        appExecutors.networkIO().execute(task)
-        return task.networkState
-    }
-
     /**
      * 加载保存的所有状态,并自动请求新的旧状态
      * @param pageSize 一次请求的条数
      */
-    fun timeline(path: String, uniqueId: String?, pageSize: Int): Listing<Status> {
+    fun statuses(path: String, uniqueId: String? = null, pageSize: Int): Listing<Status> {
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
         val boundaryCallback = StatusBoundaryCallback(
@@ -95,7 +82,7 @@ class TimelineRepository @Inject constructor(
         // dispatched data in refreshTrigger
         val refreshTrigger = MutableLiveData<Unit>()
         val refreshState = Transformations.switchMap(refreshTrigger, {
-            refresh(path, uniqueId)
+            refresh(path, uniqueId, pageSize)
         })
 
         return Listing(
@@ -111,8 +98,10 @@ class TimelineRepository @Inject constructor(
         )
     }
 
-    private fun refresh(path: String, uniqueId: String?): LiveData<NetworkState> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun refresh(path: String, uniqueId: String?, pageSize: Int): LiveData<NetworkState> {
+        val task = FetchBeforeTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = pageSize, db = db)
+        appExecutors.networkIO().execute(task)
+        return task.networkState
     }
 
     @WorkerThread

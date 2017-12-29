@@ -22,11 +22,13 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.WorkerThread
-import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
+import com.sinyuk.fanfou.domain.convertPathToFlag
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import java.io.IOException
 
@@ -39,31 +41,22 @@ class FetchBeforeTopTask(private val restAPI: RestAPI,
                          private val db: LocalDatabase,
                          private val path: String,
                          private val uniqueId: String?,
-                         private var since: String,
                          private val pageSize: Int) : Runnable {
 
     val networkState = MutableLiveData<NetworkState>()
-    var pathFlag: Int = 0
 
     init {
         networkState.postValue(NetworkState.LOADING)
-        pathFlag = when (path) {
-            TIMELINE_HOME -> STATUS_PUBLIC_FLAG
-            TIMELINE_FAVORITES -> STATUS_FAVORITED_FLAG
-            TIMELINE_USER -> STATUS_POST_FLAG
-            else -> TODO()
-        }
     }
 
     override fun run() {
         val first = db.statusDao().first(convertPathToFlag(path))?.id
-        when {
-            first == null -> networkState.postValue(NetworkState.LOADED)
-            since != first -> networkState.postValue(NetworkState.error("invalid"))
+        when (first) {
+            null -> networkState.postValue(NetworkState.LOADED)
             else -> try {
                 val response = when (path) {
-                    TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize, since = since, id = uniqueId)
-                    else -> restAPI.fetch_from_path(path = path, count = pageSize, since = since, id = uniqueId)
+                    TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize, since = first, id = uniqueId)
+                    else -> restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId)
                 }.execute()
                 val apiResponse = ApiResponse(response)
                 if (apiResponse.isSuccessful()) {

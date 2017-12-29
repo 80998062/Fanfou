@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -19,27 +18,64 @@
   ~  */
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewAnimator"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
-    <TextView
-        android:id="@+id/error_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyle"
+    android:inAnimation="@android:anim/fade_in"
+    android:outAnimation="@android:anim/fade_out">
+
+    <LinearLayout
+        android:id="@+id/errorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
-    <Button
-        android:id="@+id/retry_button"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="retry"/>
-</LinearLayout>
+        android:orientation="vertical"
+        android:padding="@dimen/gap_8">
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:text="xxxx" />
+
+        <Button
+            android:id="@+id/retryButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/gap_8"
+            android:text="retry" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:id="@+id/finishedLayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp">
+
+        <TextView
+            android:id="@+id/finishedMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="已经没有了"
+            android:textColor="@color/colorAccent" />
+    </FrameLayout>
+
+</com.sinyuk.fanfou.ui.BetterViewAnimator>

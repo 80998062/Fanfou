@@ -23,8 +23,10 @@ package com.sinyuk.fanfou.viewmodel
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.Transformations.map
+import android.arch.lifecycle.Transformations.switchMap
 import android.arch.lifecycle.ViewModel
 import com.sinyuk.fanfou.domain.PAGE_SIZE
+import com.sinyuk.fanfou.domain.repo.InMemory.InMemoryTimelineRepository
 import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
 import javax.inject.Inject
 
@@ -32,7 +34,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/12/6.
  *
  */
-class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
+class TimelineViewModel @Inject constructor(private val disk: TimelineRepository, private val memory: InMemoryTimelineRepository) : ViewModel() {
 
     data class PathAndPlayer(val path: String, val uniqueId: String?)
 
@@ -46,14 +48,24 @@ class TimelineViewModel @Inject constructor(private val repo: TimelineRepository
         return true
     }
 
-    private val repoResult = map(paramLive, { repo.timeline(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE) })
+    private val repoResult = map(paramLive, {
+        if (it.uniqueId == null) {
+            disk.statuses(path = it.path, pageSize = PAGE_SIZE)
+        } else {
+            memory.statuses(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE)
+        }
+    })
+
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
     val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
+    val refreshState = switchMap(repoResult, { it.refreshState })!!
 
     fun retry() {
         val listing = repoResult?.value
         listing?.retry?.invoke()
     }
 
-    fun fetchBeforeTop(since: String) = repo.fetchBeforeTop(path = paramLive.value!!.path, uniqueId = paramLive.value!!.uniqueId, since = since, pageSize = PAGE_SIZE)
+    fun refresh() {
+        repoResult?.value?.refresh?.invoke()
+    }
 }

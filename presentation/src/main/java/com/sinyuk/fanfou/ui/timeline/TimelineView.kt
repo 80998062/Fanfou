@@ -30,6 +30,7 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
@@ -81,34 +82,27 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
     override fun lazyDo() {
         timelineViewModel.setParams(TimelineViewModel.PathAndPlayer(path = timelinePath, uniqueId = uniqueId))
-        setupSwipeRefresh()
         setupRecyclerView()
+        setupSwipeRefresh()
     }
 
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { refresh() }
+        timelineViewModel.refreshState.observe(this@TimelineView, Observer {
+            setRefresh(it?.status == com.sinyuk.fanfou.domain.Status.RUNNING)
+            if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
+                it.msg?.let { toast.toastShort(it) }
+            }
+        })
+
+        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.refresh() }
     }
+
 
     private fun setRefresh(constraint: Boolean) {
         swipeRefreshLayout.isRefreshing = constraint
     }
 
-
-    private fun refresh() {
-        adapter.currentList?.first()?.id?.let {
-            timelineViewModel.fetchBeforeTop(it).observe(this@TimelineView, Observer {
-                when (it?.status) {
-                    com.sinyuk.fanfou.domain.Status.FAILED -> {
-                        setRefresh(false)
-                        it.msg?.let { toast.toastShort(it) }
-                    }
-                    com.sinyuk.fanfou.domain.Status.RUNNING -> setRefresh(true)
-                    com.sinyuk.fanfou.domain.Status.SUCCESS -> setRefresh(false)
-                }
-            })
-        }
-    }
 
     private lateinit var adapter: StatusPagedListAdapter
 
@@ -122,16 +116,20 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
         recyclerView.setHasFixedSize(true)
 
-        adapter = StatusPagedListAdapter(Glide.with(this@TimelineView), { timelineViewModel.retry() }, uniqueId)
+        adapter = StatusPagedListAdapter(Glide.with(this), { timelineViewModel.retry() }, uniqueId)
 
-        timelineViewModel.statuses.observe(this, Observer<PagedList<Status>> {
-            adapter.setList(it)
-        })
-
-        timelineViewModel.networkState.observe(this, Observer {
-            adapter.setNetworkState(it)
-        })
+        timelineViewModel.statuses.observe(this, pagedListConsumer)
+        timelineViewModel.networkState.observe(this, networkConsumer)
 
         recyclerView.adapter = adapter
     }
+
+    private val pagedListConsumer = Observer<PagedList<Status>> {
+        adapter.setList(it)
+    }
+
+    private val networkConsumer = Observer<NetworkState> {
+        adapter.setNetworkState(it)
+    }
+
 }

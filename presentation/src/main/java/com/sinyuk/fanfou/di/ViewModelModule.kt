@@ -22,7 +22,10 @@ package com.sinyuk.fanfou.di
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import com.sinyuk.fanfou.viewmodel.*
+import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
+import com.sinyuk.fanfou.viewmodel.PlayerViewModel
+import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -51,11 +54,6 @@ abstract class ViewModelModule {
     @ViewModelKey(PlayerViewModel::class)
     abstract fun playerViewModel(playerViewModel: PlayerViewModel): ViewModel
 
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(StatusesViewModel::class)
-    abstract fun statusesViewModel(statusesViewModel: StatusesViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: FanfouViewModelFactory): ViewModelProvider.Factory
