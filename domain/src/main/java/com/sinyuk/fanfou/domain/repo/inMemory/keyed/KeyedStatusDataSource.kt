@@ -18,14 +18,13 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.InMemory
+package com.sinyuk.fanfou.domain.repo.inMemory.keyed
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.ItemKeyedDataSource
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.RestAPI
 import java.io.IOException
 
@@ -65,10 +64,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
     override fun getKey(item: Status) = item.id
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<Status>) {
-        val request = when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize)
-            else -> restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId)
-        }
+        val request =  restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId)
 
         // update network states.
         // we also provide an initial load state to the listeners so that the UI can know when the
@@ -94,10 +90,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
 
-        val request = when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, max = params.key)
-            else -> restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId, max = params.key)
-        }
+        val request = restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId, max = params.key)
         // set network value to loading.
         networkState.postValue(NetworkState.LOADING)
 

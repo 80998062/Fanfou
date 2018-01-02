@@ -25,7 +25,6 @@ import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.convertPathToFlag
@@ -54,10 +53,7 @@ class FetchBeforeTopTask(private val restAPI: RestAPI,
         when (first) {
             null -> networkState.postValue(NetworkState.LOADED)
             else -> try {
-                val response = when (path) {
-                    TIMELINE_FAVORITES -> restAPI.fetch_favorites(count = pageSize, since = first, id = uniqueId)
-                    else -> restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId)
-                }.execute()
+                val response = restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId).execute()
                 val apiResponse = ApiResponse(response)
                 if (apiResponse.isSuccessful()) {
                     val data = apiResponse.body

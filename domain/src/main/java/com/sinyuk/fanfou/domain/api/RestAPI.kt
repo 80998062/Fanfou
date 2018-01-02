@@ -54,7 +54,6 @@ interface RestAPI {
     @GET("favorites/id.json?format=html")
     fun fetch_favorites(@Query("id") id: String? = null,
                         @Query("count") count: Int,
-                        @Query("since_id") since: String? = null,
-                        @Query("max_id") max: String? = null): Call<MutableList<Status>>
+                        @Query("page") page: Int): Call<MutableList<Status>>
 
 }

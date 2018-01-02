@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.InMemory
+package com.sinyuk.fanfou.domain.repo.inMemory.tiled
 
 import android.app.Application
 import android.arch.lifecycle.Transformations
@@ -36,30 +36,26 @@ import javax.inject.Singleton
 
 /**
  * Created by sinyuk on 2017/12/29.
- * </p>
  *
- * Repository implementation that returns a Listing that loads data directly from the network
- * and uses the Item's name as the key to discover prev/next pages.
  */
 @Singleton
-class InMemoryTimelineRepository @Inject constructor(
+class TiledTimelineRepository @Inject constructor(
         val application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
     @MainThread
     fun statuses(path: String, uniqueId: String?, pageSize: Int): Listing<Status> {
-        val sourceFactory = StatusDataSourceFactory(restAPI = cacheAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
+        val sourceFactory = TiledStatusDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
+                .setPrefetchDistance(pageSize)
                 .setInitialLoadSizeHint(pageSize)
                 .setPageSize(pageSize)
                 .build()
 
         val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig)
-                // provide custom executor for network requests, otherwise it will default to
-                // Arch Components' IO pool which is also used for disk access
                 .setBackgroundThreadExecutor(appExecutors.networkIO())
                 .build()
 

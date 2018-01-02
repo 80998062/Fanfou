@@ -27,7 +27,6 @@ import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
 import retrofit2.Call
@@ -72,10 +71,7 @@ class StatusBoundaryCallback(
     @MainThread
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            when (path) {
-                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, id = uniqueId)
-                else -> webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
-            }.enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId).enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -84,14 +80,8 @@ class StatusBoundaryCallback(
      */
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
-        if (BuildConfig.DEBUG) {
-            Log.d("StatusBoundaryCallback", "onItemAtEndLoaded: " + itemAtEnd.id)
-        }
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-            when (path) {
-                TIMELINE_FAVORITES -> webservice.fetch_favorites(count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
-                else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
-            }.enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId).enqueue(createWebserviceCallback(it))
         }
     }
 
