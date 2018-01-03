@@ -35,6 +35,7 @@ import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.player_view.*
 import kotlinx.android.synthetic.main.player_view_header.*
 import javax.inject.Inject
 
@@ -70,6 +71,8 @@ class PlayerView : AbstractFragment(), Injectable {
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
         }
 
+        closeButton.setOnClickListener { activity?.onBackPressed() }
+
         addFragmentInFragment(NavigationView.newInstance(uniqueId), R.id.fragment_container, false)
     }
 
@@ -98,6 +101,8 @@ class PlayerView : AbstractFragment(), Injectable {
             link.text = it.url
             followerCount.text = it.followersCount.toString()
             followingCount.text = it.friendsCount.toString()
+            postCount.text = (it.statusesCount.toString() + "条饭否")
+            actionBarTitle.text = it.screenName
 
             if (it.protectedX == true) {
 

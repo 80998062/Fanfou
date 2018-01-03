@@ -23,7 +23,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-
     <ImageView
         android:id="@+id/profileBackground"
         android:layout_width="match_parent"

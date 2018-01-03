@@ -22,6 +22,9 @@ package com.sinyuk.fanfou.ui.search
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.ui.timeline.TimelineView
+import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import javax.inject.Inject
@@ -38,8 +41,12 @@ class SearchView : AbstractLazyFragment(), Injectable {
     @Inject lateinit var toast: ToastUtils
 
 
-    override fun lazyDo() {
+    private lateinit var publicTimeline: TimelineView
 
+    override fun lazyDo() {
+        publicTimeline = TimelineView.newInstance(TIMELINE_USER)
+        addFragmentInFragment(publicTimeline, R.id.fragment_container, false)
+        publicTimeline.userVisibleHint = true
     }
 
 

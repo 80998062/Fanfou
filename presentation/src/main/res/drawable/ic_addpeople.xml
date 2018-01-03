@@ -1,0 +1,36 @@
+<!--
+  ~ /*
+  ~  * Apache License
+  ~  *
+  ~  * Copyright [2017] Sinyuk
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="#fff"
+        android:pathData="M352.4,440.8v-104.7C352.4,274.2 400.5,224 459.7,224s107.3,50.2 107.3,112.1v104.7c0,61.8 -48.1,112.1 -107.3,112.1 -59.2,0 -107.3,-50.2 -107.3,-112.1m176.9,374.3l-307.8,-0.8v-103.5c0,-4.2 4.6,-11.1 8.6,-12.8 1.3,-0.6 134.9,-61.5 237.1,-61.5h31.6c17,0 30.7,-14.3 30.7,-32 0,-1.2 -0.5,-2.2 -0.7,-3.4 58.6,-27.6 99.5,-89.1 99.5,-160.4v-104.7C628.4,239 552.7,160 459.7,160c-93,0 -168.7,79 -168.7,176.1v104.7c0,60.2 29.1,113.3 73.3,145.1a912.4,912.4 0,0 0,-158.1 53.3C179.8,650.2 160,681.1 160,710.9v113.8c0,3.5 0.5,7 1.6,10.3 8.6,26.4 31.9,44.2 58,44.2h309.6c17,0 30.7,-14.3 30.7,-32s-13.8,-32 -30.7,-32" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M743.7,832c-67.8,0 -122.9,-57.4 -122.9,-128s55.1,-128 122.9,-128 122.9,57.4 122.9,128 -55.1,128 -122.9,128m0,-320c-101.7,0 -184.3,86.1 -184.3,192s82.7,192 184.3,192c101.7,0 184.3,-86.1 184.3,-192s-82.7,-192 -184.3,-192" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M804.5,680.4h-39.3V640c0,-12.4 -9.6,-22.4 -21.5,-22.4a22,22 0,0 0,-21.5 22.4v40.4H681.6a22,22 0,0 0,-21.5 22.4c0,12.4 9.6,22.4 21.5,22.4h40.6V768c0,12.4 9.6,22.4 21.5,22.4a22,22 0,0 0,21.5 -22.4v-42.8h39.3a22,22 0,0 0,21.5 -22.4c0,-12.4 -9.6,-22.4 -21.5,-22.4" />
+</vector>

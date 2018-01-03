@@ -18,73 +18,132 @@
   ~  */
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
 
-
-    <RelativeLayout
-        android:id="@+id/fragment_container"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomNav">
-
-        <android.support.v4.widget.Space
-            android:id="@+id/placeholder"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/root_action_bar_height"
-            android:layout_marginBottom="@dimen/status_bar_height" />
+        android:layout_above="@+id/bottomNav">
 
         <com.sinyuk.fanfou.ui.FreezeViewPager
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/placeholder" />
+            android:overScrollMode="never"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    </RelativeLayout>
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp">
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentInsetStart="0dp"
+                app:layout_scrollFlags="enterAlways|scroll|snap">
+
+                <LinearLayout
+                    android:id="@+id/actionBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/status_bar_height">
+
+
+                    <ImageView
+                        android:id="@+id/avatar"
+                        android:layout_width="@dimen/root_action_bar_height"
+                        android:layout_height="@dimen/root_action_bar_height"
+                        android:layout_gravity="center_vertical"
+                        android:paddingBottom="@dimen/gap_10"
+                        android:paddingLeft="@dimen/gap_16"
+                        android:paddingRight="@dimen/gap_16"
+                        android:paddingTop="@dimen/gap_10"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/ic_launcher_round" />
+
+                    <com.sinyuk.fanfou.ui.BetterViewAnimator
+                        android:id="@+id/viewAnimator"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inAnimation="@android:anim/slide_in_left"
+                        android:outAnimation="@android:anim/slide_out_right">
+
+                        <TextSwitcher
+                            android:id="@+id/textSwitcher"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:inAnimation="@android:anim/fade_in"
+                            android:outAnimation="@android:anim/fade_out">
+
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="@color/textColorPrimary"
+                                android:textSize="@dimen/text_14"
+                                android:textStyle="bold"
+                                tools:text="@string/label_home" />
+                        </TextSwitcher>
+
+
+                        <FrameLayout
+                            android:id="@+id/searchLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <EditText
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_margin="@dimen/gap_8"
+                                android:background="@drawable/search_view_bg"
+                                android:gravity="center"
+                                android:hint="搜索"
+                                android:textColorHint="@color/textColorHint"
+                                android:textSize="@dimen/text_14" />
+                        </FrameLayout>
+
+                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+
+                    <ImageView
+                        android:id="@+id/actionButton"
+                        android:layout_width="@dimen/root_action_bar_height"
+                        android:layout_height="@dimen/root_action_bar_height"
+                        android:layout_gravity="center_vertical"
+                        android:paddingBottom="@dimen/gap_10"
+                        android:paddingLeft="@dimen/gap_16"
+                        android:paddingRight="@dimen/gap_16"
+                        android:paddingTop="@dimen/gap_10"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/ic_launcher_round" />
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
     <FrameLayout
-        android:id="@+id/actionBar"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/status_bar_height">
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="@dimen/root_action_bar_height" />
-
-        <ImageView
-            android:id="@+id/avatar"
-            android:layout_width="@dimen/root_action_bar_height"
-            android:layout_height="@dimen/root_action_bar_height"
-            android:layout_gravity="center_vertical"
-            android:paddingBottom="@dimen/gap_10"
-            android:paddingLeft="@dimen/gap_16"
-            android:paddingRight="@dimen/gap_16"
-            android:paddingTop="@dimen/gap_10"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher_round" />
-
-
-        <ImageView
-            android:layout_width="@dimen/root_action_bar_height"
-            android:layout_height="@dimen/root_action_bar_height"
-            android:layout_gravity="center_vertical|end"
-            android:paddingBottom="@dimen/gap_10"
-            android:paddingLeft="@dimen/gap_16"
-            android:paddingRight="@dimen/gap_16"
-            android:paddingTop="@dimen/gap_10"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher_round" />
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomNav" />
 
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="@dimen/root_action_bar_height"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimaryDark"
+        android:elevation="1dp"
         android:orientation="horizontal">
 
         <TextView

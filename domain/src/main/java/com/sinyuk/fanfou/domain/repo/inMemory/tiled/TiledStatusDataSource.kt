@@ -21,8 +21,10 @@
 package com.sinyuk.fanfou.domain.repo.inMemory.tiled
 
 import android.arch.lifecycle.MutableLiveData
-import android.arch.paging.PositionalDataSource
+import android.arch.paging.PageKeyedDataSource
+import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
@@ -39,56 +41,52 @@ import java.io.IOException
 class TiledStatusDataSource(private val restAPI: RestAPI,
                             private val path: String,
                             private val uniqueId: String?,
-                            private val appExecutors: AppExecutors) : PositionalDataSource<Status>() {
+                            private val appExecutors: AppExecutors) : PageKeyedDataSource<Int, Status>() {
 
-    // keep a function reference for the retry event
-    private var retry: (() -> Any)? = null
-
-
-    /**
-     * There is no sync on the state because paging will always call loadInitial first then wait
-     * for it to return some success value before calling loadAfter and we don't support loadBefore
-     * in this example.
-     * <p>
-     * See BoundaryCallback example for a more complete example on syncing multiple network states.
-     */
-    val networkState = MutableLiveData<NetworkState>()
-    val initialLoad = MutableLiveData<NetworkState>()
-
-    fun retryAllFailed() {
-        val prevRetry = retry
-        retry = null
-        prevRetry?.let {
-            appExecutors.networkIO().execute {
-                it.invoke()
-            }
+    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {
+        if (BuildConfig.DEBUG) {
+            Log.d("TiledStatusDataSource", "loadAfter: " + params.key)
         }
-    }
-
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Status>) {
         networkState.postValue(NetworkState.LOADING)
-
         try {
             val response = when (path) {
-                TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.loadSize, page = ((params.startPosition / params.loadSize) + 1))
+                TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
                 else -> TODO()
             }.execute()
-            if (response.body()?.isNotEmpty() == true) {
+
+            if (response.isSuccessful) {
+                val items = if (response.body() == null) {
+                    mutableListOf()
+                } else {
+                    response.body()!!
+                }
                 retry = null
-                networkState.postValue(NetworkState.LOADED)
-                initialLoad.postValue(NetworkState.LOADED)
-                callback.onResult(response.body()!!)
+                val prev = if (params.key > 1) {
+                    params.key - 1
+                } else {
+                    null
+                }
+                callback.onResult(items, prev)
+                when (items.size) {
+                    params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
+                    else -> networkState.postValue(NetworkState.TERMINAL)
+                }
             } else {
-                retry = { loadRange(params, callback) }
+                retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))
             }
+
+
         } catch (e: IOException) {
-            retry = { loadRange(params, callback) }
+            retry = { loadAfter(params, callback) }
             networkState.postValue(NetworkState.error(e.message ?: "unknown error"))
         }
     }
 
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Status>) {
+    override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Status>) {
+        if (BuildConfig.DEBUG) {
+            Log.d("TiledStatusDataSource", "loadInitial: " + params.requestedLoadSize)
+        }
         // update network states.
         // we also provide an initial load state to the listeners so that the UI can know when the
         // very first list is loaded.
@@ -96,23 +94,32 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         initialLoad.postValue(NetworkState.LOADING)
 
         when (path) {
-            TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.pageSize, page = 1)
+            TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = 1)
             else -> TODO()
         }.enqueue(object : Callback<MutableList<Status>> {
             override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>) {
                 if (response.isSuccessful) {
-                    if (response.body()?.isNotEmpty() == true) {
-                        // clear retry since last request succeeded
-                        retry = null
-                        callback.onResult(response.body()!!, 0, params.pageSize)
-                        networkState.postValue(NetworkState.LOADED)
-                        initialLoad.postValue(NetworkState.LOADED)
 
+                    val items = if (response.body() == null) {
+                        mutableListOf()
                     } else {
-                        retry = null
-                        networkState.postValue(NetworkState.LOADED)
-                        initialLoad.postValue(NetworkState.LOADED)
+                        response.body()!!
                     }
+                    retry = null
+                    var next: Int? = null
+                    when (items.size) {
+                        params.requestedLoadSize -> {
+                            next = 2
+                            networkState.postValue(NetworkState.LOADED)
+                            initialLoad.postValue(NetworkState.LOADED)
+                        }
+                        else -> {
+                            networkState.postValue(NetworkState.TERMINAL)
+                            initialLoad.postValue(NetworkState.TERMINAL)
+                        }
+                    }
+                    callback.onResult(items, null, next)
+
                 } else {
                     retry = {
                         loadInitial(params, callback)
@@ -136,6 +143,70 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
             }
 
         })
-
     }
+
+    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {
+        if (BuildConfig.DEBUG) {
+            Log.d("TiledStatusDataSource", "loadAfter: " + params.key)
+        }
+        networkState.postValue(NetworkState.LOADING)
+        try {
+            val response = when (path) {
+                TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
+                else -> TODO()
+            }.execute()
+
+            if (response.isSuccessful) {
+                val items = if (response.body() == null) {
+                    mutableListOf()
+                } else {
+                    response.body()!!
+                }
+                retry = null
+                var next: Int? = null
+                when (items.size) {
+                    params.requestedLoadSize -> {
+                        networkState.postValue(NetworkState.LOADED)
+                        next = params.key + 1
+                    }
+                    else -> networkState.postValue(NetworkState.TERMINAL)
+                }
+                callback.onResult(items, next)
+            } else {
+                retry = { loadAfter(params, callback) }
+                networkState.postValue(NetworkState.error("error code: ${response.code()}"))
+            }
+
+
+        } catch (e: IOException) {
+            retry = { loadAfter(params, callback) }
+            networkState.postValue(NetworkState.error(e.message ?: "unknown error"))
+        }
+    }
+
+
+    // keep a function reference for the retry event
+    private var retry: (() -> Any)? = null
+
+    /**
+     * There is no sync on the state because paging will always call loadInitial first then wait
+     * for it to return some success value before calling loadAfter and we don't support loadBefore
+     * in this example.
+     * <p>
+     * See BoundaryCallback example for a more complete example on syncing multiple network states.
+     */
+    val networkState = MutableLiveData<NetworkState>()
+    val initialLoad = MutableLiveData<NetworkState>()
+
+    fun retryAllFailed() {
+        val prevRetry = retry
+        retry = null
+        prevRetry?.let {
+            appExecutors.networkIO().execute {
+                it.invoke()
+            }
+        }
+    }
+
+
 }

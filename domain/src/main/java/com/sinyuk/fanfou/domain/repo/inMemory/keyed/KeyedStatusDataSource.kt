@@ -48,7 +48,6 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
      * See BoundaryCallback example for a more complete example on syncing multiple network states.
      */
     val networkState = MutableLiveData<NetworkState>()
-
     val initialLoad = MutableLiveData<NetworkState>()
 
     fun retryAllFailed() {
@@ -61,24 +60,39 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
         }
     }
 
+
     override fun getKey(item: Status) = item.id
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<Status>) {
-        val request =  restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId)
-
-        // update network states.
-        // we also provide an initial load state to the listeners so that the UI can know when the
-        // very first list is loaded.
         networkState.postValue(NetworkState.LOADING)
         initialLoad.postValue(NetworkState.LOADING)
 
-        // triggered by a refresh, we better execute sync
         try {
-            val response = request.execute()
-            retry = null
-            callback.onResult(response.body()!!)
-            networkState.postValue(NetworkState.LOADED)
-            initialLoad.postValue(NetworkState.LOADED)
+            val response = restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId).execute()
+            if (response.isSuccessful) {
+                val items = if (response.body() == null) {
+                    mutableListOf()
+                } else {
+                    response.body()!!
+                }
+                retry = null
+                callback.onResult(items)
+                when (items.size) {
+                    params.requestedLoadSize -> {
+                        networkState.postValue(NetworkState.LOADED)
+                        initialLoad.postValue(NetworkState.LOADED)
+                    }
+                    else -> {
+                        networkState.postValue(NetworkState.TERMINAL)
+                        initialLoad.postValue(NetworkState.TERMINAL)
+                    }
+                }
+            } else {
+                retry = { loadInitial(params, callback) }
+                val error = NetworkState.error("error code: ${response.code()}")
+                networkState.postValue(error)
+                initialLoad.postValue(error)
+            }
 
         } catch (e: IOException) {
             retry = { loadInitial(params, callback) }
@@ -89,30 +103,23 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
-
-        val request = restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId, max = params.key)
         // set network value to loading.
         networkState.postValue(NetworkState.LOADING)
 
         try {
-            val response = request.execute()
+            val response = restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId, max = params.key).execute()
             if (response.isSuccessful) {
                 val items = if (response.body() == null) {
                     mutableListOf()
                 } else {
-                    response.body()
+                    response.body()!!
                 }
                 retry = null
-                when (items?.size) {
-                    0 -> networkState.postValue(NetworkState.TERMINAL)
-                    params.requestedLoadSize -> {
-                        callback.onResult(items)
-                        networkState.postValue(NetworkState.LOADED)
-                    }
-                    else -> {
-                        items?.let { callback.onResult(it) }
-                        networkState.postValue(NetworkState.TERMINAL)
-                    }
+                callback.onResult(items)
+                when (items.size) {
+                    params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
+                    else -> networkState.postValue(NetworkState.TERMINAL)
+
                 }
             } else {
                 retry = { loadAfter(params, callback) }

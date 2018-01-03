@@ -51,6 +51,7 @@ fun AppCompatActivity.addFragmentInActivity(fragment: Fragment, resId: Int, addT
     }
 }
 
+
 fun <T : ViewModel> AppCompatActivity.obtainViewModel(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
 
 /**

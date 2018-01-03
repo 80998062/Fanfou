@@ -51,5 +51,6 @@
 
 
     <color name="dragScrim">#c1c1c1</color>
+    <color name="white">#fff</color>
 
 </resources>

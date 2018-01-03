@@ -20,18 +20,24 @@
 
 package com.sinyuk.fanfou.ui
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestOptions
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
-import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -48,7 +54,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     companion object {
 
         @JvmStatic
-        fun start(context: Context, flags: Int?) {
+        fun start(context: Context, flags: Int? = null) {
             val intent = Intent(context, MainActivity::class.java)
             flags?.let { intent.flags = flags }
             context.startActivity(intent)
@@ -70,11 +76,35 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        renderUI()
 
+        accountViewModel.user.observe(this, Observer {
+            when (it?.states) {
+                States.SUCCESS -> renderAccount(it.data)
+                else -> {
+                    renderAccount(null)
+                }
+            }
+        })
+    }
+
+    private fun renderUI() {
         setupActionBar()
         setupViewPager()
-
         supportFragmentManager.addOnBackStackChangedListener {
+        }
+    }
+
+    private fun renderAccount(data: Player?) {
+        if (data == null) {
+
+        } else {
+            Glide.with(avatar)
+                    .asDrawable()
+                    .load(data.profileImageUrl)
+                    .apply(RequestOptions().circleCrop())
+                    .transition(withCrossFade())
+                    .into(avatar)
         }
     }
 
@@ -87,13 +117,13 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun setupViewPager() {
         val homePage = TimelineView.newInstance(TIMELINE_HOME)
-        val searchPage = TimelineView.newInstance(TIMELINE_USER)
+        val searchPage = SearchView()
         val signView = SignInView()
         val messagePage = MessageView()
 
         val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, searchPage, signView, messagePage))
 
-        viewPager.offscreenPageLimit = 4
+        viewPager.offscreenPageLimit = 3
         viewPager.adapter = adapter
 
         homeTab.setOnClickListener(this)
@@ -101,21 +131,37 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         notificationTab.setOnClickListener(this)
         messageTab.setOnClickListener(this)
 
+        onPageChangedAndIdle(0)
     }
+
+    private fun onPageChangedAndIdle(current: Int) {
+        if (current == 1) {
+            viewAnimator.displayedChildId = R.id.searchLayout
+            textSwitcher.setCurrentText(null)
+        } else {
+            viewAnimator.displayedChildId = R.id.textSwitcher
+            textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[current])
+        }
+    }
+
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.homeTab -> {
                 viewPager.setCurrentItem(0, false)
+                onPageChangedAndIdle(0)
             }
             R.id.publicTab -> {
                 viewPager.setCurrentItem(1, false)
+                onPageChangedAndIdle(1)
             }
             R.id.notificationTab -> {
                 viewPager.setCurrentItem(2, false)
+                onPageChangedAndIdle(2)
             }
             R.id.messageTab -> {
                 viewPager.setCurrentItem(3, false)
+                onPageChangedAndIdle(3)
             }
         }
     }

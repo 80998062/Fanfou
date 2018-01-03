@@ -22,9 +22,9 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractLazyFragment
@@ -71,17 +71,17 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     private var uniqueId: String? = null
 
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         arguments?.let {
             timelinePath = it.getString("path")
             uniqueId = it.getString("uniqueId")
+        }.run {
+            timelineViewModel.setParams(TimelineViewModel.PathAndPlayer(path = timelinePath, uniqueId = uniqueId))
         }
-
     }
 
     override fun lazyDo() {
-        timelineViewModel.setParams(TimelineViewModel.PathAndPlayer(path = timelinePath, uniqueId = uniqueId))
         setupRecyclerView()
         setupSwipeRefresh()
     }

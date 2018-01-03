@@ -28,6 +28,7 @@ import com.sinyuk.fanfou.domain.api.RestAPI
 
 /**
  * Created by sinyuk on 2017/12/29.
+ * 
  */
 class TiledStatusDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,

@@ -53,7 +53,7 @@ class StatusViewHolder(private val view: View, private val glide: RequestManager
 
         view.avatar.setOnClickListener {
             @Suppress("CAST_NEVER_SUCCEEDS")
-            (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.fragment_container, true)
+            (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.rootView, true)
         }
 
         view.screenName.background = null

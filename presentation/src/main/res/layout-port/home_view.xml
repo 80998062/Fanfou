@@ -18,13 +18,20 @@
   ~  */
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.Space
+        android:id="@+id/actionBar"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/root_action_bar_height"
+        android:layout_marginTop="@dimen/status_bar_height" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_below="@id/actionBar" />
+</RelativeLayout>

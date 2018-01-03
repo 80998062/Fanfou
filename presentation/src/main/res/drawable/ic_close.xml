@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -18,18 +18,13 @@
   ~  */
   -->
 
-<resources>
-    <string-array name="tab_titles_player">
-        <item>状态</item>
-        <item>照片</item>
-        <item>喜欢</item>
-    </string-array>
-
-
-    <string-array name="tab_titles">
-        <item>主页</item>
-        <item>搜索</item>
-        <item>消息</item>
-        <item>私信</item>
-    </string-array>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="#fff"
+        android:pathData="M544.4,499.2l284.6,-284.6a32,32 0,0 0,-45.2 -45.2L499.2,454 214.6,169.4a32,32 0,0 0,-45.2 45.2l284.6,284.6 -284.6,284.6a32,32 0,0 0,45.2 45.2l284.6,-284.6 284.6,284.6a31.9,31.9 0,0 0,45.2 0,32 32,0 0,0 0,-45.2L544.4,499.2z" />
+</vector>

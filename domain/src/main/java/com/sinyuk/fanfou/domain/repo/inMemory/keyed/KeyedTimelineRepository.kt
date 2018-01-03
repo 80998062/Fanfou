@@ -27,6 +27,7 @@ import android.arch.paging.PagedList
 import android.support.annotation.MainThread
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.repo.Listing
@@ -53,6 +54,7 @@ class KeyedTimelineRepository @Inject constructor(
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
+                .setPrefetchDistance(PAGE_SIZE)
                 .setInitialLoadSizeHint(pageSize)
                 .setPageSize(pageSize)
                 .build()

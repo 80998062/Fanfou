@@ -22,10 +22,8 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
-import android.util.Log
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
@@ -49,20 +47,7 @@ class StatusBoundaryCallback(
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
 
-    val helper = PagingRequestHelper(appExecutors.networkIO()).apply {
-        addListener({
-            // merge multiple states per request type into one, or dispatch separately depending on
-            // your application logic.
-            if (BuildConfig.DEBUG) {
-                when {
-                    it.hasRunning() -> Log.d("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.RUNNING)
-                // can also obtain the error via {@link StatusReport#getErrorFor(RequestType)}
-                    it.hasError() -> Log.e("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.FAILED)
-                    else -> Log.e("StatusBoundaryCallback", "Combined request: " + PagingRequestHelper.Status.SUCCESS)
-                }
-            }
-        })
-    }
+    val helper = PagingRequestHelper(appExecutors.networkIO())
     val networkState = helper.createStatusLiveData()
 
     /**

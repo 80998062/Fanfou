@@ -18,18 +18,8 @@
   ~  */
   -->
 
-<resources>
-    <string-array name="tab_titles_player">
-        <item>状态</item>
-        <item>照片</item>
-        <item>喜欢</item>
-    </string-array>
-
-
-    <string-array name="tab_titles">
-        <item>主页</item>
-        <item>搜索</item>
-        <item>消息</item>
-        <item>私信</item>
-    </string-array>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="8dp" />
+    <solid android:color="@color/divider_color" />
+</shape>

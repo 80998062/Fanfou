@@ -70,7 +70,7 @@ class TimelineRepository @Inject constructor(
                 .setPageSize(pageSize)
                 .setEnablePlaceholders(true)
                 .setPrefetchDistance(pageSize)
-                .setInitialLoadSizeHint(2 * pageSize)
+                .setInitialLoadSizeHint(pageSize)
 
 
         // create a data source factory from Room
