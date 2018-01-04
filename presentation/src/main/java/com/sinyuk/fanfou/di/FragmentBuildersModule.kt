@@ -25,7 +25,7 @@ import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.NavigationView
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.search.SearchHistoryView
+import com.sinyuk.fanfou.ui.search.SuggestionView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
@@ -63,5 +63,5 @@ abstract class FragmentBuildersModule {
     abstract fun navigationView(): NavigationView
 
     @ContributesAndroidInjector
-    abstract fun searchHistoryView(): SearchHistoryView
+    abstract fun searchHistoryView(): SuggestionView
 }

@@ -133,6 +133,8 @@ class TimelineView : AbstractLazyFragment(), Injectable {
 
         adapter = StatusPagedListAdapter(Glide.with(this), { timelineViewModel.retry() }, uniqueId)
 
+        recyclerView.adapter = adapter
+
         when (timelinePath) {
             TIMELINE_PUBLIC -> {
                 publicHeader = LayoutInflater.from(context).inflate(R.layout.timeline_view_list_header_public, recyclerView, false)
@@ -143,15 +145,11 @@ class TimelineView : AbstractLazyFragment(), Injectable {
                         setRefresh(true)
                     }
                 }
-                adapter.addHeaderView(publicHeader)
             }
         }
 
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
-
-        recyclerView.adapter = adapter
-
     }
 
     private val pagedListConsumer = Observer<PagedList<Status>> {

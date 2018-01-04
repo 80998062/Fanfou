@@ -32,4 +32,6 @@
     <string name="action_addfriend">添加好友</string>
     <string name="action_settings_inbox">消息管理</string>
     <string name="action_sendmessage">私信</string>
+    <string name="hint_search">搜索饭否</string>
+    <string name="action_confirm">确定</string>
 </resources>

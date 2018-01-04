@@ -49,7 +49,7 @@ class StatusPagedListAdapter(
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
-    private val HEADER_VIEW_TYPE = Int.MAX_VALUE
+    val HEADER_VIEW_TYPE = Int.MAX_VALUE
 
     private var headerView: View? = null
 
