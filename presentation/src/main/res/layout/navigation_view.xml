@@ -27,7 +27,8 @@
     <com.gigamole.navigationtabstrip.NavigationTabStrip
         android:id="@+id/tabStrip"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/root_action_bar_height"
+        android:layout_height="@dimen/action_bar_height"
+        android:background="@color/white"
         app:nts_active_color="@color/colorAccent"
         app:nts_animation_duration="250"
         app:nts_color="@color/colorAccent"

@@ -26,4 +26,10 @@
     <string name="hint_loading">加载中…</string>
     <string name="name_public_timeline">随便看看</string>
     <string name="action_switch_to_refresh">换一批</string>
+    <string name="action_cancel">取消</string>
+    <string name="name_avatar">头像</string>
+    <string name="action_post_fanfou">新状态</string>
+    <string name="action_addfriend">添加好友</string>
+    <string name="action_settings_inbox">消息管理</string>
+    <string name="action_sendmessage">私信</string>
 </resources>

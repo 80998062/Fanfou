@@ -1,0 +1,30 @@
+<!--
+  ~ /*
+  ~  * Apache License
+  ~  *
+  ~  * Copyright [2017] Sinyuk
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="@color/textColorHint"
+        android:pathData="M1003.8,938.7 L794.6,727.4c61.2,-76 98.1,-172.4 98.1,-277.4 0,-244.2 -198.7,-442.9 -442.9,-442.9C205.6,7.1 6.9,205.8 6.9,450s198.7,442.9 442.9,442.9c106.3,0 203.8,-37.7 280.2,-100.3l208.5,210.6c9,9.1 20.8,13.6 32.6,13.6 11.7,0 23.4,-4.4 32.3,-13.3C1021.5,985.8 1021.7,956.7 1003.8,938.7zM98.7,450c0,-193.6 157.5,-351.1 351.1,-351.1s351.1,157.5 351.1,351.1c0,193.6 -157.5,351.1 -351.1,351.1S98.7,643.6 98.7,450z" />
+</vector>

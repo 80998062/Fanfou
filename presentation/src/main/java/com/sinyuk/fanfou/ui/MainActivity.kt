@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.ui
 
+import android.animation.ObjectAnimator
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
@@ -93,6 +94,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     private fun renderUI() {
         setupActionBar()
         setupViewPager()
+        setupSearchWidget()
         supportFragmentManager.addOnBackStackChangedListener {
         }
     }
@@ -110,9 +112,35 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         }
     }
 
-
     private fun setupActionBar() {
         avatar.setOnClickListener { addFragmentInActivity(PlayerView(), R.id.firstLevelFragment, true) }
+    }
+
+
+    private fun setupSearchWidget() {
+        searchBg.setOnClickListener {
+            if (!searchEt.isFocusableInTouchMode) {
+                expandSearchView()
+            }
+        }
+        searchCloseButton.setOnClickListener {
+            collapseSearchView()
+        }
+    }
+
+    /**
+     * 收起🔍栏
+     */
+    private fun collapseSearchView() {
+        actionButtonSwitcher.displayedChild = R.id.searchPlayerButton
+    }
+
+    /**
+     * 展开🔍栏
+     */
+    private fun expandSearchView() {
+        actionButtonSwitcher.displayedChild = R.id.searchCloseButton
+        val hideAvatar = ObjectAnimator.ofFloat(avatar, View.TRANSLATION_X, 0f, -resources.getDimensionPixelOffset(R.dimen.action_bar_height).toFloat())
     }
 
     private fun setupViewPager() {
@@ -149,18 +177,27 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.homeTab -> {
                 viewPager.setCurrentItem(0, false)
+                actionButtonSwitcher.displayedChild = R.id.postFanfouButton
                 onPageChangedAndIdle(0)
             }
             R.id.publicTab -> {
                 viewPager.setCurrentItem(1, false)
                 onPageChangedAndIdle(1)
+                if (searchEt.isFocusableInTouchMode) {
+                    actionButtonSwitcher.displayedChild = R.id.searchCloseButton
+                    searchEt.requestFocus()
+                } else {
+                    actionButtonSwitcher.displayedChild = R.id.searchPlayerButton
+                }
             }
             R.id.notificationTab -> {
                 viewPager.setCurrentItem(2, false)
+                actionButtonSwitcher.displayedChild = R.id.inboxSettingsButton
                 onPageChangedAndIdle(2)
             }
             R.id.messageTab -> {
                 viewPager.setCurrentItem(3, false)
+                actionButtonSwitcher.displayedChild = R.id.sendMessageButton
                 onPageChangedAndIdle(3)
             }
         }
