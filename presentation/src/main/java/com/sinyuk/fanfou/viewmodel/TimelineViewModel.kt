@@ -27,6 +27,7 @@ import android.arch.lifecycle.Transformations.switchMap
 import android.arch.lifecycle.ViewModel
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
 import com.sinyuk.fanfou.domain.repo.inMemory.keyed.KeyedTimelineRepository
 import com.sinyuk.fanfou.domain.repo.inMemory.tiled.TiledTimelineRepository
@@ -54,7 +55,10 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
 
     private val repoResult = map(paramLive, {
         if (it.uniqueId == null) {
-            disk.statuses(path = it.path, pageSize = PAGE_SIZE)
+            when (it.path) {
+                TIMELINE_PUBLIC -> keyed.statuses(path = it.path, pageSize = PAGE_SIZE)
+                else -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
+            }
         } else {
             when (it.path) {
                 TIMELINE_FAVORITES -> tiled.statuses(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE)

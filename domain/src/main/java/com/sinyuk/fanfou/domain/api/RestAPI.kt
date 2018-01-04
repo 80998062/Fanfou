@@ -22,6 +22,7 @@
 package com.sinyuk.fanfou.domain.api
 
 import android.arch.lifecycle.LiveData
+import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
@@ -31,6 +32,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.*
 
 /**
  * Created by sinyuk on 2017/11/28.
@@ -51,7 +53,8 @@ interface RestAPI {
                         @Query("count") count: Int,
                         @Query("since_id") since: String? = null,
                         @Query("max_id") max: String? = null,
-                        @Query("id") id: String? = null): Call<MutableList<Status>>
+                        @Query("id") id: String? = null,
+                        @Query("page") page: Int? = null): Call<MutableList<Status>>
 
 
     @GET("favorites/id.json?format=html")
@@ -70,6 +73,7 @@ interface RestAPI {
     fun delete_search(@Query("id") id: String): Call<Keyword>
 
     @GET("trends/list.json")
-    fun trends(): LiveData<ApiResponse<MutableList<Trend>>>
+    fun trends(): Call<TrendList>
 
+    data class TrendList constructor(@SerializedName("as_of") var date: Date, @SerializedName("trends") var data: MutableList<Trend>)
 }

@@ -18,21 +18,22 @@
   ~  */
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="@dimen/gap_8"
-    android:paddingEnd="@dimen/gap_16"
-    android:paddingStart="@dimen/gap_16"
-    android:paddingTop="@dimen/gap_8"
-    tools:layout_gravity="center_vertical">
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:ordering="together">
+    <objectAnimator
+        android:duration="@android:integer/config_shortAnimTime"
+        android:interpolator="@android:interpolator/fast_out_slow_in"
+        android:propertyXName="scaleX"
+        android:propertyYName="scaleY"
+        android:valueFrom="1"
+        android:valueTo="0"
+        android:valueType="floatType" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/name_trend"
-        android:textColor="?android:textColorSecondary"
-        android:textStyle="bold" />
-</LinearLayout>
+    <objectAnimator
+        android:duration="@android:integer/config_shortAnimTime"
+        android:interpolator="@android:interpolator/fast_out_slow_in"
+        android:propertyName="alpha"
+        android:valueFrom="1"
+        android:valueTo="0"
+        android:valueType="floatType" />
+</set>

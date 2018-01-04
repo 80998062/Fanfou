@@ -54,6 +54,9 @@ const val TIMELINE_REPLIES = "replies"
  */
 const val TIMELINE_MENTIONS = "mentions"
 
+
+const val TIMELINE_PUBLIC = "public_timeline"
+
 /**
  * @ format
  */

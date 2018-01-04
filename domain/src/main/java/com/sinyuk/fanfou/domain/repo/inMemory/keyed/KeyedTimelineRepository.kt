@@ -49,7 +49,7 @@ class KeyedTimelineRepository @Inject constructor(
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
     @MainThread
-    fun statuses(path: String, uniqueId: String?, pageSize: Int): Listing<Status> {
+    fun statuses(path: String, uniqueId: String? = null, pageSize: Int): Listing<Status> {
         val sourceFactory = KeyedStatusDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
 
         val pagedListConfig = PagedList.Config.Builder()

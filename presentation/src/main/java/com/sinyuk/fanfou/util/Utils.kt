@@ -18,21 +18,16 @@
  *
  */
 
-package com.sinyuk.fanfou.viewmodel
+package com.sinyuk.fanfou.util
 
-
-import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.repo.FanfouSearchManager
-import javax.inject.Inject
+import android.content.Context
 
 /**
- * Created by sinyuk on 2018/1/3.
+ * Created by sinyuk on 2018/1/4.
  *
  */
-class SearchViewModel @Inject constructor(private val manager: FanfouSearchManager) : ViewModel() {
 
-    fun listing(forced: Boolean = false) = manager.savedSearches(forced)
-
-    fun trends() = manager.trends()
-
-}
+/**
+ * convert px to dp
+ */
+fun px2dp(context: Context, pxValue: Float) = (pxValue / context.resources.displayMetrics.density + 0.5f).toInt()

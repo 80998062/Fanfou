@@ -31,7 +31,8 @@ import com.sinyuk.fanfou.base.AbstractLazyFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.FanfouFormatter
@@ -68,10 +69,11 @@ class SearchView : AbstractLazyFragment(), Injectable {
 
         setupTrendList()
 
-        val publicTimeline = TimelineView.newInstance(TIMELINE_USER)
+        val publicTimeline = TimelineView.newInstance(TIMELINE_PUBLIC)
         addFragmentInFragment(publicTimeline, R.id.fragment_container, false)
 
-        searchViewModel.trends().asLiveData().observe(this@SearchView, Observer {
+        searchViewModel.trends().observe(this@SearchView, Observer {
+            searchViewModel.trends().removeObservers(this@SearchView)
             when (it?.states) {
                 States.SUCCESS -> {
                     adapter.setNewData(it.data)
@@ -83,9 +85,9 @@ class SearchView : AbstractLazyFragment(), Injectable {
 
                 }
             }
-
             publicTimeline.userVisibleHint = true
         })
+
     }
 
 
@@ -103,7 +105,7 @@ class SearchView : AbstractLazyFragment(), Injectable {
         }
 
         trendList.setHasFixedSize(true)
-
+        trendList.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
         header = LayoutInflater.from(context).inflate(R.layout.trend_list_header, trendList, false)
 
         adapter = TrendAdapter().apply {

@@ -41,9 +41,7 @@ fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, frameId: Int
 fun AppCompatActivity.addFragmentInActivity(fragment: Fragment, resId: Int, addToBackStack: Boolean) {
     val tag = fragment::class.java.simpleName
     if (supportFragmentManager.findFragmentByTag(tag) == null) {
-        val ft = supportFragmentManager
-                .beginTransaction()
-                .replace(resId, fragment, tag)
+        val ft = supportFragmentManager.beginTransaction().replace(resId, fragment, tag)
         if (addToBackStack) {
             ft.addToBackStack(tag)
         }

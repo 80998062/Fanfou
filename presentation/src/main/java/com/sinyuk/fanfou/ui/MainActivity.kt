@@ -112,9 +112,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
 
     private fun setupActionBar() {
-        avatar.setOnClickListener {
-            addFragmentInActivity(PlayerView(), R.id.fragment_container, true)
-        }
+        avatar.setOnClickListener { addFragmentInActivity(PlayerView(), R.id.firstLevelFragment, true) }
     }
 
     private fun setupViewPager() {

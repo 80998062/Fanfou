@@ -24,4 +24,6 @@
     <string name="name_search_history">历史记录</string>
     <string name="hint_swipe_to_delete">删除记录</string>
     <string name="hint_loading">加载中…</string>
+    <string name="name_public_timeline">随便看看</string>
+    <string name="action_switch_to_refresh">换一批</string>
 </resources>

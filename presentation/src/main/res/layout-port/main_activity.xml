@@ -31,12 +31,18 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomNav">
 
-        <com.sinyuk.fanfou.ui.FreezeViewPager
-            android:id="@+id/viewPager"
+        <FrameLayout
+            android:id="@+id/secondLevelFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:overScrollMode="never"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <com.sinyuk.fanfou.ui.FreezeViewPager
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never" />
+        </FrameLayout>
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -55,7 +61,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingTop="@dimen/status_bar_height">
-
 
                     <ImageView
                         android:id="@+id/avatar"
@@ -81,6 +86,7 @@
                             android:id="@+id/textSwitcher"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:animateFirstView="true"
                             android:inAnimation="@android:anim/fade_in"
                             android:outAnimation="@android:anim/fade_out">
 
@@ -132,10 +138,10 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <FrameLayout
-        android:id="@+id/fragment_container"
+        android:id="@+id/firstLevelFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNav" />
+        android:layout_marginBottom="@dimen/root_action_bar_height" />
 
     <LinearLayout
         android:id="@+id/bottomNav"

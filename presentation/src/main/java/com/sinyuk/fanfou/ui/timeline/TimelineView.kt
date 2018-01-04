@@ -24,6 +24,7 @@ import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
 import android.view.View
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
@@ -32,6 +33,8 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -39,6 +42,7 @@ import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.timeline_view.*
+import kotlinx.android.synthetic.main.timeline_view_list_header_public.view.*
 import javax.inject.Inject
 
 
@@ -87,25 +91,35 @@ class TimelineView : AbstractLazyFragment(), Injectable {
     }
 
     private fun setupSwipeRefresh() {
-        swipeRefreshLayout.isEnabled = false
         timelineViewModel.refreshState.observe(this@TimelineView, Observer {
             setRefresh(it?.status == com.sinyuk.fanfou.domain.Status.RUNNING)
             if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
                 it.msg?.let { toast.toastShort(it) }
             }
         })
-
-        swipeRefreshLayout.setOnRefreshListener { timelineViewModel.refresh() }
     }
 
 
     private fun setRefresh(constraint: Boolean) {
-        swipeRefreshLayout.isRefreshing = constraint
+        when (timelinePath) {
+            TIMELINE_PUBLIC -> {
+                if (constraint) {
+                    publicHeader.loadingLayout.show()
+                    publicHeader.viewAnimator.displayedChildId = R.id.loadingLayout
+                } else {
+                    publicHeader.viewAnimator.displayedChildId = R.id.refreshLayout
+                    publicHeader.loadingLayout.hide()
+                }
+            }
+            else -> {
+            }
+        }
     }
 
 
     private lateinit var adapter: StatusPagedListAdapter
 
+    private lateinit var publicHeader: View
     private fun setupRecyclerView() {
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
@@ -115,13 +129,29 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
 
         recyclerView.setHasFixedSize(true)
+        recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
         adapter = StatusPagedListAdapter(Glide.with(this), { timelineViewModel.retry() }, uniqueId)
+
+        when (timelinePath) {
+            TIMELINE_PUBLIC -> {
+                publicHeader = LayoutInflater.from(context).inflate(R.layout.timeline_view_list_header_public, recyclerView, false)
+                publicHeader.title.setOnClickListener {
+                    if (publicHeader.viewAnimator.displayedChildId == R.id.loadingLayout) {
+                        setRefresh(false)
+                    } else {
+                        setRefresh(true)
+                    }
+                }
+                adapter.addHeaderView(publicHeader)
+            }
+        }
 
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
 
         recyclerView.adapter = adapter
+
     }
 
     private val pagedListConsumer = Observer<PagedList<Status>> {

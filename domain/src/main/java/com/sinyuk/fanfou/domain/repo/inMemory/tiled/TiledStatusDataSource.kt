@@ -51,7 +51,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         try {
             val response = when (path) {
                 TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
-                else -> TODO()
+                else -> restAPI.fetch_from_path(id = uniqueId, count = params.requestedLoadSize, page = params.key, path = path)
             }.execute()
 
             if (response.isSuccessful) {
@@ -95,7 +95,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
 
         when (path) {
             TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = 1)
-            else -> TODO()
+            else -> restAPI.fetch_from_path(id = uniqueId, count = params.requestedLoadSize, page = 1, path = path)
         }.enqueue(object : Callback<MutableList<Status>> {
             override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>) {
                 if (response.isSuccessful) {

@@ -23,8 +23,10 @@ package com.sinyuk.fanfou.ui.timeline
 import android.arch.paging.PagedListAdapter
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.RequestManager
+import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.interfaces.SwipeAdapterInterface
@@ -47,7 +49,23 @@ class StatusPagedListAdapter(
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
-    override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
+    private val HEADER_VIEW_TYPE = Int.MAX_VALUE
+
+    private var headerView: View? = null
+
+    fun addHeaderView(view: View) {
+        if (headerView != null) {
+            headerView = view
+            notifyItemChanged(0)
+        } else {
+            headerView = view
+            notifyItemRangeInserted(0, 1)
+        }
+    }
+
+    override fun getItemViewType(position: Int) = if (position == 0 && headerView != null) {
+        HEADER_VIEW_TYPE
+    } else if (hasExtraRow() && position == itemCount - 1) {
         R.layout.network_state_item
     } else {
         R.layout.timeline_view_list_item
@@ -76,6 +94,7 @@ class StatusPagedListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
+        HEADER_VIEW_TYPE -> BaseViewHolder(headerView)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 
