@@ -66,4 +66,12 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$rootProject.ext.glideVersion"
     implementation "jp.wasabeef:glide-transformations:$rootProject.ext.transformationVersion"
 
+    implementation "com.google.firebase:firebase-ads:11.6.0"
+    implementation "com.google.firebase:firebase-crash:11.6.0"
+    implementation "com.google.firebase:firebase-core:11.6.0"
+
+
 }
+
+// ADD THIS AT THE BOTTOM
+apply plugin: 'com.google.gms.google-services'

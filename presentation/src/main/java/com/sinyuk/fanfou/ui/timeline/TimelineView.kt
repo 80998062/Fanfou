@@ -86,8 +86,8 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         setupSwipeRefresh()
     }
 
-
     private fun setupSwipeRefresh() {
+        swipeRefreshLayout.isEnabled = false
         timelineViewModel.refreshState.observe(this@TimelineView, Observer {
             setRefresh(it?.status == com.sinyuk.fanfou.domain.Status.RUNNING)
             if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {

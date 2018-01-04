@@ -43,6 +43,7 @@ import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
+import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
 import javax.inject.Inject
@@ -68,8 +69,9 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     @Inject lateinit var factory: ViewModelProvider.Factory
 
-    private val accountViewModel: AccountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
-    private val playerViewModel: PlayerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
+    private val accountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
+    private val playerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
+    private val searchViewModel by lazy { obtainViewModel(factory, SearchViewModel::class.java) }
 
 
     @Inject lateinit var toast: ToastUtils

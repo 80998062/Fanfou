@@ -22,10 +22,13 @@
 package com.sinyuk.fanfou.domain.api
 
 import android.arch.lifecycle.LiveData
+import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.DO.Trend
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -55,5 +58,18 @@ interface RestAPI {
     fun fetch_favorites(@Query("id") id: String? = null,
                         @Query("count") count: Int,
                         @Query("page") page: Int): Call<MutableList<Status>>
+
+    @GET("saved_searches/list.json")
+    fun list_searches(): LiveData<ApiResponse<MutableList<Keyword>>>
+
+    @POST("saved_searches/create.json")
+    fun create_search(@Query("query") query: String): Call<Keyword>
+
+
+    @POST("saved_searches/destroy.json")
+    fun delete_search(@Query("id") id: String): Call<Keyword>
+
+    @GET("trends/list.json")
+    fun trends(): LiveData<ApiResponse<MutableList<Trend>>>
 
 }

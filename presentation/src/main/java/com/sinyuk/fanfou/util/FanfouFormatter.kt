@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.util
 
+import com.google.android.gms.ads.AdRequest.*
 import java.util.*
 
 /**
@@ -70,6 +71,16 @@ class FanfouFormatter {
             }
 
             return str
+        }
+
+        fun convertBirthdayStrToDate(birthday: String): Date {
+            return Date()
+        }
+
+        fun convertGenderToInt(gender: String?) = when (gender) {
+            "male" -> GENDER_MALE
+            "female" -> GENDER_FEMALE
+            else -> GENDER_UNKNOWN
         }
     }
 }

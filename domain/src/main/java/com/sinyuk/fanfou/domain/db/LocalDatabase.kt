@@ -25,21 +25,27 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.sinyuk.fanfou.domain.BuildConfig
+import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.DO.Trend
+import com.sinyuk.fanfou.domain.db.dao.KeywordDao
 import com.sinyuk.fanfou.domain.db.dao.PlayerDao
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
+import com.sinyuk.fanfou.domain.db.dao.TrendDao
 
 
 /**
  * Created by sinyuk on 2017/11/27.
  *
  */
-@Database(entities = arrayOf(Player::class, Status::class),
+@Database(entities = arrayOf(Player::class, Status::class, Keyword::class, Trend::class),
         version = BuildConfig.VERSION_CODE, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun statusDao(): StatusDao
+    abstract fun keywordDao(): KeywordDao
+    abstract fun trendDao(): TrendDao
 
     companion object {
 
