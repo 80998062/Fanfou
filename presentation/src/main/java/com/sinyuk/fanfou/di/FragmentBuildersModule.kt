@@ -21,7 +21,6 @@
 package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
-import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.NavigationView
 import com.sinyuk.fanfou.ui.player.PlayerView
@@ -41,11 +40,6 @@ abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract fun signInView(): SignInView
-
-
-    @ContributesAndroidInjector
-    abstract fun homeView(): HomeView
-
 
     @ContributesAndroidInjector
     abstract fun playerView(): PlayerView

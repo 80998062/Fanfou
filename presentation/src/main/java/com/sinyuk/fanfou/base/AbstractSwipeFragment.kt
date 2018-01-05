@@ -21,23 +21,24 @@
 package com.sinyuk.fanfou.base
 
 import android.os.Bundle
-import android.support.design.widget.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.yokeyword.fragmentation_swipeback.SwipeBackFragment
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2018/1/5.
+ *
  */
-abstract class AbstracBottomSheetFragment : BottomSheetDialogFragment() {
+abstract class AbstractSwipeFragment : SwipeBackFragment() {
 
     protected abstract fun layoutId(): Int?
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return if (layoutId() != null) {
-            inflater.inflate(layoutId()!!, container, false)
-        } else {
-            super.onCreateView(inflater, container, savedInstanceState)
-        }
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            if (layoutId() != null) {
+                setParallaxOffset(0.5f)
+                attachToSwipeBack(inflater.inflate(layoutId()!!, container, false))
+            } else {
+                attachToSwipeBack(super.onCreateView(inflater, container, savedInstanceState))
+            }
 }

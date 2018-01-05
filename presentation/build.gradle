@@ -72,6 +72,10 @@ dependencies {
     implementation "com.google.firebase:firebase-crash:11.6.0"
     implementation "com.google.firebase:firebase-core:11.6.0"
 
+
+    implementation "me.yokeyword:fragmentation:1.2.4"
+    implementation "me.yokeyword:fragmentation-swipeback:1.2.4"
+    implementation "me.yokeyword:eventbus-activity-scope:1.1.0"
     implementation "org.greenrobot:eventbus:3.1.1"
 
 

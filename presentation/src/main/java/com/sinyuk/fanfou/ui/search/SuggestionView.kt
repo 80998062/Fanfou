@@ -29,7 +29,6 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout.PASS_MODE_BOTH
-import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
@@ -57,7 +56,7 @@ class SuggestionView : AbstractFragment(), Injectable {
         super.onViewCreated(view, savedInstanceState)
         setupKeyboard()
         coordinator.setPassMode(PASS_MODE_BOTH)
-        addFragmentInFragment(HistoryView.newInstance(true), R.id.historyViewContainer, false)
+        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(true))
     }
 
 

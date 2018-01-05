@@ -31,11 +31,10 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomNav">
 
-        <com.sinyuk.fanfou.ui.FreezeViewPager
-            android:id="@+id/viewPager"
+        <FrameLayout
+            android:id="@+id/fakeViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:overScrollMode="never"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <android.support.design.widget.AppBarLayout

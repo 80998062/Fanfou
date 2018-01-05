@@ -22,11 +22,13 @@ package com.sinyuk.fanfou
 
 import android.app.Activity
 import android.app.Application
+import android.util.Log
 import com.facebook.stetho.Stetho
 import com.sinyuk.fanfou.di.AppInjector
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
+import me.yokeyword.fragmentation.Fragmentation
 import javax.inject.Inject
 
 
@@ -42,7 +44,16 @@ class App : Application(), HasActivityInjector {
         super.onCreate()
         AppInjector.init(this)
 
+        initFragmentation()
         initStetho()
+    }
+
+
+    private fun initFragmentation() {
+        Fragmentation.builder().debug(BuildConfig.DEBUG)
+                .stackViewMode(Fragmentation.BUBBLE)
+                .handleException { Log.e("Fragmentation", "error", it) }
+                .install()
     }
 
     private fun initStetho() {

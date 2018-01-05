@@ -20,6 +20,7 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.arch.lifecycle.Observer
+import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,7 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractLazyFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
@@ -36,7 +37,6 @@ import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.FanfouFormatter
-import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -49,7 +49,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/11/30.
  *
  */
-class SearchView : AbstractLazyFragment(), Injectable {
+class SearchView : AbstractFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.public_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
@@ -62,14 +62,15 @@ class SearchView : AbstractLazyFragment(), Injectable {
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
 
 
-    override fun lazyDo() {
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
         coordinator.setPassMode(PASS_MODE_PARENT_FIRST)
 
         setupAdView()
         setupTrendList()
 
         val publicTimeline = TimelineView.newInstance(TIMELINE_PUBLIC)
-        addFragmentInFragment(publicTimeline, R.id.publicViewContainer, false)
+        loadRootFragment(R.id.publicViewContainer, publicTimeline)
 
         searchViewModel.trends().observe(this@SearchView, Observer {
             searchViewModel.trends().removeObservers(this@SearchView)
@@ -86,7 +87,6 @@ class SearchView : AbstractLazyFragment(), Injectable {
             }
             publicTimeline.userVisibleHint = true
         })
-
     }
 
 

@@ -23,7 +23,6 @@ package com.sinyuk.fanfou.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
-import android.app.FragmentTransaction
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
@@ -31,6 +30,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.util.Log
@@ -45,6 +45,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.bumptech.glide.request.RequestOptions
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
@@ -54,7 +55,6 @@ import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.search.SuggestionView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
-import com.sinyuk.fanfou.util.addFragmentInActivity
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
@@ -78,12 +78,9 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         }
     }
 
-    override fun beforeInflate() {
-    }
-
-    override fun layoutId(): Int? = R.layout.main_activity
-
     @Inject lateinit var factory: ViewModelProvider.Factory
+
+    override fun layoutId() = R.layout.main_activity
 
     private val accountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
     private val playerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
@@ -94,6 +91,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         renderUI()
 
         accountViewModel.user.observe(this, Observer {
@@ -111,8 +109,6 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         setupKeyboard()
         setupViewPager()
         setupSearchWidget()
-        supportFragmentManager.addOnBackStackChangedListener {
-        }
     }
 
     private fun renderAccount(data: Player?) {
@@ -129,16 +125,14 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
     private fun setupActionBar() {
-        avatar.setOnClickListener { addFragmentInActivity(PlayerView(), R.id.rootFragmentContainer, true) }
+        avatar.setOnClickListener { loadRootFragment(R.id.rootFragmentContainer, PlayerView.newInstance()) }
     }
 
 
     private fun setupKeyboard() {
         KeyboardUtil.attach(this, panelRoot) {
             if (it) {
-                if (viewPager.currentItem == 1) {
-                    searchEt.requestFocus()
-                }
+                if (currentFragment == 1) searchEt.requestFocus()
             } else {
                 searchEt.clearFocus()
             }
@@ -147,14 +141,11 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun setupSearchWidget() {
         searchEt.setOnClickListener {
-            if (!searchEt.isFocusable) {
-                expandSearchView()
-            }
+            if (!searchEt.isFocusable) expandSearchView()
         }
+
         searchBg.setOnClickListener {
-            if (!searchEt.isFocusable) {
-                expandSearchView()
-            }
+            if (!searchEt.isFocusable) expandSearchView()
         }
         searchCloseButton.setOnClickListener { collapseSearchView() }
 
@@ -212,16 +203,16 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                 searchEt.isFocusableInTouchMode = false
                 KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
 
-                searchPage.childFragmentManager.findFragmentByTag(suggestionTag)?.let {
-                    searchPage.childFragmentManager.beginTransaction().hide(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit()
+                fragments[1].findChildFragment(SuggestionView::class.java)?.let {
+                    fragments[1].childFragmentManager.beginTransaction().hide(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit()
                 }
+
             }
         })
         animator.start()
     }
 
     private var searchTextOffset: Float? = null
-    private val suggestionTag = SuggestionView::class.java.simpleName
     /**
      * 展开🔍栏
      */
@@ -250,14 +241,11 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                 searchEt.isFocusable = true
                 searchEt.isFocusableInTouchMode = true
                 KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
-                supportFragmentManager.findFragmentByTag(suggestionTag).let {
-                    if (it == null) {
-                        searchPage.childFragmentManager.beginTransaction().add(R.id.suggestionViewContainer, SuggestionView(), suggestionTag)
-                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                .commit()
-                    } else {
-                        searchPage.childFragmentManager.beginTransaction().show(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
-                    }
+
+                if (fragments[1].findChildFragment(SuggestionView::class.java) == null) {
+                    fragments[1].loadRootFragment(R.id.suggestionViewContainer, SuggestionView())
+                } else {
+                    fragments[1].showHideFragment(fragments[1].findChildFragment(SuggestionView::class.java))
                 }
             }
         })
@@ -265,39 +253,46 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
 
-    private val homePage by lazy { TimelineView.newInstance(TIMELINE_HOME) }
-    private val searchPage by lazy { SearchView() }
-    private val signView by lazy { SignInView() }
-    private val messagePage by lazy { MessageView() }
+    private lateinit var fragments: MutableList<AbstractFragment>
 
     private fun setupViewPager() {
-        val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, searchPage, signView, messagePage))
+        fragments = if (findFragment(TimelineView::class.java) == null) {
+            mutableListOf(TimelineView.newInstance(TIMELINE_HOME), SearchView(), SignInView(), MessageView())
+        } else {
+            mutableListOf(findFragment(TimelineView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
+        }
 
-        viewPager.offscreenPageLimit = 3
-        viewPager.adapter = adapter
+        loadMultipleRootFragment(R.id.fakeViewPager, 0, fragments[0], fragments[1], fragments[2], fragments[3])
+        onPageSwitched(0)
 
         homeTab.setOnClickListener(this)
         publicTab.setOnClickListener(this)
         notificationTab.setOnClickListener(this)
         messageTab.setOnClickListener(this)
-
-        onSwitchSearchView(0)
     }
 
-    private fun onSwitchSearchView(current: Int) {
-        if (current == 1) {
-            viewAnimator.displayedChildId = R.id.searchLayout
-            textSwitcher.setCurrentText(null)
-            if (searchEt.isFocusableInTouchMode) {
-                actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
-                KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
-            } else {
-                actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
-            }
+    private var currentFragment = -1
+    private fun onPageSwitched(to: Int) {
+        if (to == currentFragment) {
+            return
         } else {
-            KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
-            viewAnimator.displayedChildId = R.id.textSwitcher
-            textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[current])
+            if (to == 1) {
+                viewAnimator.displayedChildId = R.id.searchLayout
+                textSwitcher.setCurrentText(null)
+                if (searchEt.isFocusableInTouchMode) {
+                    actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
+                    KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
+                } else {
+                    actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
+                }
+            } else {
+                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+                viewAnimator.displayedChildId = R.id.textSwitcher
+                textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])
+            }
+
+            if (currentFragment != -1) showHideFragment(fragments[to], fragments[currentFragment])
+            currentFragment = to
         }
     }
 
@@ -305,23 +300,19 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.homeTab -> {
-                viewPager.setCurrentItem(0, false)
                 actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
-                onSwitchSearchView(0)
+                onPageSwitched(0)
             }
             R.id.publicTab -> {
-                viewPager.setCurrentItem(1, false)
-                onSwitchSearchView(1)
+                onPageSwitched(1)
             }
             R.id.notificationTab -> {
-                viewPager.setCurrentItem(2, false)
                 actionButtonSwitcher.displayedChildId = R.id.inboxSettingsButton
-                onSwitchSearchView(2)
+                onPageSwitched(2)
             }
             R.id.messageTab -> {
-                viewPager.setCurrentItem(3, false)
                 actionButtonSwitcher.displayedChildId = R.id.sendMessageButton
-                onSwitchSearchView(3)
+                onPageSwitched(3)
             }
         }
     }

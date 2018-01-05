@@ -21,7 +21,6 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,9 +30,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.FanfouFormatter
-import com.sinyuk.fanfou.util.addFragmentInActivity
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 
 /**
@@ -51,10 +48,7 @@ class StatusViewHolder(private val view: View, private val glide: RequestManager
                 .transition(withCrossFade())
                 .into(view.avatar)
 
-        view.avatar.setOnClickListener {
-            @Suppress("CAST_NEVER_SUCCEEDS")
-            (it.context as AppCompatActivity).addFragmentInActivity(PlayerView.newInstance(status.playerExtracts?.uniqueId), R.id.rootView, true)
-        }
+        view.avatar.setOnClickListener {}
 
         view.screenName.background = null
         view.createdAt.background = null

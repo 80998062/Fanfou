@@ -40,6 +40,7 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 
 class SignInView : AbstractFragment(), Injectable {

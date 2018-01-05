@@ -20,8 +20,9 @@
 
 package com.sinyuk.fanfou.ui.message
 
+import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractLazyFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -33,7 +34,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/11/30.
  *
  */
-class MessageView : AbstractLazyFragment(), Injectable {
+class MessageView : AbstractFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.message_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
@@ -43,9 +44,9 @@ class MessageView : AbstractLazyFragment(), Injectable {
     @Inject lateinit var toast: ToastUtils
 
 
-    override fun lazyDo() {
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
         accountViewModel = obtainViewModel(factory, AccountViewModel::class.java)
-
     }
 
 }

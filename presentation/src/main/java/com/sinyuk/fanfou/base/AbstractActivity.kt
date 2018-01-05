@@ -22,19 +22,19 @@ package com.sinyuk.fanfou.base
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasFragmentInjector
 import dagger.android.support.HasSupportFragmentInjector
+import me.yokeyword.fragmentation.SupportActivity
 import javax.inject.Inject
 
 /**
  * @author sinyuk
  * @date 2017/10/24
  */
-abstract class AbstractActivity : AppCompatActivity(), HasFragmentInjector, HasSupportFragmentInjector {
+abstract class AbstractActivity : SupportActivity(), HasFragmentInjector, HasSupportFragmentInjector {
 
     @Inject lateinit var supportFragmentInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var frameworkFragmentInjector: DispatchingAndroidInjector<android.app.Fragment>
@@ -43,24 +43,11 @@ abstract class AbstractActivity : AppCompatActivity(), HasFragmentInjector, HasS
 
     override fun fragmentInjector(): AndroidInjector<android.app.Fragment> = frameworkFragmentInjector
 
-
-    /**
-     * before setContentView()
-     */
-    protected abstract fun beforeInflate()
-
-
     protected abstract fun layoutId(): Int?
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-
-        beforeInflate()
-
-        layoutId()?.let {
-            setContentView(layoutId()!!)
-        }
+        layoutId()?.let { setContentView(layoutId()!!) }
     }
 }

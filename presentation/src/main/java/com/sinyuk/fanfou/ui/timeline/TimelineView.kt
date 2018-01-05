@@ -28,7 +28,7 @@ import android.view.LayoutInflater
 import android.view.View
 import com.bumptech.glide.Glide
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractLazyFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
@@ -50,7 +50,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/11/30.
  *
  */
-class TimelineView : AbstractLazyFragment(), Injectable {
+class TimelineView : AbstractFragment(), Injectable {
 
     companion object {
         fun newInstance(path: String, uniqueId: String? = null) = TimelineView().apply {
@@ -85,7 +85,8 @@ class TimelineView : AbstractLazyFragment(), Injectable {
         }
     }
 
-    override fun lazyDo() {
+    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
+        super.onEnterAnimationEnd(savedInstanceState)
         setupRecyclerView()
         setupSwipeRefresh()
     }

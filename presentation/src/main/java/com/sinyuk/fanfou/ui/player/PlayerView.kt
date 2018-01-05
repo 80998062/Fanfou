@@ -24,12 +24,11 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractFragment
+import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -43,7 +42,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/12/7.
  *
  */
-class PlayerView : AbstractFragment(), Injectable {
+class PlayerView : AbstractSwipeFragment(), Injectable {
     override fun layoutId() = R.layout.player_view
 
     companion object {
@@ -65,15 +64,17 @@ class PlayerView : AbstractFragment(), Injectable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        closeButton.setOnClickListener { activity?.onBackPressed() }
+    }
+
+    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
+        super.onEnterAnimationEnd(savedInstanceState)
         if (uniqueId == null) {
             accountViewModel.user.observe(this@PlayerView, playerObserver)
         } else {
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
         }
-
-        closeButton.setOnClickListener { activity?.onBackPressed() }
-
-        addFragmentInFragment(NavigationView.newInstance(uniqueId), R.id.fragment_container, false)
+        loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
     }
 
     private val playerObserver by lazy { Observer<Resource<Player>> { subscribe(it) } }
@@ -123,5 +124,10 @@ class PlayerView : AbstractFragment(), Injectable {
         }
     }
 
+
+    override fun onBackPressedSupport(): Boolean {
+        pop()
+        return true
+    }
 
 }

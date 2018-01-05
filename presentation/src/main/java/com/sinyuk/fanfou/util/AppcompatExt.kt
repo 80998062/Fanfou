@@ -24,8 +24,6 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 
 /**
@@ -33,40 +31,10 @@ import android.support.v7.app.AppCompatActivity
  *
  */
 
-fun AppCompatActivity.addFragmentInActivity(fragment: Fragment, resId: Int, addToBackStack: Boolean) {
-    val tag = fragment::class.java.simpleName
-    if (supportFragmentManager.findFragmentByTag(tag) == null) {
-        val ft = supportFragmentManager.beginTransaction().add(resId, fragment, tag)
-        if (addToBackStack) {
-            ft.addToBackStack(tag)
-        }
-        ft.commit()
-    }
-}
 
 
 fun <T : ViewModel> AppCompatActivity.obtainViewModel(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
 
-/**
- * Runs a FragmentTransaction, then calls commit().
- */
-private inline fun FragmentManager.transact(action: FragmentTransaction.() -> Unit) {
-    beginTransaction().apply {
-        action()
-    }.commit()
-}
-
-
-fun Fragment.addFragmentInFragment(fragment: Fragment, resId: Int, addToBackStack: Boolean) {
-    val tag = fragment.javaClass.simpleName
-    if (childFragmentManager.findFragmentByTag(tag) == null) {
-        val ft = childFragmentManager.beginTransaction().replace(resId, fragment, tag)
-        if (addToBackStack) {
-            ft.addToBackStack(tag)
-        }
-        ft.commit()
-    }
-}
 
 fun <T : ViewModel> Fragment.obtainViewModelFromActivity(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) =
         ViewModelProviders.of(this.activity as AppCompatActivity, viewModelFactory).get(viewModelClass)

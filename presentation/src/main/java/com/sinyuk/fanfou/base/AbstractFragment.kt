@@ -21,16 +21,16 @@
 package com.sinyuk.fanfou.base
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.yokeyword.fragmentation.SupportFragment
 
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
-abstract class AbstractFragment : Fragment() {
+abstract class AbstractFragment : SupportFragment() {
 
     protected abstract fun layoutId(): Int?
 
