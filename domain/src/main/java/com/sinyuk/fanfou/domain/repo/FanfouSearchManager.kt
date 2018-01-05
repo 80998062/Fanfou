@@ -27,13 +27,12 @@ import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
 import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Trend
-import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
-import com.sinyuk.fanfou.domain.isOnline
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -68,67 +67,23 @@ class FanfouSearchManager @Inject constructor(
     }
 
 
-    fun savedSearches(forcedUpdate: Boolean = false) = object : NetworkBoundResource<MutableList<Keyword>, MutableList<Keyword>>(appExecutors) {
-        override fun onFetchFailed() {}
-
-        override fun saveCallResult(item: MutableList<Keyword>?) {
-            item?.let { db.runInTransaction { db.keywordDao().save(item) } }
-        }
-
-        override fun shouldFetch(data: MutableList<Keyword>?) = isOnline(application) && (forcedUpdate || data == null)
-
-        override fun loadFromDb() = db.keywordDao().list()
-
-
-        override fun createCall() = restAPI.list_searches()
+    fun savedSearches(limit: Int? = null) = if (limit == null) {
+        db.keywordDao().list()
+    } else {
+        db.keywordDao().take(limit)
     }
 
-    fun createSearch(query: String): MutableLiveData<NetworkState> {
-        val networkState = MutableLiveData<NetworkState>()
-        networkState.postValue(NetworkState.LOADING)
-        appExecutors.networkIO().execute {
-            try {
-                val response = restAPI.create_search(query).execute()
-                if (response.isSuccessful) {
-                    if (response.body() != null) {
-                        db.runInTransaction { db.keywordDao().create(response.body()!!) }
-                        networkState.postValue(NetworkState.LOADED)
-                    } else {
-                        networkState.postValue(NetworkState.error("error code ${response?.code()}"))
-                    }
-                } else {
-                    networkState.postValue(NetworkState.error("error code ${response?.code()}"))
-                }
-            } catch (e: IOException) {
-                networkState.postValue(NetworkState.error("error msg: ${e.message}"))
-            }
+    fun createSearch(query: String) {
+        appExecutors.diskIO().execute {
+            db.runInTransaction { db.keywordDao().save(Keyword(query = query, createdAt = Date())) }
         }
-        return networkState
     }
 
 
-    fun deleteSearch(id: String): MutableLiveData<NetworkState> {
-
-        val networkState = MutableLiveData<NetworkState>()
-        networkState.postValue(NetworkState.LOADING)
-        appExecutors.networkIO().execute {
-            try {
-                val response = restAPI.delete_search(id).execute()
-                if (response.isSuccessful) {
-                    if (response.body() != null) {
-                        db.runInTransaction { db.keywordDao().delete(response.body()!!) }
-                        networkState.postValue(NetworkState.LOADED)
-                    } else {
-                        networkState.postValue(NetworkState.error("error code ${response?.code()}"))
-                    }
-                } else {
-                    networkState.postValue(NetworkState.error("error code ${response?.code()}"))
-                }
-            } catch (e: IOException) {
-                networkState.postValue(NetworkState.error("error msg: ${e.message}"))
-            }
+    fun deleteSearch(query: String) {
+        appExecutors.diskIO().execute {
+            db.runInTransaction { db.keywordDao().delete(Keyword(query = query)) }
         }
-        return networkState
     }
 
 

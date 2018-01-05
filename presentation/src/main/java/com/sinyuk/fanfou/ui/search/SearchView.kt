@@ -63,14 +63,13 @@ class SearchView : AbstractLazyFragment(), Injectable {
 
 
     override fun lazyDo() {
-        rootView.setPassMode(PASS_MODE_PARENT_FIRST)
+        coordinator.setPassMode(PASS_MODE_PARENT_FIRST)
 
         setupAdView()
-
         setupTrendList()
 
         val publicTimeline = TimelineView.newInstance(TIMELINE_PUBLIC)
-        addFragmentInFragment(publicTimeline, R.id.fragment_container, false)
+        addFragmentInFragment(publicTimeline, R.id.publicViewContainer, false)
 
         searchViewModel.trends().observe(this@SearchView, Observer {
             searchViewModel.trends().removeObservers(this@SearchView)

@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.app.FragmentTransaction
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
@@ -32,8 +33,13 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.animation.FastOutSlowInInterpolator
+import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
+import android.view.inputmethod.EditorInfo
+import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
@@ -53,13 +59,13 @@ import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
-import com.sinyuk.myutils.system.ImeUtils
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 class MainActivity : AbstractActivity(), View.OnClickListener {
     companion object {
@@ -102,6 +108,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     private fun renderUI() {
         setupActionBar()
+        setupKeyboard()
         setupViewPager()
         setupSearchWidget()
         supportFragmentManager.addOnBackStackChangedListener {
@@ -122,9 +129,21 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
     private fun setupActionBar() {
-        avatar.setOnClickListener { addFragmentInActivity(PlayerView(), R.id.firstLevelFragment, true) }
+        avatar.setOnClickListener { addFragmentInActivity(PlayerView(), R.id.rootFragmentContainer, true) }
     }
 
+
+    private fun setupKeyboard() {
+        KeyboardUtil.attach(this, panelRoot) {
+            if (it) {
+                if (viewPager.currentItem == 1) {
+                    searchEt.requestFocus()
+                }
+            } else {
+                searchEt.clearFocus()
+            }
+        }
+    }
 
     private fun setupSearchWidget() {
         searchEt.setOnClickListener {
@@ -149,6 +168,19 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                     searchEt.compoundDrawableTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.textColorHint))
                 }
             }
+        }
+
+        searchEt.setOnEditorActionListener { _, id, _ ->
+            Log.d("EditorAction", "" + id)
+            if (arrayOf(EditorInfo.IME_ACTION_DONE, EditorInfo.IME_ACTION_SEARCH, EditorInfo.IME_NULL).contains(id)) {
+                if (searchEt.text.toString().isNotEmpty()) {
+                    searchEt.text.toString().apply { searchViewModel.save(this) }
+                    KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+                } else {
+                    collapseSearchView()
+                }
+            }
+            return@setOnEditorActionListener false
         }
     }
 
@@ -178,11 +210,10 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                 searchEt.text = null
                 searchEt.isFocusable = false
                 searchEt.isFocusableInTouchMode = false
-                ImeUtils.hideIme(searchEt)
-                searchEt.clearFocus()
+                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
 
-                supportFragmentManager.findFragmentByTag(SuggestionView::class.java.simpleName)?.let {
-                    supportFragmentManager.beginTransaction().remove(it).commit()
+                searchPage.childFragmentManager.findFragmentByTag(suggestionTag)?.let {
+                    searchPage.childFragmentManager.beginTransaction().hide(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit()
                 }
             }
         })
@@ -190,6 +221,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
     private var searchTextOffset: Float? = null
+    private val suggestionTag = SuggestionView::class.java.simpleName
     /**
      * 展开🔍栏
      */
@@ -217,20 +249,28 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 //                }
                 searchEt.isFocusable = true
                 searchEt.isFocusableInTouchMode = true
-                ImeUtils.showIme(searchEt)
-                searchEt.requestFocus()
-                addFragmentInActivity(SuggestionView(), R.id.secondLevelFragment, false)
+                KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
+                supportFragmentManager.findFragmentByTag(suggestionTag).let {
+                    if (it == null) {
+                        searchPage.childFragmentManager.beginTransaction().add(R.id.suggestionViewContainer, SuggestionView(), suggestionTag)
+                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                .commit()
+                    } else {
+                        searchPage.childFragmentManager.beginTransaction().show(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+                    }
+                }
             }
         })
         animator.start()
     }
 
-    private fun setupViewPager() {
-        val homePage = TimelineView.newInstance(TIMELINE_HOME)
-        val searchPage = SearchView()
-        val signView = SignInView()
-        val messagePage = MessageView()
 
+    private val homePage by lazy { TimelineView.newInstance(TIMELINE_HOME) }
+    private val searchPage by lazy { SearchView() }
+    private val signView by lazy { SignInView() }
+    private val messagePage by lazy { MessageView() }
+
+    private fun setupViewPager() {
         val adapter = RootPageAdapter(supportFragmentManager, mutableListOf(homePage, searchPage, signView, messagePage))
 
         viewPager.offscreenPageLimit = 3
@@ -250,16 +290,12 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
             textSwitcher.setCurrentText(null)
             if (searchEt.isFocusableInTouchMode) {
                 actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
-                ImeUtils.showIme(searchEt)
-                searchEt.requestFocus()
+                KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
             } else {
                 actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
             }
         } else {
-            if (searchEt.isFocusableInTouchMode) {
-                ImeUtils.hideIme(searchEt)
-                searchEt.clearFocus()
-            }
+            KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
             viewAnimator.displayedChildId = R.id.textSwitcher
             textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[current])
         }
@@ -290,5 +326,13 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         }
     }
 
-
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event?.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (panelRoot.visibility == View.VISIBLE) {
+                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
 }

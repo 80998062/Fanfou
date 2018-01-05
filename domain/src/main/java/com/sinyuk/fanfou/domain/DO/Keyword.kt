@@ -25,7 +25,6 @@ import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.TypeConverters
 import android.support.annotation.NonNull
-import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.db.DateConverter
 import java.util.*
 
@@ -33,9 +32,6 @@ import java.util.*
  * Created by sinyuk on 2018/1/3.
  *
  */
-@Entity(tableName = "keys", indices = arrayOf(Index("id")))
+@Entity(tableName = "keys", indices = [(Index("query"))])
 @TypeConverters(DateConverter::class)
-data class  Keyword @JvmOverloads constructor(@PrimaryKey @NonNull @SerializedName("id") var id: String = "",
-                   @SerializedName("query") var query: String = "",
-                   @SerializedName("name") var name: String = "",
-                   @SerializedName("created_at") var createdAt: Date? = null)
+data class Keyword @JvmOverloads constructor(@PrimaryKey @NonNull var query: String = "", var createdAt: Date? = null)

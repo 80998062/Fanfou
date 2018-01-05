@@ -18,20 +18,10 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.search
-
-import com.chad.library.adapter.base.BaseViewHolder
-import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.domain.DO.Keyword
-import com.sinyuk.fanfou.util.QuickAdapter
+package com.sinyuk.fanfou.ui.search.event
 
 /**
- * Created by sinyuk on 2018/1/3.
+ * Created by sinyuk on 2018/1/5.
  *
  */
-class KeywordAdapter : QuickAdapter<Keyword, BaseViewHolder>(R.layout.keyword_list_item) {
-
-    override fun convert(helper: BaseViewHolder, item: Keyword) {
-        helper.setText(R.id.name, "#" + item.name)
-    }
-}
+data class QueryEvent @JvmOverloads constructor(var query: String? = null)

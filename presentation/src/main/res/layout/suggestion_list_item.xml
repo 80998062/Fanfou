@@ -18,28 +18,45 @@
   ~  */
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:orientation="horizontal"
-    tools:layout_gravity="center">
+    app:clickToClose="true"
+    app:drag_edge="right"
+    app:leftEdgeSwipeOffset="0dp"
+    app:rightEdgeSwipeOffset="0dp">
 
-    <Button
+    <TextView
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@color/colorAccentLt"
+        android:gravity="center"
+        android:paddingEnd="@dimen/gap_16"
+        android:paddingStart="@dimen/gap_16"
+        android:text="@string/action_delete"
+        android:textColor="@color/white" />
+
+    <TextView
         android:id="@+id/name"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:background="@color/white"
+        android:drawableEnd="@drawable/ic_left_top"
+        android:drawablePadding="@dimen/gap_16"
+        android:foreground="?android:selectableItemBackgroundBorderless"
         android:gravity="start"
-        android:minHeight="0dp"
         android:paddingBottom="@dimen/gap_8"
         android:paddingEnd="@dimen/gap_16"
         android:paddingStart="@dimen/gap_16"
         android:paddingTop="@dimen/gap_8"
         android:textColor="@color/textColorSecondary"
-        android:textSize="@dimen/text_12"
         tools:text="#圣诞假" />
 
-</LinearLayout>
+</com.daimajia.swipe.SwipeLayout>
+
+

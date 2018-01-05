@@ -17,7 +17,7 @@
   ~  * limitations under the License.
   ~  */
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<cn.dreamtobe.kpswitch.widget.KPSwitchRootRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
@@ -31,18 +31,12 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomNav">
 
-        <FrameLayout
-            android:id="@+id/secondLevelFragment"
+        <com.sinyuk.fanfou.ui.FreezeViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <com.sinyuk.fanfou.ui.FreezeViewPager
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never" />
-        </FrameLayout>
+            android:overScrollMode="never"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -184,7 +178,7 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <FrameLayout
-        android:id="@+id/firstLevelFragment"
+        android:id="@+id/rootFragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/action_bar_height" />
@@ -236,4 +230,10 @@
     </LinearLayout>
 
 
-</RelativeLayout>
+    <cn.dreamtobe.kpswitch.widget.KPSwitchPanelLinearLayout
+        android:id="@+id/panelRoot"
+        style="@style/keyboardPanel"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone" />
+
+</cn.dreamtobe.kpswitch.widget.KPSwitchRootRelativeLayout>

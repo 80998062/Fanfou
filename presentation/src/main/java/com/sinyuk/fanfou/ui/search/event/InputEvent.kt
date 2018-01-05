@@ -18,25 +18,10 @@
  *
  */
 
-package com.sinyuk.fanfou.viewmodel
-
-
-import android.arch.lifecycle.ViewModel
-import com.sinyuk.fanfou.domain.repo.FanfouSearchManager
-import javax.inject.Inject
+package com.sinyuk.fanfou.ui.search.event
 
 /**
- * Created by sinyuk on 2018/1/3.
+ * Created by sinyuk on 2018/1/5.
  *
  */
-class SearchViewModel @Inject constructor(private val manager: FanfouSearchManager) : ViewModel() {
-
-    fun listing(limit: Int? = null) = manager.savedSearches(limit)
-
-    fun trends() = manager.trends()
-
-    fun save(query: String) = manager.createSearch(query)
-
-    fun delete(query: String) = manager.deleteSearch(query = query)
-
-}
+data class InputEvent @JvmOverloads constructor(var text: String? = null)

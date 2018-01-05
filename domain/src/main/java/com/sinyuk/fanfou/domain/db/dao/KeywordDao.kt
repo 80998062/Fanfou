@@ -37,8 +37,11 @@ interface KeywordDao {
     @Query("SELECT * FROM keys ORDER BY createdAt DESC")
     fun list(): LiveData<MutableList<Keyword>?>
 
+    @Query("SELECT * FROM keys ORDER BY createdAt DESC LIMIT :limit")
+    fun take(limit: Int): LiveData<MutableList<Keyword>?>
+
     @Insert(onConflict = REPLACE)
-    fun save(items: MutableList<Keyword>)
+    fun save(item: Keyword)
 
     @Insert(onConflict = REPLACE)
     fun create(item: Keyword)

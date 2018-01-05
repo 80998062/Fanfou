@@ -34,4 +34,6 @@
     <string name="action_sendmessage">私信</string>
     <string name="hint_search">搜索饭否</string>
     <string name="action_confirm">确定</string>
+    <string name="hint_search_suggestion">尝试搜索消息、用户或关键词</string>
+    <string name="action_delete">删除</string>
 </resources>

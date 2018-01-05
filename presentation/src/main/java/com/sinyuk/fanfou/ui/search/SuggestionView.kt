@@ -21,13 +21,15 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout.PASS_MODE_BOTH
+import com.sinyuk.fanfou.util.addFragmentInFragment
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
@@ -51,59 +53,27 @@ class SuggestionView : AbstractFragment(), Injectable {
     private val seachViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
 
 
-    val adapter = KeywordAdapter()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupRecyclerView()
-
-
-//        if (collapsed) {
-//            seachViewModel.listing()
-//        } else {
-//            seachViewModel.listing()
-//        }.asLiveData().observe(this@SuggestionView, Observer {
-//            when (it?.states) {
-//                States.SUCCESS -> {
-//                    adapter.setNewData(it.data)
-//                }
-//                States.ERROR -> {
-//                    it.message?.let { toast.toastShort(it) }
-//                }
-//                States.LOADING -> {
-//
-//                }
-//            }
-//        })
+        setupKeyboard()
+        coordinator.setPassMode(PASS_MODE_BOTH)
+        addFragmentInFragment(HistoryView.newInstance(true), R.id.historyViewContainer, false)
     }
 
-    var footer: View? = null
 
-    private fun setupRecyclerView() {
-        LinearLayoutManager(context).apply {
-            isAutoMeasureEnabled = true
-            recyclerView.layoutManager = this
-        }
-        recyclerView.setHasFixedSize(true)
-
-        val header = LayoutInflater.from(context).inflate(R.layout.keyword_list_header, recyclerView, false)
-        adapter.addHeaderView(header)
-        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                super.onChanged()
-                if (adapter.itemCount == 5) {
-                    if (footer == null) {
-                        footer = View.inflate(context, R.layout.keyword_list_footer, recyclerView)
-                    }
-                    adapter.addFooterView(footer)
-                } else {
-                    footer?.let { adapter.removeFooterView(it) }
-                }
+    private fun setupKeyboard() {
+        KeyboardUtil.attach(activity, panelRoot) {
+            if (it) {
+            } else {
             }
-        })
+        }
 
-
-        recyclerView.adapter = adapter
+        recyclerView.setOnTouchListener { _, event ->
+            if (MotionEvent.ACTION_UP == event.action) {
+                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+            }
+            return@setOnTouchListener false
+        }
     }
+
 }

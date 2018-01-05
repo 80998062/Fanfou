@@ -30,18 +30,13 @@ import android.support.v7.app.AppCompatActivity
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
-fun AppCompatActivity.replaceFragmentInActivity(fragment: Fragment, frameId: Int) {
-    supportFragmentManager.transact {
-        replace(frameId, fragment)
-    }
-}
-
 
 fun AppCompatActivity.addFragmentInActivity(fragment: Fragment, resId: Int, addToBackStack: Boolean) {
     val tag = fragment::class.java.simpleName
     if (supportFragmentManager.findFragmentByTag(tag) == null) {
-        val ft = supportFragmentManager.beginTransaction().replace(resId, fragment, tag)
+        val ft = supportFragmentManager.beginTransaction().add(resId, fragment, tag)
         if (addToBackStack) {
             ft.addToBackStack(tag)
         }
@@ -73,9 +68,9 @@ fun Fragment.addFragmentInFragment(fragment: Fragment, resId: Int, addToBackStac
     }
 }
 
-fun <T : ViewModel> Fragment.obtainViewModelFromActivity(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
+fun <T : ViewModel> Fragment.obtainViewModelFromActivity(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) =
         ViewModelProviders.of(this.activity as AppCompatActivity, viewModelFactory).get(viewModelClass)
 
 
-fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelProvider.Factory , viewModelClass: Class<T>) =
+fun <T : ViewModel> Fragment.obtainViewModel(viewModelFactory: ViewModelProvider.Factory, viewModelClass: Class<T>) =
         ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)

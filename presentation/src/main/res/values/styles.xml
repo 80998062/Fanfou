@@ -30,4 +30,11 @@
         <item name="android:textSize">@dimen/text_14</item>
     </style>
 
+    <style name="keyboardPanel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/keyboard_panel_height</item>
+        <item name="android:background">@color/divider_color</item>
+    </style>
+
+    <dimen name="keyboard_panel_height">200dp</dimen>
 </resources>

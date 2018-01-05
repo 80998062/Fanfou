@@ -17,57 +17,59 @@
   ~  * limitations under the License.
   ~  */
   -->
-
-<com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rootView"
+    android:id="@+id/suggestionViewContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
+        <FrameLayout
+            android:id="@+id/publicViewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <android.support.v7.widget.Toolbar
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll">
+            android:background="@android:color/transparent"
+            app:elevation="0dp">
 
-            <LinearLayout
+            <android.support.v7.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:contentInsetStart="0dp"
+                app:layout_scrollFlags="scroll">
 
-                <com.google.android.gms.ads.AdView
-                    android:id="@+id/adView"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    app:adSize="SMART_BANNER"
-                    app:adUnitId="ca-app-pub-7188837029502497/7810541646" />
+                    android:orientation="vertical">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/trendList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never" />
-            </LinearLayout>
+                    <com.google.android.gms.ads.AdView
+                        android:id="@+id/adView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:adSize="SMART_BANNER"
+                        app:adUnitId="ca-app-pub-7188837029502497/7810541646" />
 
-        </android.support.v7.widget.Toolbar>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/trendList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never" />
+                </LinearLayout>
 
-    </android.support.design.widget.AppBarLayout>
+            </android.support.v7.widget.Toolbar>
 
+        </android.support.design.widget.AppBarLayout>
 
-</com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout>
+    </com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout>
+</FrameLayout>

@@ -62,6 +62,7 @@ interface RestAPI {
                         @Query("count") count: Int,
                         @Query("page") page: Int): Call<MutableList<Status>>
 
+    @Deprecated("unused")
     @GET("saved_searches/list.json")
     fun list_searches(): LiveData<ApiResponse<MutableList<Keyword>>>
 

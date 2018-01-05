@@ -24,7 +24,8 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/label_home">
+            android:label="@string/label_home"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
