@@ -38,5 +38,6 @@ class SearchViewModel @Inject constructor(private val manager: FanfouSearchManag
     fun save(query: String) = manager.createSearch(query)
 
     fun delete(query: String) = manager.deleteSearch(query = query)
+    fun clear()  = manager.clearSearches()
 
 }

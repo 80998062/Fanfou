@@ -48,4 +48,7 @@ interface KeywordDao {
 
     @Delete
     fun delete(item: Keyword)
+
+    @Query("DELETE FROM keys")
+    fun clear()
 }

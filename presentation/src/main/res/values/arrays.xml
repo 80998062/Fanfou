@@ -32,4 +32,8 @@
         <item>消息</item>
         <item>私信</item>
     </string-array>
+    <string-array name="tab_titles_search" >
+        <item>状态</item>
+        <item>用户</item>
+    </string-array>
 </resources>

@@ -26,6 +26,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.ui.MarginDecoration
@@ -66,7 +67,7 @@ class HistoryView : AbstractFragment(), Injectable {
         setupRecyclerView()
 
         if (collapsed) {
-            searchViewModel.listing(3)
+            searchViewModel.listing(5)
         } else {
             searchViewModel.listing()
         }.observe(this@HistoryView, Observer {
@@ -78,7 +79,7 @@ class HistoryView : AbstractFragment(), Injectable {
     }
 
     private fun showMore(size: Int) {
-        if (size < 3) {
+        if (size <= 5) {
             if (adapter.footerLayoutCount != 0) {
                 adapter.removeFooterView(footer!!)
             }
@@ -89,7 +90,11 @@ class HistoryView : AbstractFragment(), Injectable {
         }
     }
 
-    private val footer by lazy { LayoutInflater.from(context).inflate(R.layout.suggestion_list_footer, recyclerView, false) }
+    private val footer by lazy {
+        LayoutInflater.from(context).inflate(R.layout.suggestion_list_footer, recyclerView, false).apply {
+            setOnClickListener { (activity as AbstractActivity).loadRootFragment(R.id.rootFragmentContainer, HistoryManagerView()) }
+        }
+    }
 
     private fun setupRecyclerView() {
         if (collapsed) {
@@ -114,7 +119,7 @@ class HistoryView : AbstractFragment(), Injectable {
         LayoutInflater.from(context).inflate(R.layout.suggestion_list_empty, recyclerView, false).apply {
             adapter.emptyView = this
         }
-        adapter.setOnItemClickListener { _, view, position ->
+        adapter.setOnItemChildClickListener { _, view, position ->
             when (view.id) {
                 R.id.deleteButton -> {
                     adapter.closeItem(position)

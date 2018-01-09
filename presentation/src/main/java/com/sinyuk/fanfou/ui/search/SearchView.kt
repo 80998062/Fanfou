@@ -19,30 +19,13 @@
  */
 package com.sinyuk.fanfou.ui.search
 
-import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
 import android.view.View
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
-import com.sinyuk.fanfou.ui.MarginDecoration
-import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST
-import com.sinyuk.fanfou.ui.timeline.TimelineView
-import com.sinyuk.fanfou.util.FanfouFormatter
-import com.sinyuk.fanfou.util.obtainViewModelFromActivity
-import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
-import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
-import kotlinx.android.synthetic.main.public_view.*
 import javax.inject.Inject
 
 /**
@@ -57,103 +40,21 @@ class SearchView : AbstractFragment(), Injectable {
     @Inject lateinit var toast: ToastUtils
 
 
-    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
-
-    private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
-
-
-    override fun onLazyInitView(savedInstanceState: Bundle?) {
-        super.onLazyInitView(savedInstanceState)
-        coordinator.setPassMode(PASS_MODE_PARENT_FIRST)
-
-        setupAdView()
-        setupTrendList()
-
-        val publicTimeline = TimelineView.newInstance(TIMELINE_PUBLIC)
-        loadRootFragment(R.id.publicViewContainer, publicTimeline)
-
-        searchViewModel.trends().observe(this@SearchView, Observer {
-            searchViewModel.trends().removeObservers(this@SearchView)
-            when (it?.states) {
-                States.SUCCESS -> {
-                    adapter.setNewData(it.data)
-                }
-                States.ERROR -> {
-                    it.message?.let { toast.toastShort(it) }
-                }
-                States.LOADING -> {
-
-                }
-            }
-            publicTimeline.userVisibleHint = true
-        })
-    }
-
-
-    private lateinit var adapter: TrendAdapter
-    private lateinit var header: View
-
-    private fun setupTrendList() {
-        object : LinearLayoutManager(context) {
-            override fun canScrollVertically(): Boolean {
-                return false
-            }
-        }.apply {
-            isAutoMeasureEnabled = true
-            trendList.layoutManager = this
-        }
-
-        trendList.setHasFixedSize(true)
-        trendList.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
-        header = LayoutInflater.from(context).inflate(R.layout.trend_list_header, trendList, false)
-
-        adapter = TrendAdapter().apply {
-            addHeaderView(header)
-            setOnItemClickListener { _, _, position ->
-                toast.toastShort(getItem(position)?.name ?: "Hello")
-            }
-            trendList.adapter = this
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (findChildFragment(TrendingView::class.java) == null) {
+            loadMultipleRootFragment(R.id.rootView, 0, TrendingView(), SuggestionView())
+        } else {
+            loadMultipleRootFragment(R.id.rootView, 0, findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java))
         }
     }
 
-    private fun setupAdView() {
-        MobileAds.initialize(context, "ca-app-pub-7188837029502497~9103442019")
-        //adView.adSize = AdSize.SMART_BANNER
-        //adView.adUnitId = "ca-app-pub-7188837029502497/7810541646"
-        adView.adListener = object : AdListener() {
-
-            override fun onAdFailedToLoad(p0: Int) {
-                super.onAdFailedToLoad(p0)
-                adView.visibility = View.GONE
-            }
-
-            override fun onAdClosed() {
-                super.onAdClosed()
-                adView.visibility = View.GONE
-            }
-
-            override fun onAdLoaded() {
-                super.onAdLoaded()
-                adView.visibility = View.VISIBLE
-            }
+    fun showSearchResult(query: String) {
+        if (findChildFragment(SearchResultView::class.java) == null) {
+            showHideFragment(SearchResultView.newInstance(query))
+        } else {
+            (findChildFragment(SearchResultView::class.java) as SearchResultView).setQuery(query)
+            showHideFragment(findChildFragment(SearchResultView::class.java))
         }
-
-        accountViewModel.user.observe(this@SearchView, Observer {
-            accountViewModel.user.removeObservers(this@SearchView)
-            buildAdRequest(it?.data)
-        })
     }
-
-    private fun buildAdRequest(data: Player?) {
-        val builder = AdRequest.Builder()
-        if (data != null) {
-            data.birthday?.let { builder.setBirthday(FanfouFormatter.convertBirthdayStrToDate(it)) }
-            data.screenName?.let { builder.addKeyword(it) }
-            builder.setGender(FanfouFormatter.convertGenderToInt(data.gender))
-        }
-
-        adView.loadAd(builder.build())
-    }
-
-
 }

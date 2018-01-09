@@ -36,4 +36,8 @@
     <string name="action_confirm">确定</string>
     <string name="hint_search_suggestion">尝试搜索消息、用户或关键词</string>
     <string name="action_delete">删除</string>
+    <string name="label_search_history">搜索历史</string>
+    <string name="action_back">返回</string>
+    <string name="action_delete_all">删除全部</string>
+    <string name="action_clear">清除</string>
 </resources>

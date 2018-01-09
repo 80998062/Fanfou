@@ -30,10 +30,8 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.animation.FastOutSlowInInterpolator
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -53,7 +51,6 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
-import com.sinyuk.fanfou.ui.search.SuggestionView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -115,17 +112,16 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         if (data == null) {
 
         } else {
-            Glide.with(avatar)
-                    .asDrawable()
-                    .load(data.profileImageUrl)
-                    .apply(RequestOptions().circleCrop())
-                    .transition(withCrossFade())
-                    .into(avatar)
+            Glide.with(avatar).asDrawable().load(data.profileImageUrl).apply(RequestOptions().circleCrop()).transition(withCrossFade()).into(avatar)
         }
     }
 
     private fun setupActionBar() {
+        viewAnimator.displayedChildId = R.id.textSwitcher
+        navigationAnimator.displayedChildId = R.id.avatar
         avatar.setOnClickListener { loadRootFragment(R.id.rootFragmentContainer, PlayerView.newInstance()) }
+        navBack.setOnClickListener { collapseSearchView() }
+        postFanfouButton.setOnClickListener { toast.toastShort("发送饭否") }
     }
 
 
@@ -140,36 +136,26 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
     private fun setupSearchWidget() {
-        searchEt.setOnClickListener {
-            if (!searchEt.isFocusable) expandSearchView()
-        }
+        searchEt.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
+        searchBg.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
 
-        searchBg.setOnClickListener {
-            if (!searchEt.isFocusable) expandSearchView()
-        }
         searchCloseButton.setOnClickListener { collapseSearchView() }
 
         searchEt.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (hasFocus) {
                     searchEt.compoundDrawableTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorAccent))
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                } else {
                     searchEt.compoundDrawableTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.textColorHint))
                 }
             }
         }
 
         searchEt.setOnEditorActionListener { _, id, _ ->
-            Log.d("EditorAction", "" + id)
             if (arrayOf(EditorInfo.IME_ACTION_DONE, EditorInfo.IME_ACTION_SEARCH, EditorInfo.IME_NULL).contains(id)) {
-                if (searchEt.text.toString().isNotEmpty()) {
-                    searchEt.text.toString().apply { searchViewModel.save(this) }
-                    KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
-                } else {
-                    collapseSearchView()
-                }
+                val query = searchEt.text
+                if (query.isNotBlank()) searchViewModel.save(query.toString())
+                collapseSearchView(query.toString())
             }
             return@setOnEditorActionListener false
         }
@@ -178,7 +164,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     /**
      * 收起🔍栏
      */
-    private fun collapseSearchView() {
+    private fun collapseSearchView(query: String? = null) {
         val animator = ObjectAnimator.ofFloat(searchEt, View.TRANSLATION_X, 0f)
         animator.duration = 200
         animator.interpolator = FastOutSlowInInterpolator()
@@ -192,21 +178,24 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
             }
 
             private fun onCollapse() {
-                actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
-
 //                searchEt.layoutParams.apply {
 //                    width = WRAP_CONTENT
 //                    searchEt.layoutParams = this
 //                }
-                searchEt.text = null
-                searchEt.isFocusable = false
-                searchEt.isFocusableInTouchMode = false
+                searchEt.setText(query)
+                if (query?.isNotBlank() == true) searchEt.setSelection(query.length)
                 KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+                searchEt.isFocusableInTouchMode = false
 
-                fragments[1].findChildFragment(SuggestionView::class.java)?.let {
-                    fragments[1].childFragmentManager.beginTransaction().hide(it).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit()
+                if (query?.isNotEmpty() == true) { // 关闭搜索框 显示搜索结果
+                    (fragments[1] as SearchView).showResultView(query)
+                    navigationAnimator.displayedChildId = R.id.navBack
+                    actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
+                } else { // 关闭搜索框
+                    (fragments[1] as SearchView).hideSuggestionView()
+                    navigationAnimator.displayedChildId = R.id.avatar
+                    actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
                 }
-
             }
         })
         animator.start()
@@ -238,15 +227,9 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 //                    width = MATCH_PARENT
 //                    searchEt.layoutParams = this
 //                }
-                searchEt.isFocusable = true
+                (fragments[1] as SearchView).showSuggestionView()
                 searchEt.isFocusableInTouchMode = true
                 KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
-
-                if (fragments[1].findChildFragment(SuggestionView::class.java) == null) {
-                    fragments[1].loadRootFragment(R.id.suggestionViewContainer, SuggestionView())
-                } else {
-                    fragments[1].showHideFragment(fragments[1].findChildFragment(SuggestionView::class.java))
-                }
             }
         })
         animator.start()
@@ -263,13 +246,14 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         }
 
         loadMultipleRootFragment(R.id.fakeViewPager, 0, fragments[0], fragments[1], fragments[2], fragments[3])
-        onPageSwitched(0)
 
         homeTab.setOnClickListener(this)
         publicTab.setOnClickListener(this)
         notificationTab.setOnClickListener(this)
         messageTab.setOnClickListener(this)
     }
+
+
 
     private var currentFragment = -1
     private fun onPageSwitched(to: Int) {
@@ -279,13 +263,10 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
             if (to == 1) {
                 viewAnimator.displayedChildId = R.id.searchLayout
                 textSwitcher.setCurrentText(null)
-                if (searchEt.isFocusableInTouchMode) {
-                    actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
-                    KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
-                } else {
-                    actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
-                }
+                actionButtonSwitcher.displayedChildId =
+
             } else {
+                navigationAnimator.displayedChildId = R.id.avatar
                 KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
                 viewAnimator.displayedChildId = R.id.textSwitcher
                 textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])

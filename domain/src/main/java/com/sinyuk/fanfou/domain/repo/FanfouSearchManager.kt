@@ -86,5 +86,11 @@ class FanfouSearchManager @Inject constructor(
         }
     }
 
+    fun clearSearches(){
+        appExecutors.diskIO().execute {
+            db.runInTransaction { db.keywordDao().clear() }
+        }
+    }
+
 
 }

@@ -24,9 +24,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.NavigationView
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.search.HistoryView
-import com.sinyuk.fanfou.ui.search.SearchView
-import com.sinyuk.fanfou.ui.search.SuggestionView
+import com.sinyuk.fanfou.ui.search.*
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -34,32 +32,52 @@ import dagger.android.ContributesAndroidInjector
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 @Module
 abstract class FragmentBuildersModule {
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun signInView(): SignInView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun playerView(): PlayerView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun messageView(): MessageView
 
-
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun seachView(): SearchView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun timelineView(): TimelineView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun navigationView(): NavigationView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun suggestionView(): SuggestionView
 
+    @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun historyView(): HistoryView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun historyManagerView(): HistoryManagerView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun searchResultView(): SearchResultView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun trendingView(): TrendingView
 }

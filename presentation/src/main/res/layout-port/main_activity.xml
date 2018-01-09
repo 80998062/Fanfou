@@ -55,11 +55,29 @@
                     android:layout_height="@dimen/action_bar_height"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:id="@+id/avatar"
-                        style="@style/action_button"
-                        android:contentDescription="@string/name_avatar"
-                        android:src="@mipmap/ic_launcher_round" />
+                    <com.sinyuk.fanfou.ui.BetterViewAnimator
+                        android:id="@+id/navigationAnimator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inAnimation="@android:anim/fade_in"
+                        android:outAnimation="@android:anim/fade_out">
+
+                        <android.support.v4.widget.Space style="@style/action_button" />
+
+                        <ImageView
+                            android:id="@+id/navBack"
+                            style="@style/action_button"
+                            android:contentDescription="@string/name_avatar"
+                            android:src="@drawable/ic_back" />
+
+                        <ImageView
+                            android:id="@+id/avatar"
+                            style="@style/action_button"
+                            android:contentDescription="@string/name_avatar"
+                            tools:src="@mipmap/ic_launcher_round" />
+
+                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
 
                     <com.sinyuk.fanfou.ui.BetterViewAnimator
                         android:id="@+id/viewAnimator"
@@ -93,7 +111,8 @@
                             android:id="@+id/searchLayout"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:padding="@dimen/gap_8">
+                            android:paddingBottom="@dimen/gap_8"
+                            android:paddingTop="@dimen/gap_8">
 
                             <View
                                 android:id="@+id/searchBg"
@@ -110,7 +129,7 @@
                                 android:background="@null"
                                 android:drawablePadding="@dimen/gap_4"
                                 android:drawableStart="@drawable/ic_search"
-                                android:focusable="false"
+                                android:focusableInTouchMode="false"
                                 android:gravity="start|center_vertical"
                                 android:hint="@string/hint_search"
                                 android:imeActionLabel="@string/action_confirm"
@@ -132,7 +151,6 @@
                         android:id="@+id/actionButtonSwitcher"
                         android:layout_width="@dimen/action_bar_height"
                         android:layout_height="@dimen/action_bar_height"
-                        android:layout_alignParentEnd="true"
                         android:inAnimation="@android:anim/fade_in"
                         android:outAnimation="@android:anim/fade_out">
 

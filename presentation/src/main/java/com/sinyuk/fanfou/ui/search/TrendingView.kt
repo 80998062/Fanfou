@@ -1,0 +1,106 @@
+/*
+ *
+ *  * Apache License
+ *  *
+ *  * Copyright [2017] Sinyuk
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *     http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.sinyuk.fanfou.ui.search
+
+import android.arch.lifecycle.Observer
+import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
+import android.view.View
+import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractFragment
+import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.ui.MarginDecoration
+import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
+import com.sinyuk.fanfou.ui.timeline.TimelineView
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
+import com.sinyuk.fanfou.viewmodel.SearchViewModel
+import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.trending_view.*
+import javax.inject.Inject
+
+/**
+ * Created by sinyuk on 2018/1/9.
+ *
+ */
+class TrendingView : AbstractFragment(), Injectable {
+    override fun layoutId() = R.layout.trending_view
+
+    @Inject lateinit var factory: FanfouViewModelFactory
+
+    @Inject lateinit var toast: ToastUtils
+
+
+    private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
+
+
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
+        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
+
+        setupTrendList()
+
+        searchViewModel.trends().observe(this@TrendingView, Observer {
+            searchViewModel.trends().removeObservers(this@TrendingView)
+            when (it?.states) {
+                States.SUCCESS -> {
+                    adapter.setNewData(it.data)
+                }
+                States.ERROR -> {
+                    it.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> {
+
+                }
+            }
+            if (findChildFragment(TimelineView::class.java) == null) loadRootFragment(R.id.publicViewContainer, TimelineView.newInstance(TIMELINE_PUBLIC))
+        })
+    }
+
+
+    private lateinit var adapter: TrendAdapter
+    private lateinit var header: View
+
+    private fun setupTrendList() {
+        object : LinearLayoutManager(context) {
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }.apply {
+            isAutoMeasureEnabled = true
+            trendList.layoutManager = this
+        }
+
+        trendList.setHasFixedSize(true)
+        trendList.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
+        header = LayoutInflater.from(context).inflate(R.layout.trend_list_header, trendList, false)
+
+        adapter = TrendAdapter().apply {
+            addHeaderView(header)
+            setOnItemClickListener { _, _, position -> }
+            trendList.adapter = this
+        }
+    }
+
+}

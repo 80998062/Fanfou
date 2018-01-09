@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -17,9 +17,14 @@
   ~  * limitations under the License.
   ~  */
   -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-</FrameLayout>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="@color/colorAccent"
+        android:pathData="M672,912c-12.3,0 -24.6,-4.7 -34,-14L286,546c-18.8,-18.7 -18.8,-49.1 0,-67.9l352,-352c18.8,-18.8 49.1,-18.8 67.9,0 18.8,18.7 18.8,49.1 0,67.9l-318,318 318,318c18.8,18.8 18.8,49.1 0,67.9C696.5,907.3 684.3,912 672,912z" />
+</vector>

@@ -83,10 +83,7 @@ class TimelineView : AbstractFragment(), Injectable {
         }.run {
             timelineViewModel.setParams(TimelineViewModel.PathAndPlayer(path = timelinePath, uniqueId = uniqueId))
         }
-    }
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
         setupRecyclerView()
         setupSwipeRefresh()
     }
