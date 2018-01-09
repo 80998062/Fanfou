@@ -51,4 +51,10 @@ interface KeywordDao {
 
     @Query("DELETE FROM keys")
     fun clear()
+
+    @Query("SELECT * FROM keys WHERE query LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    fun filter(query: String): LiveData<MutableList<Keyword>?>
+
+    @Query("SELECT * FROM keys WHERE query LIKE '%' || :query || '%' ORDER BY createdAt DESC LIMIT :limit")
+    fun filterAndTake(query: String, limit: Int): LiveData<MutableList<Keyword>?>
 }

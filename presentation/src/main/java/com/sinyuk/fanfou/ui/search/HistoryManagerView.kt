@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractSwipeFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -34,7 +34,14 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/5.
  *
  */
-class HistoryManagerView : AbstractSwipeFragment(), Injectable {
+class HistoryManagerView : AbstractFragment(), Injectable {
+
+    companion object {
+        fun newInstance(query: String?) = HistoryManagerView().apply {
+            arguments = Bundle().apply { putString("query", query) }
+        }
+    }
+
     override fun layoutId() = R.layout.history_manage_view
 
     @Inject lateinit var factory: FanfouViewModelFactory
@@ -46,7 +53,7 @@ class HistoryManagerView : AbstractSwipeFragment(), Injectable {
 
         navBack.setOnClickListener { pop() }
         deleteButton.setOnClickListener { searchViewModel.clear() }
-        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false))
+        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false, query = arguments!!.getString("query")))
     }
 
 

@@ -41,7 +41,11 @@ class SuggestionView : AbstractFragment(), Injectable {
         super.onLazyInitView(savedInstanceState)
         setupKeyboard()
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_BOTH)
-        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(true))
+        if (findChildFragment(HistoryView::class.java) == null) {
+            loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(true))
+        } else {
+            showHideFragment(findChildFragment(HistoryView::class.java))
+        }
     }
 
 

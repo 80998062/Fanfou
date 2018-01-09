@@ -67,10 +67,18 @@ class FanfouSearchManager @Inject constructor(
     }
 
 
-    fun savedSearches(limit: Int? = null) = if (limit == null) {
-        db.keywordDao().list()
+    fun savedSearches(limit: Int? = null, query: String? = null) = if (limit == null) {
+        if (query.isNullOrBlank()) {
+            db.keywordDao().list()
+        } else {
+            db.keywordDao().filter(query!!)
+        }
     } else {
-        db.keywordDao().take(limit)
+        if (query.isNullOrBlank()) {
+            db.keywordDao().take(limit)
+        } else {
+            db.keywordDao().filterAndTake(query!!, limit)
+        }
     }
 
     fun createSearch(query: String) {
@@ -86,7 +94,7 @@ class FanfouSearchManager @Inject constructor(
         }
     }
 
-    fun clearSearches(){
+    fun clearSearches() {
         appExecutors.diskIO().execute {
             db.runInTransaction { db.keywordDao().clear() }
         }

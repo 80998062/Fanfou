@@ -23,18 +23,26 @@ package com.sinyuk.fanfou.ui.search
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
+import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
+import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.SUGGESTION_HISTORY_LIMIT
 import com.sinyuk.fanfou.ui.MarginDecoration
-import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.ui.search.event.InputEvent
+import com.sinyuk.fanfou.util.Objects
+import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.histyory_view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import javax.inject.Inject
 
 /**
@@ -44,8 +52,11 @@ import javax.inject.Inject
 class HistoryView : AbstractFragment(), Injectable {
 
     companion object {
-        fun newInstance(collapsed: Boolean) = HistoryView().apply {
-            arguments = Bundle().apply { putBoolean("collapsed", collapsed) }
+        fun newInstance(collapsed: Boolean, query: String? = null) = HistoryView().apply {
+            arguments = Bundle().apply {
+                putBoolean("collapsed", collapsed)
+                putString("query", query)
+            }
         }
     }
 
@@ -53,8 +64,9 @@ class HistoryView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
+    private val searchViewModel by lazy { obtainViewModel(factory, SearchViewModel::class.java) }
 
+    private var query: String? = null
 
     private val adapter = SuggestionAdapter()
 
@@ -62,24 +74,26 @@ class HistoryView : AbstractFragment(), Injectable {
 
     override fun layoutId() = R.layout.histyory_view
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
+        super.onEnterAnimationEnd(savedInstanceState)
         setupRecyclerView()
 
-        if (collapsed) {
-            searchViewModel.listing(5)
+        val limit = if (collapsed) {
+            SUGGESTION_HISTORY_LIMIT
         } else {
-            searchViewModel.listing()
-        }.observe(this@HistoryView, Observer {
-            adapter.setNewData(it)
-            if (collapsed) {
-                showMore(it?.size ?: 0)
-            }
+            null
+        }
+        searchViewModel.setQuery(SearchViewModel.QueryParams(query = arguments!!.getString("query"), limit = limit))
+        searchViewModel.listing.observe(this@HistoryView, Observer {
+            it?.observe(this@HistoryView, Observer {
+                adapter.setNewData(it)
+                if (collapsed) showMore(it?.size ?: 0)
+            })
         })
     }
 
     private fun showMore(size: Int) {
-        if (size <= 5) {
+        if (size < SUGGESTION_HISTORY_LIMIT) {
             if (adapter.footerLayoutCount != 0) {
                 adapter.removeFooterView(footer!!)
             }
@@ -92,7 +106,12 @@ class HistoryView : AbstractFragment(), Injectable {
 
     private val footer by lazy {
         LayoutInflater.from(context).inflate(R.layout.suggestion_list_footer, recyclerView, false).apply {
-            setOnClickListener { (activity as AbstractActivity).loadRootFragment(R.id.rootFragmentContainer, HistoryManagerView()) }
+            setOnClickListener {
+                (activity as AbstractActivity).also {
+                    it.loadRootFragment(R.id.rootFragmentContainer, HistoryManagerView.newInstance(query))
+                }
+                KPSwitchConflictUtil.hidePanelAndKeyboard(recyclerView)
+            }
         }
     }
 
@@ -130,5 +149,27 @@ class HistoryView : AbstractFragment(), Injectable {
         recyclerView.adapter = adapter
     }
 
+
+    override fun onPause() {
+        super.onPause()
+        EventBus.getDefault().unregister(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onQueryChanged(event: InputEvent) {
+        if (!collapsed) return
+        if (BuildConfig.DEBUG) Log.d("HistoryView", "onQueryChanged: " + event.text)
+        if (!Objects.equals(event.text, query)) {
+            searchViewModel.setQuery(SearchViewModel.QueryParams(query = event.text, limit = SUGGESTION_HISTORY_LIMIT))
+        }
+    }
 
 }

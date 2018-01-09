@@ -40,7 +40,7 @@ class SearchView : AbstractFragment(), Injectable {
 
     var currentFragment = 0
 
-    lateinit var fragments: MutableList<AbstractFragment>
+    private lateinit var fragments: MutableList<AbstractFragment>
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)

@@ -53,6 +53,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
+import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -171,7 +172,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                EventBus.getDefault().post(QueryEvent(s.toString()))
+                EventBus.getDefault().post(InputEvent(s.toString()))
             }
         })
 

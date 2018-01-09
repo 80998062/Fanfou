@@ -82,4 +82,5 @@ const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道�
 
 
 
+const val SUGGESTION_HISTORY_LIMIT = 5
 
