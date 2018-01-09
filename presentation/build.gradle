@@ -28,8 +28,15 @@ android {
     }
 
     kapt {
+
         correctErrorTypes = true
+
+        arguments {
+            arg('eventBusIndex', 'com.sinyuk.fanfou.EventBusAppIndex')
+        }
     }
+
+
 }
 
 dependencies {
@@ -75,9 +82,8 @@ dependencies {
 
     implementation "me.yokeyword:fragmentation:1.2.4"
     implementation "me.yokeyword:fragmentation-swipeback:1.2.4"
-    implementation "me.yokeyword:eventbus-activity-scope:1.1.0"
     implementation "org.greenrobot:eventbus:3.1.1"
-
+    kapt "org.greenrobot:eventbus-annotation-processor:3.1.1"
 
 }
 

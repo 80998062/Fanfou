@@ -20,18 +20,24 @@
 
 package com.sinyuk.fanfou.ui.search
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
+import android.util.Log
 import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
+import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.search.event.QueryEvent
 import com.sinyuk.fanfou.ui.timeline.TimelineView
+import com.sinyuk.fanfou.util.Objects
 import kotlinx.android.synthetic.main.search_result_view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 /**
  * Created by sinyuk on 2018/1/5.
@@ -47,27 +53,19 @@ class SearchResultView : AbstractFragment(), Injectable {
 
     override fun layoutId() = R.layout.search_result_view
 
-
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
-
-        fragmentList = mutableListOf(TimelineView.newInstance(TIMELINE_USER), TimelineView.newInstance(TIMELINE_USER))
+        fragmentList = if (findChildFragment(TimelineView::class.java) == null) {
+            mutableListOf(TimelineView.newInstance(TIMELINE_USER), SignInView())
+        } else {
+            mutableListOf(findChildFragment(TimelineView::class.java), findChildFragment(SignInView::class.java))
+        }
         setupViewPager()
     }
 
 
-    private lateinit var query: String
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        query = arguments!!.getString("query")
-    }
-
-    fun setQuery(it: String) {
-        if (query === it) return
-        query = it
-    }
+    private var query: String? = null
 
     lateinit var fragmentList: MutableList<Fragment>
 
@@ -87,6 +85,30 @@ class SearchResultView : AbstractFragment(), Injectable {
             override fun onEndTabSelected(title: String?, index: Int) {
                 viewPager.setCurrentItem(index, true)
             }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onQuery(event: QueryEvent) {
+        if (Objects.equals(event.query, query)) {
+
+        } else {
+            query = event.query!!
+            Log.d("SearchResultView", "onQuery: " + query)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this)
         }
     }
 }

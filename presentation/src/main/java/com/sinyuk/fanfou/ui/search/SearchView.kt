@@ -20,7 +20,6 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
-import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -39,22 +38,49 @@ class SearchView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
+    var currentFragment = 0
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        if (findChildFragment(TrendingView::class.java) == null) {
-            loadMultipleRootFragment(R.id.rootView, 0, TrendingView(), SuggestionView())
+    lateinit var fragments: MutableList<AbstractFragment>
+
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
+
+        fragments = if (findChildFragment(TrendingView::class.java) == null) {
+            mutableListOf(TrendingView(), SuggestionView(), SearchResultView())
         } else {
-            loadMultipleRootFragment(R.id.rootView, 0, findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java))
+            mutableListOf(findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java), findChildFragment(SearchResultView::class.java))
         }
+
+        loadMultipleRootFragment(R.id.rootView, 0, fragments[0], fragments[1], fragments[2])
+        currentFragment = 0
     }
 
-    fun showSearchResult(query: String) {
-        if (findChildFragment(SearchResultView::class.java) == null) {
-            showHideFragment(SearchResultView.newInstance(query))
-        } else {
-            (findChildFragment(SearchResultView::class.java) as SearchResultView).setQuery(query)
-            showHideFragment(findChildFragment(SearchResultView::class.java))
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("currentFragment", currentFragment)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        currentFragment = savedInstanceState?.getInt("currentFragment") ?: 0
+    }
+
+    fun showResult() {
+        if (currentFragment == 2) return
+        showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
+        currentFragment = 2
+    }
+
+    fun showSuggestion() {
+        if (currentFragment == 1) return
+        showHideFragment(findChildFragment(SuggestionView::class.java), fragments[currentFragment])
+        currentFragment = 1
+    }
+
+
+    fun showTrending() {
+        if (currentFragment == 0) return
+        showHideFragment(findChildFragment(TrendingView::class.java), fragments[currentFragment])
+        currentFragment = 0
     }
 }

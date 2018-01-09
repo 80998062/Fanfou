@@ -32,6 +32,8 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.animation.FastOutSlowInInterpolator
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -51,6 +53,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
+import com.sinyuk.fanfou.ui.search.event.QueryEvent
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -58,6 +61,7 @@ import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
+import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 /**
@@ -120,7 +124,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
         avatar.setOnClickListener { loadRootFragment(R.id.rootFragmentContainer, PlayerView.newInstance()) }
-        navBack.setOnClickListener { collapseSearchView() }
+
         postFanfouButton.setOnClickListener { toast.toastShort("发送饭否") }
     }
 
@@ -139,7 +143,14 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         searchEt.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
         searchBg.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
 
-        searchCloseButton.setOnClickListener { collapseSearchView() }
+        navBack.setOnClickListener {
+            collapseSearchView()
+            (fragments[1] as SearchView).showTrending()
+        }
+        searchCloseButton.setOnClickListener {
+            collapseSearchView()
+            (fragments[1] as SearchView).showTrending()
+        }
 
         searchEt.setOnFocusChangeListener { _, hasFocus ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -150,12 +161,29 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                 }
             }
         }
+        searchEt.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                EventBus.getDefault().post(QueryEvent(s.toString()))
+            }
+        })
 
         searchEt.setOnEditorActionListener { _, id, _ ->
             if (arrayOf(EditorInfo.IME_ACTION_DONE, EditorInfo.IME_ACTION_SEARCH, EditorInfo.IME_NULL).contains(id)) {
-                val query = searchEt.text
-                if (query.isNotBlank()) searchViewModel.save(query.toString())
-                collapseSearchView(query.toString())
+                val query = searchEt.text.toString()
+                collapseSearchView(query)
+                if (query.isNotBlank()) {
+                    (fragments[1] as SearchView).showResult()
+                    searchViewModel.save(query)
+                    EventBus.getDefault().post(QueryEvent(query))
+                }
             }
             return@setOnEditorActionListener false
         }
@@ -187,12 +215,10 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
                 KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
                 searchEt.isFocusableInTouchMode = false
 
-                if (query?.isNotEmpty() == true) { // 关闭搜索框 显示搜索结果
-                    (fragments[1] as SearchView).showResultView(query)
+                if (query?.isNotBlank() == true) {
                     navigationAnimator.displayedChildId = R.id.navBack
                     actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
-                } else { // 关闭搜索框
-                    (fragments[1] as SearchView).hideSuggestionView()
+                } else {
                     navigationAnimator.displayedChildId = R.id.avatar
                     actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
                 }
@@ -227,7 +253,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 //                    width = MATCH_PARENT
 //                    searchEt.layoutParams = this
 //                }
-                (fragments[1] as SearchView).showSuggestionView()
+                (fragments[1] as SearchView).showSuggestion()
                 searchEt.isFocusableInTouchMode = true
                 KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
             }
@@ -246,6 +272,7 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
         }
 
         loadMultipleRootFragment(R.id.fakeViewPager, 0, fragments[0], fragments[1], fragments[2], fragments[3])
+        onPageSwitched(0)
 
         homeTab.setOnClickListener(this)
         publicTab.setOnClickListener(this)
@@ -254,48 +281,53 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
     }
 
 
-
-    private var currentFragment = -1
+    private var currentFragment = 0
     private fun onPageSwitched(to: Int) {
-        if (to == currentFragment) {
-            return
-        } else {
-            if (to == 1) {
-                viewAnimator.displayedChildId = R.id.searchLayout
-                textSwitcher.setCurrentText(null)
-                actionButtonSwitcher.displayedChildId =
-
-            } else {
-                navigationAnimator.displayedChildId = R.id.avatar
-                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
-                viewAnimator.displayedChildId = R.id.textSwitcher
-                textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])
+        if (to == 1) {
+            viewAnimator.displayedChildId = R.id.searchLayout
+            textSwitcher.setCurrentText(null)
+            when ((fragments[1] as SearchView).currentFragment) {
+                0 -> {
+                    actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
+                    navigationAnimator.displayedChildId = R.id.avatar
+                }
+                1 -> {
+                    actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
+                    navigationAnimator.displayedChildId = R.id.avatar
+                }
+                2 -> {
+                    actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
+                    navigationAnimator.displayedChildId = R.id.navBack
+                }
             }
-
-            if (currentFragment != -1) showHideFragment(fragments[to], fragments[currentFragment])
-            currentFragment = to
+        } else {
+            navigationAnimator.displayedChildId = R.id.avatar
+            KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+            viewAnimator.displayedChildId = R.id.textSwitcher
+            textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])
         }
+
+        showHideFragment(fragments[to], fragments[currentFragment])
+        currentFragment = to
     }
 
 
     override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.homeTab -> {
-                actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
-                onPageSwitched(0)
-            }
-            R.id.publicTab -> {
-                onPageSwitched(1)
-            }
-            R.id.notificationTab -> {
-                actionButtonSwitcher.displayedChildId = R.id.inboxSettingsButton
-                onPageSwitched(2)
-            }
-            R.id.messageTab -> {
-                actionButtonSwitcher.displayedChildId = R.id.sendMessageButton
-                onPageSwitched(3)
-            }
+        val to = when (v?.id) {
+            R.id.homeTab -> 0
+            R.id.publicTab -> 1
+            R.id.notificationTab -> 2
+            R.id.messageTab -> 3
+            else -> TODO()
         }
+
+        when (to) {
+            0 -> actionButtonSwitcher.displayedChildId = R.id.postFanfouButton
+            2 -> actionButtonSwitcher.displayedChildId = R.id.inboxSettingsButton
+            3 -> actionButtonSwitcher.displayedChildId = R.id.sendMessageButton
+        }
+
+        if (to != currentFragment) onPageSwitched(to)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {

@@ -54,7 +54,6 @@ class TrendingView : AbstractFragment(), Injectable {
 
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
 
-
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
@@ -77,7 +76,6 @@ class TrendingView : AbstractFragment(), Injectable {
             if (findChildFragment(TimelineView::class.java) == null) loadRootFragment(R.id.publicViewContainer, TimelineView.newInstance(TIMELINE_PUBLIC))
         })
     }
-
 
     private lateinit var adapter: TrendAdapter
     private lateinit var header: View
