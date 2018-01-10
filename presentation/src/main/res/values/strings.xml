@@ -40,4 +40,7 @@
     <string name="action_back">返回</string>
     <string name="action_delete_all">删除全部</string>
     <string name="action_clear">清除</string>
+    <string name="name_direct_msg">私信</string>
+    <string name="label_follower">关注者</string>
+    <string name="label_following">正在关注</string>
 </resources>

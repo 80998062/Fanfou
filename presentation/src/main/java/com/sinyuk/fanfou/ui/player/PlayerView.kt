@@ -105,6 +105,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             postCount.text = (it.statusesCount.toString() + "条饭否")
             actionBarTitle.text = it.screenName
 
+            followerButton.setOnClickListener { }
             if (it.protectedX == true) {
 
             } else {

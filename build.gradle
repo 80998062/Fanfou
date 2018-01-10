@@ -47,7 +47,7 @@ ext {
     roomVersion = "1.0.0"
     pagingVersion = "1.0.0-alpha4-1"
 
-    glideVersion = "4.4.0"
+    glideVersion = "4.5.0"
     transformationVersion = "3.0.1"
     // Architecture Components dependencies
     archLifecycleVersion = "1.0.0"

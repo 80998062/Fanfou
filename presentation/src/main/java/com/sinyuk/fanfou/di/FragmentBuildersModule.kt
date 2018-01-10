@@ -22,8 +22,7 @@ package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.message.MessageView
-import com.sinyuk.fanfou.ui.player.NavigationView
-import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.ui.player.*
 import com.sinyuk.fanfou.ui.search.*
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
@@ -80,4 +79,16 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun trendingView(): TrendingView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun playerListView(): PlayerListView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun followerView(): FollowerView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun followingView(): FollowingView
 }

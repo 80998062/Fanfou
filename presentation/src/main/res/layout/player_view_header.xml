@@ -19,6 +19,7 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -28,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/sample" />
+        tools:src="@drawable/sample" />
 
 
     <LinearLayout
@@ -48,82 +49,82 @@
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginRight="72dp"
+                android:layout_marginEnd="72dp"
                 android:layout_weight="1" />
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginLeft="@dimen/gap_16"
-                android:layout_marginRight="@dimen/gap_16"
+                android:layout_marginEnd="@dimen/gap_16"
+                android:layout_marginStart="@dimen/gap_16"
                 android:src="@color/colorAccent" />
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginRight="@dimen/gap_16"
+                android:layout_marginEnd="@dimen/gap_16"
                 android:src="@color/colorAccent" />
 
             <TextView
                 android:id="@+id/followOrEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/gap_16"
-                android:text="正在关注"
-                android:textSize="@dimen/text_14" />
+                android:layout_marginEnd="@dimen/gap_16"
+                android:textSize="@dimen/text_14"
+                tools:text="正在关注" />
         </LinearLayout>
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/screenName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/avatarLayout"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
         android:ellipsize="end"
         android:maxLines="1"
         android:scrollHorizontally="true"
-        android:text="Sinyuk"
         android:textColor="@color/textColorPrimary"
         android:textSize="@dimen/text_18"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:text="Sinyuk" />
 
     <TextView
         android:id="@+id/userId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/screenName"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_2"
         android:ellipsize="end"
         android:maxLines="1"
         android:scrollHorizontally="true"
-        android:text="\~@dasdhjsaj"
         android:textColor="@color/textColorSecondary"
-        android:textSize="@dimen/text_12" />
+        android:textSize="@dimen/text_12"
+        tools:text="\~@dasdhjsaj" />
 
     <TextView
         android:id="@+id/bio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/userId"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_8"
-        android:text="adsfasdfsaddsfasdf\ndsafasdf"
         android:textColor="@color/textColorPrimary"
-        android:textSize="@dimen/text_14" />
+        android:textSize="@dimen/text_14"
+        tools:text="adsfasdfsaddsfasdf\ndsafasdf" />
 
     <LinearLayout
         android:id="@+id/locationLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/bio"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_8"
         android:orientation="horizontal">
 
@@ -131,15 +132,15 @@
             android:id="@+id/location"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/gap_16"
+            android:layout_marginEnd="@dimen/gap_16"
             android:layout_weight="1"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:scrollHorizontally="true"
-            android:text="Nevis"
             android:textColor="@color/colorAccent"
-            android:textSize="@dimen/text_12" />
+            android:textSize="@dimen/text_12"
+            tools:text="Nevis" />
 
         <TextView
             android:id="@+id/link"
@@ -150,9 +151,9 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:scrollHorizontally="true"
-            android:text="www.baidu.com"
             android:textColor="@color/colorAccent"
-            android:textSize="@dimen/text_12" />
+            android:textSize="@dimen/text_12"
+            tools:text="www.baidu.com" />
     </LinearLayout>
 
 
@@ -161,8 +162,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/locationLayout"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
+        android:layout_marginBottom="@dimen/gap_8"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
         android:layout_marginTop="@dimen/gap_8"
         android:gravity="bottom"
         android:orientation="horizontal">
@@ -171,18 +173,19 @@
             android:id="@+id/followingCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/gap_8"
-            android:text="1232"
+            android:layout_marginEnd="@dimen/gap_8"
             android:textColor="@color/textColorPrimary"
             android:textSize="@dimen/text_14"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="121242" />
 
-        <TextView
+        <com.sinyuk.fanfou.ui.ClickableTextView
+            android:id="@+id/followingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/gap_16"
+            android:layout_marginEnd="@dimen/gap_8"
             android:text="@string/name_following"
-            android:textColor="@color/textColorSecondary"
+            android:textColor="@color/text_click_secondary_primary"
             android:textSize="@dimen/text_12" />
 
 
@@ -190,17 +193,19 @@
             android:id="@+id/followerCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/gap_8"
-            android:text="123,2434,545"
+            android:layout_marginEnd="@dimen/gap_8"
             android:textColor="@color/textColorPrimary"
             android:textSize="@dimen/text_14"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="121242" />
 
-        <TextView
+        <com.sinyuk.fanfou.ui.ClickableTextView
+            android:id="@+id/followerButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/gap_8"
             android:text="@string/name_follower"
-            android:textColor="@color/textColorSecondary"
+            android:textColor="@color/text_click_secondary_primary"
             android:textSize="@dimen/text_12" />
 
 
@@ -208,11 +213,13 @@
 
 
     <ImageView
+        android:id="@+id/avatar"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_above="@+id/screenName"
-        android:layout_marginLeft="@dimen/gap_16"
-        android:layout_marginRight="@dimen/gap_16"
-        android:src="@mipmap/ic_launcher_round" />
+        android:layout_marginEnd="@dimen/gap_16"
+        android:layout_marginStart="@dimen/gap_16"
+        android:contentDescription="@string/name_avatar"
+        tools:src="@mipmap/ic_launcher_round" />
 
 </RelativeLayout>

@@ -172,4 +172,15 @@ class HistoryView : AbstractFragment(), Injectable {
         }
     }
 
+    override fun onSupportInvisible() {
+        super.onSupportInvisible()
+        if (BuildConfig.DEBUG) Log.d("HistoryView", "Invisible")
+
+    }
+
+    override fun onSupportVisible() {
+        super.onSupportVisible()
+        if (BuildConfig.DEBUG) Log.d("HistoryView", "Visible")
+    }
+
 }

@@ -20,12 +20,15 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
+import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
+import android.support.v4.app.Fragment
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.ListPreloader
+import com.bumptech.glide.RequestBuilder
 import com.chad.library.adapter.base.BaseViewHolder
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
@@ -35,7 +38,10 @@ import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.glide.GlideApp
+import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
+import java.util.*
 
 /**
  * Created by sinyuk on 2017/12/18.
@@ -43,11 +49,13 @@ import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
  * Adapter implementation that shows status.
  */
 class StatusPagedListAdapter(
-        private val glide: RequestManager,
+        private val fragment: Fragment,
         private val retryCallback: () -> Unit,
         private val uniqueId: String?) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
+
+    private val glide: GlideRequests = GlideApp.with(fragment)
 
     val HEADER_VIEW_TYPE = Int.MAX_VALUE
 
@@ -177,5 +185,42 @@ class StatusPagedListAdapter(
     }
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
+
+    override fun onCurrentListChanged(currentList: PagedList<Status>?) {
+        super.onCurrentListChanged(currentList)
+        preloadModelProvider.currentList.clear()
+        currentList?.let { preloadModelProvider.currentList.addAll(it.toMutableList()) }
+    }
+
+    val preloadModelProvider = StatusPreloadProvider(fragment)
+
+    class StatusPreloadProvider constructor(private val fragment: Fragment) : ListPreloader.PreloadModelProvider<Status> {
+
+        val imageWidthPixels = fragment.resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
+
+        val currentList: MutableList<Status> = mutableListOf()
+
+        override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
+            return GlideApp.with(fragment).load(item.photos?.imageurl).illustrationThumb().override(imageWidthPixels, imageWidthPixels)
+        }
+
+        override fun getPreloadItems(position: Int): MutableList<Status> = if (currentList.isNotEmpty()) {
+            val status = currentList[position]
+            val url = when {
+                status.photos?.largeurl != null -> status.photos?.largeurl
+                status.photos?.thumburl != null -> status.photos?.thumburl
+                else -> status.photos?.imageurl
+            }
+            if (url == null) {
+                Collections.emptyList<Status>()
+            } else {
+                Collections.singletonList(status)
+            }
+        } else {
+            Collections.emptyList<Status>()
+        }
+
+
+    }
 
 }

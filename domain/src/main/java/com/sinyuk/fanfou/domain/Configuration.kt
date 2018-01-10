@@ -57,6 +57,11 @@ const val TIMELINE_MENTIONS = "mentions"
 
 const val TIMELINE_PUBLIC = "public_timeline"
 
+
+const val USERS_FRIENDS = "friends"
+
+const val USERS_FOLLOWERS = "followers"
+
 /**
  * @ format
  */

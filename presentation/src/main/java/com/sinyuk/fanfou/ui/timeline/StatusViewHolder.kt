@@ -24,12 +24,11 @@ import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.util.FanfouFormatter
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 
@@ -38,15 +37,11 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  *
  * A RecyclerView ViewHolder that displays a status.
  */
-class StatusViewHolder(private val view: View, private val glide: RequestManager, private val uniqueId: String?) : BaseViewHolder(view) {
+class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String?) : BaseViewHolder(view) {
     fun bind(status: Status) {
         view.swipeLayout.isRightSwipeEnabled = true
         view.swipeLayout.isClickToClose = true
-        glide.asDrawable()
-                .load(status.playerExtracts?.profileImageUrl)
-                .apply(RequestOptions().circleCrop())
-                .transition(withCrossFade())
-                .into(view.avatar)
+        glide.asDrawable().load(status.playerExtracts?.profileImageUrl).avatar().transition(withCrossFade()).into(view.avatar)
 
         view.avatar.setOnClickListener {}
 
@@ -62,21 +57,15 @@ class StatusViewHolder(private val view: View, private val glide: RequestManager
         view.content.text = status.text
 
         val url = when {
-            status.photos?.thumburl != null -> status.photos?.thumburl
             status.photos?.largeurl != null -> status.photos?.largeurl
+            status.photos?.thumburl != null -> status.photos?.thumburl
             else -> status.photos?.imageurl
         }
 
         if (url == null) {
             glide.clear(view.image)
-            view.image.visibility = View.GONE
         } else {
-            view.image.visibility = View.VISIBLE
-            glide.asDrawable()
-                    .load(url)
-                    .apply(RequestOptions().centerCrop())
-                    .transition(withCrossFade())
-                    .into(view.image)
+            glide.asDrawable().load(url).illustrationThumb().transition(withCrossFade()).into(view.image)
         }
     }
 
@@ -91,12 +80,11 @@ class StatusViewHolder(private val view: View, private val glide: RequestManager
         view.createdAt.text = null
         view.content.text = null
         glide.clear(view.image)
-        view.image.visibility = View.VISIBLE
         glide.clear(view.avatar)
     }
 
     companion object {
-        fun create(parent: ViewGroup, glide: RequestManager, uniqueId: String?): StatusViewHolder {
+        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String?): StatusViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.timeline_view_list_item, parent, false)
             return StatusViewHolder(view, glide, uniqueId)

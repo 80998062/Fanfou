@@ -27,6 +27,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
+import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -129,7 +131,11 @@ class TimelineView : AbstractFragment(), Injectable {
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(Glide.with(this), { timelineViewModel.retry() }, uniqueId)
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, uniqueId)
+
+        val sizePreloader = FixedPreloadSizeProvider<Status>(adapter.preloadModelProvider.imageWidthPixels, adapter.preloadModelProvider.imageWidthPixels)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), adapter.preloadModelProvider, sizePreloader, 10)
+        recyclerView.addOnScrollListener(preloader)
 
         recyclerView.adapter = adapter
 
@@ -150,6 +156,7 @@ class TimelineView : AbstractFragment(), Injectable {
         timelineViewModel.networkState.observe(this, networkConsumer)
     }
 
+
     private val pagedListConsumer = Observer<PagedList<Status>> {
         adapter.setList(it)
     }
@@ -157,5 +164,6 @@ class TimelineView : AbstractFragment(), Injectable {
     private val networkConsumer = Observer<NetworkState> {
         adapter.setNetworkState(it)
     }
+
 
 }
