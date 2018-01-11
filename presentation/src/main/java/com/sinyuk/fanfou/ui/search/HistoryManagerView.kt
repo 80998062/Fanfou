@@ -50,10 +50,13 @@ class HistoryManagerView : AbstractFragment(), Injectable {
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
-
         navBack.setOnClickListener { pop() }
         deleteButton.setOnClickListener { searchViewModel.clear() }
-//        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false, query = arguments!!.getString("query")))
+        if (findChildFragment(HistoryView::class.java) == null) {
+            loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false, query = arguments!!.getString("query")))
+        } else {
+            showHideFragment(findChildFragment(HistoryView::class.java))
+        }
     }
 
 

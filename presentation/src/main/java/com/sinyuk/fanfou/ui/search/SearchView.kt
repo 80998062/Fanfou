@@ -24,6 +24,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.AccordionTransformer
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.public_view.*
@@ -58,6 +59,7 @@ class SearchView : AbstractFragment(), Injectable {
     private fun setupViewPager() {
         viewPager.offscreenPageLimit = fragments.size
         viewPager.setPagingEnabled(false)
+        viewPager.setPageTransformer(false, AccordionTransformer())
         viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
             override fun getItem(position: Int) = fragments[position]
             override fun getCount() = fragments.size

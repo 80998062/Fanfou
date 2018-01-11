@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
+import android.view.MotionEvent
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
@@ -40,7 +41,7 @@ class SuggestionView : AbstractFragment(), Injectable {
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
         setupKeyboard()
-        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_BOTH)
+        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
         if (findChildFragment(HistoryView::class.java) == null) {
             loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(true))
         } else {
@@ -50,7 +51,10 @@ class SuggestionView : AbstractFragment(), Injectable {
 
 
     private fun setupKeyboard() {
-        KeyboardUtil.attach(activity, panelRoot) {}
+        coordinator.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) KeyboardUtil.hideKeyboard(v)
+            return@setOnTouchListener false
+        }
     }
 
 }

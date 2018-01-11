@@ -18,49 +18,66 @@
   ~  */
   -->
 
-<cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/windowBackground">
 
-    <com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
-        android:id="@+id/coordinator"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
-            android:id="@+id/searchResultContainer"
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:layout_height="match_parent">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appBarLayout"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:padding="100dp"
+                android:text="To the melted chicken add marshmellow, melon, adobo sauce and shredded asparagus." />
+        </android.support.v4.widget.NestedScrollView>
+    </FrameLayout>
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <android.support.v7.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            app:elevation="0dp">
+            app:contentInsetStart="0dp"
+            app:layout_scrollFlags="scroll">
 
-            <android.support.v7.widget.Toolbar
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:contentInsetStart="0dp"
-                app:layout_scrollFlags="scroll">
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="It is a seismic nuclear flux, sir.One outer life i give you: witness each other." />
 
                 <FrameLayout
                     android:id="@+id/historyViewContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="200dp"
                     tools:layout_height="100dp" />
-            </android.support.v7.widget.Toolbar>
-        </android.support.design.widget.AppBarLayout>
-    </com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout>
+            </LinearLayout>
 
-    <cn.dreamtobe.kpswitch.widget.KPSwitchPanelLinearLayout
-        android:id="@+id/panelRoot"
-        style="@style/keyboardPanel"
-        android:visibility="gone" />
-</cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+</com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout>
+
+
 
