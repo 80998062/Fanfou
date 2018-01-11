@@ -120,6 +120,7 @@ class TimelineView : AbstractFragment(), Injectable {
     private lateinit var adapter: StatusPagedListAdapter
 
     private lateinit var publicHeader: View
+
     private fun setupRecyclerView() {
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
@@ -133,8 +134,10 @@ class TimelineView : AbstractFragment(), Injectable {
 
         adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, uniqueId)
 
-        val sizePreloader = FixedPreloadSizeProvider<Status>(adapter.preloadModelProvider.imageWidthPixels, adapter.preloadModelProvider.imageWidthPixels)
-        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), adapter.preloadModelProvider, sizePreloader, 10)
+        val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
+        val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
+        val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, 10)
         recyclerView.addOnScrollListener(preloader)
 
         recyclerView.adapter = adapter

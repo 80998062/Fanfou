@@ -27,8 +27,10 @@ import android.view.ViewGroup
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.glide.GlideRequests
+import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.FanfouFormatter
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 
@@ -43,7 +45,11 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         view.swipeLayout.isClickToClose = true
         glide.asDrawable().load(status.playerExtracts?.profileImageUrl).avatar().transition(withCrossFade()).into(view.avatar)
 
-        view.avatar.setOnClickListener {}
+        when (status.playerExtracts?.uniqueId) {
+            null -> view.avatar.setOnClickListener(null)
+            uniqueId -> view.avatar.setOnClickListener { }
+            else -> view.avatar.setOnClickListener { (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId)) }
+        }
 
         view.screenName.background = null
         view.createdAt.background = null
@@ -54,7 +60,6 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         } else {
             view.createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
         }
-        view.content.text = status.text
 
         val url = when {
             status.photos?.largeurl != null -> status.photos?.largeurl
@@ -63,10 +68,14 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         }
 
         if (url == null) {
+            view.image.visibility = View.GONE
             glide.clear(view.image)
         } else {
-            glide.asDrawable().load(url).illustrationThumb().transition(withCrossFade()).into(view.image)
+            view.image.visibility = View.VISIBLE
+            glide.load(url).illustrationThumb().into(view.image)
         }
+
+        view.content.text = status.text
     }
 
 

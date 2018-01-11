@@ -43,4 +43,7 @@
     <string name="name_direct_msg">私信</string>
     <string name="label_follower">关注者</string>
     <string name="label_following">正在关注</string>
+    <string name="label_search">搜索</string>
+    <string name="label_inbox">消息</string>
+    <string name="label_direct_msg">私信</string>
 </resources>

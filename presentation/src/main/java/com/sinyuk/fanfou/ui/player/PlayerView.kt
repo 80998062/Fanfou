@@ -23,12 +23,15 @@ package com.sinyuk.fanfou.ui.player
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.view.View
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -104,8 +107,11 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             followingCount.text = it.friendsCount.toString()
             postCount.text = (it.statusesCount.toString() + "条饭否")
             actionBarTitle.text = it.screenName
+            GlideApp.with(avatar).asDrawable().load(player.profileImageUrlLarge).avatar().transition(withCrossFade()).into(avatar)
+            GlideApp.with(profileBackground).asDrawable().load(player.profileBackgroundImageUrl).transition(withCrossFade()).into(profileBackground)
+            followerButton.setOnClickListener { (activity as AbstractActivity).start(FollowerView.newInstance(player.uniqueId)) }
+            followingButton.setOnClickListener { (activity as AbstractActivity).start(FollowingView.newInstance(player.uniqueId)) }
 
-            followerButton.setOnClickListener { }
             if (it.protectedX == true) {
 
             } else {

@@ -107,9 +107,7 @@ class HistoryView : AbstractFragment(), Injectable {
     private val footer by lazy {
         LayoutInflater.from(context).inflate(R.layout.suggestion_list_footer, recyclerView, false).apply {
             setOnClickListener {
-                (activity as AbstractActivity).also {
-                    it.loadRootFragment(R.id.rootFragmentContainer, HistoryManagerView.newInstance(query))
-                }
+                (activity as AbstractActivity).start(HistoryManagerView.newInstance(query = query))
                 KPSwitchConflictUtil.hidePanelAndKeyboard(recyclerView)
             }
         }

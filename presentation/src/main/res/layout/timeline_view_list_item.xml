@@ -103,18 +103,20 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:lineSpacingExtra="2dp"
-                android:maxLines="8"
                 android:minHeight="56dp"
                 android:textColor="@color/textStatusContent"
                 android:textSize="@dimen/text_16"
-                tools:background="@color/textColorHint" />
+                tools:background="@color/textColorHint"
+                tools:text="Clemens cob mixed with basil leafs." />
 
-            <ImageView
+            <com.sinyuk.fanfou.ui.SquareImageView
                 android:id="@+id/image"
-                android:layout_width="@dimen/timeline_illustration_size"
-                android:layout_height="@dimen/timeline_illustration_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/gap_8"
-                android:contentDescription="TODO" />
+                android:layout_weight="0.618"
+                android:contentDescription="TODO"
+                android:scaleType="centerCrop" />
         </LinearLayout>
 
     </RelativeLayout>

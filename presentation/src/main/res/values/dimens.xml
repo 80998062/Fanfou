@@ -41,5 +41,5 @@
     <dimen name="action_button_size">32dp</dimen>
     <dimen name="player_view_header_row1_height">44dp</dimen>
     <dimen name="tab_bar_height">32dp</dimen>
-    <dimen name="timeline_illustration_size">56dp</dimen>
+    <dimen name="timeline_illustration_size">100dp</dimen>
 </resources>

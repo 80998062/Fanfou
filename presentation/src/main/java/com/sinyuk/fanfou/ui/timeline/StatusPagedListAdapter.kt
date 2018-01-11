@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
 import android.support.v7.recyclerview.extensions.DiffCallback
@@ -186,36 +185,30 @@ class StatusPagedListAdapter(
 
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
-    override fun onCurrentListChanged(currentList: PagedList<Status>?) {
-        super.onCurrentListChanged(currentList)
-        preloadModelProvider.currentList.clear()
-        currentList?.let { preloadModelProvider.currentList.addAll(it.toMutableList()) }
-    }
 
-    val preloadModelProvider = StatusPreloadProvider(fragment)
-
-    class StatusPreloadProvider constructor(private val fragment: Fragment) : ListPreloader.PreloadModelProvider<Status> {
-
-        val imageWidthPixels = fragment.resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
-
-        val currentList: MutableList<Status> = mutableListOf()
+    class StatusPreloadProvider constructor(private val adapter: StatusPagedListAdapter, private val fragment: Fragment, private val imageWidthPixels: Int) : ListPreloader.PreloadModelProvider<Status> {
 
         override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
             return GlideApp.with(fragment).load(item.photos?.imageurl).illustrationThumb().override(imageWidthPixels, imageWidthPixels)
         }
 
-        override fun getPreloadItems(position: Int): MutableList<Status> = if (currentList.isNotEmpty()) {
-            val status = currentList[position]
-            val url = when {
-                status.photos?.largeurl != null -> status.photos?.largeurl
-                status.photos?.thumburl != null -> status.photos?.thumburl
-                else -> status.photos?.imageurl
-            }
-            if (url == null) {
+        override fun getPreloadItems(position: Int): MutableList<Status> = if (adapter.currentList?.isNotEmpty() == true && position < adapter.currentList?.size ?: 0) {
+            val status = adapter.currentList!![position]
+            if (status == null) {
                 Collections.emptyList<Status>()
             } else {
-                Collections.singletonList(status)
+                val url = when {
+                    status.photos?.largeurl != null -> status.photos?.largeurl
+                    status.photos?.thumburl != null -> status.photos?.thumburl
+                    else -> status.photos?.imageurl
+                }
+                if (url == null) {
+                    Collections.emptyList<Status>()
+                } else {
+                    Collections.singletonList(status)
+                }
             }
+
         } else {
             Collections.emptyList<Status>()
         }

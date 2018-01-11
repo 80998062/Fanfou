@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ /*
+  ~  * Apache License
+  ~  *
+  ~  * Copyright [2017] Sinyuk
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+<cn.dreamtobe.kpswitch.widget.KPSwitchRootLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:id="@+id/fakeViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp">
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/status_bar_height"
+                app:contentInsetStart="0dp"
+                app:layout_scrollFlags="enterAlways|scroll|snap">
+
+                <LinearLayout
+                    android:id="@+id/actionBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/action_bar_height"
+                    android:orientation="horizontal">
+
+                    <com.sinyuk.fanfou.ui.BetterViewAnimator
+                        android:id="@+id/navigationAnimator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inAnimation="@android:anim/fade_in"
+                        android:outAnimation="@android:anim/fade_out">
+
+                        <android.support.v4.widget.Space style="@style/action_button" />
+
+                        <ImageView
+                            android:id="@+id/navBack"
+                            style="@style/action_button"
+                            android:contentDescription="@string/name_avatar"
+                            android:src="@drawable/ic_back" />
+
+                        <ImageView
+                            android:id="@+id/avatar"
+                            style="@style/action_button"
+                            android:contentDescription="@string/name_avatar"
+                            tools:src="@mipmap/ic_launcher_round" />
+
+                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+
+                    <com.sinyuk.fanfou.ui.BetterViewAnimator
+                        android:id="@+id/viewAnimator"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/action_bar_height"
+                        android:layout_weight="1"
+                        android:inAnimation="@android:anim/fade_in"
+                        android:outAnimation="@android:anim/fade_out">
+
+                        <TextSwitcher
+                            android:id="@+id/textSwitcher"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:animateFirstView="true"
+                            android:inAnimation="@android:anim/fade_in"
+                            android:outAnimation="@android:anim/fade_out">
+
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="@color/textColorPrimary"
+                                android:textSize="@dimen/text_14"
+                                android:textStyle="bold"
+                                tools:text="@string/label_home" />
+                        </TextSwitcher>
+
+
+                        <FrameLayout
+                            android:id="@+id/searchLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:paddingBottom="@dimen/gap_8"
+                            android:paddingTop="@dimen/gap_8">
+
+                            <View
+                                android:id="@+id/searchBg"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/search_view_bg" />
+
+
+                            <EditText
+                                android:id="@+id/searchEt"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center"
+                                android:background="@null"
+                                android:drawablePadding="@dimen/gap_4"
+                                android:drawableStart="@drawable/ic_search"
+                                android:focusableInTouchMode="false"
+                                android:gravity="start|center_vertical"
+                                android:hint="@string/hint_search"
+                                android:imeActionLabel="@string/action_confirm"
+                                android:imeOptions="actionSearch"
+                                android:inputType="text"
+                                android:maxLines="1"
+                                android:paddingEnd="@dimen/gap_8"
+                                android:paddingStart="@dimen/gap_8"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:textColor="?android:textColorPrimary"
+                                android:textColorHint="@color/textColorHint"
+                                android:textSize="@dimen/text_14" />
+                        </FrameLayout>
+
+                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+                    <com.sinyuk.fanfou.ui.BetterViewAnimator
+                        android:id="@+id/actionButtonSwitcher"
+                        android:layout_width="@dimen/action_bar_height"
+                        android:layout_height="@dimen/action_bar_height"
+                        android:inAnimation="@android:anim/fade_in"
+                        android:outAnimation="@android:anim/fade_out">
+
+                        <ImageView
+                            android:id="@+id/postFanfouButton"
+                            style="@style/action_button"
+                            android:contentDescription="@string/action_post_fanfou"
+                            android:src="@drawable/ic_rice" />
+
+                        <ImageView
+                            android:id="@+id/searchPlayerButton"
+                            style="@style/action_button"
+                            android:contentDescription="@string/action_addfriend"
+                            android:src="@drawable/ic_addfriend" />
+
+                        <TextView
+                            android:id="@+id/searchCloseButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/action_bar_height"
+                            android:contentDescription="@string/action_close"
+                            android:gravity="center"
+                            android:text="@string/action_cancel"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="@dimen/text_14" />
+
+                        <ImageView
+                            android:id="@+id/inboxSettingsButton"
+                            style="@style/action_button"
+                            android:contentDescription="@string/action_settings_inbox"
+                            android:src="@drawable/ic_settings_alt" />
+
+                        <ImageView
+                            android:id="@+id/sendMessageButton"
+                            style="@style/action_button"
+                            android:contentDescription="@string/action_sendmessage"
+                            android:src="@drawable/ic_sendmessage" />
+                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+    </android.support.design.widget.CoordinatorLayout>
+
+    <cn.dreamtobe.kpswitch.widget.KPSwitchPanelLinearLayout
+        android:id="@+id/panelRoot"
+        style="@style/keyboardPanel"
+        android:visibility="gone" />
+
+</cn.dreamtobe.kpswitch.widget.KPSwitchRootLinearLayout>

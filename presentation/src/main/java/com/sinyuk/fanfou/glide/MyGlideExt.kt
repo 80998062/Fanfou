@@ -39,13 +39,13 @@ object MyGlideExt {
     @GlideOption
     @JvmStatic
     fun illustrationThumb(options: RequestOptions) {
-        options.optionalCircleCrop()
+        options.centerCrop()/*.apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(16,0)))*/
     }
 
 
     @GlideOption
     @JvmStatic
     fun illustrationLarge(options: RequestOptions) {
-        options.optionalCircleCrop()
+        options.centerCrop()
     }
 }
