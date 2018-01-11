@@ -105,7 +105,7 @@
                 android:lineSpacingExtra="2dp"
                 android:minHeight="56dp"
                 android:textColor="@color/textStatusContent"
-                android:textSize="@dimen/text_16"
+                android:textSize="@dimen/text_14"
                 tools:background="@color/textColorHint"
                 tools:text="Clemens cob mixed with basil leafs." />
 

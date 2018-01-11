@@ -32,6 +32,7 @@ import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.util.FanfouFormatter
+import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 
 /**
@@ -75,7 +76,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             glide.load(url).illustrationThumb().into(view.image)
         }
 
-        view.content.text = status.text
+        FanfouUtils.parseAndSetText(view.content, status.text)
     }
 
 

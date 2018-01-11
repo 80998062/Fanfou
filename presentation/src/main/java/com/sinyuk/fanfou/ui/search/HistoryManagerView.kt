@@ -53,7 +53,7 @@ class HistoryManagerView : AbstractFragment(), Injectable {
 
         navBack.setOnClickListener { pop() }
         deleteButton.setOnClickListener { searchViewModel.clear() }
-        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false, query = arguments!!.getString("query")))
+//        loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(false, query = arguments!!.getString("query")))
     }
 
 

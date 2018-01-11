@@ -20,11 +20,13 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
+import android.support.v4.app.FragmentPagerAdapter
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.public_view.*
 import javax.inject.Inject
 
 /**
@@ -38,7 +40,6 @@ class SearchView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    var currentFragment = 0
 
     private lateinit var fragments: MutableList<AbstractFragment>
 
@@ -51,36 +52,30 @@ class SearchView : AbstractFragment(), Injectable {
             mutableListOf(findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java), findChildFragment(SearchResultView::class.java))
         }
 
-        loadMultipleRootFragment(R.id.rootView, 0, fragments[0], fragments[1], fragments[2])
-        currentFragment = 0
+        setupViewPager()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("currentFragment", currentFragment)
+    private fun setupViewPager() {
+        viewPager.offscreenPageLimit = fragments.size
+        viewPager.setPagingEnabled(false)
+        viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
+            override fun getItem(position: Int) = fragments[position]
+            override fun getCount() = fragments.size
+        }
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        currentFragment = savedInstanceState?.getInt("currentFragment") ?: 0
-    }
+    var currentFragment = 0
+        get() = viewPager.currentItem
 
     fun showResult() {
-        if (currentFragment == 2) return
-        showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
-        currentFragment = 2
+        viewPager.setCurrentItem(2, false)
     }
 
     fun showSuggestion() {
-        if (currentFragment == 1) return
-        showHideFragment(findChildFragment(SuggestionView::class.java), fragments[currentFragment])
-        currentFragment = 1
+        viewPager.setCurrentItem(1, false)
     }
 
-
     fun showTrending() {
-        if (currentFragment == 0) return
-        showHideFragment(findChildFragment(TrendingView::class.java), fragments[currentFragment])
-        currentFragment = 0
+        viewPager.setCurrentItem(0, false)
     }
 }

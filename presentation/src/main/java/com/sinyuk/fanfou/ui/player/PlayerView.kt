@@ -32,6 +32,7 @@ import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.glide.GlideApp
+import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -77,7 +78,6 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         } else {
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
         }
-        loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
     }
 
     private val playerObserver by lazy { Observer<Resource<Player>> { subscribe(it) } }
@@ -85,12 +85,8 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
     private fun subscribe(resource: Resource<Player>?) {
         resource?.let {
             when (it.states) {
-                States.SUCCESS -> {
-                    render(it.data)
-                }
-                States.ERROR -> {
-                    it.message?.let { toast.toastShort(it) }
-                }
+                States.SUCCESS -> render(it.data)
+                States.ERROR -> it.message?.let { toast.toastShort(it) }
                 else -> {
                 }
             }
@@ -101,8 +97,8 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         player?.let {
             screenName.text = it.screenName
             userId.text = String.format(getString(R.string.format_unique_id), it.uniqueId)
-            bio.text = it.description
-            link.text = it.url
+            FanfouUtils.parseAndSetText(bio, it.description)
+            FanfouUtils.parseAndSetText(link, it.url)
             followerCount.text = it.followersCount.toString()
             followingCount.text = it.friendsCount.toString()
             postCount.text = (it.statusesCount.toString() + "条饭否")
@@ -115,7 +111,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             if (it.protectedX == true) {
 
             } else {
-
+                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
             }
 
             if (uniqueId == null) {
