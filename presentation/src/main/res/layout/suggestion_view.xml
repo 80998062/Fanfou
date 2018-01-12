@@ -57,23 +57,11 @@
             app:contentInsetStart="0dp"
             app:layout_scrollFlags="scroll">
 
-            <LinearLayout
+            <FrameLayout
+                android:id="@+id/historyViewContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="It is a seismic nuclear flux, sir.One outer life i give you: witness each other." />
-
-                <FrameLayout
-                    android:id="@+id/historyViewContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    tools:layout_height="100dp" />
-            </LinearLayout>
+                tools:layout_height="100dp" />
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>

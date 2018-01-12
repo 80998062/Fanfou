@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
+import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.*
 import com.sinyuk.fanfou.ui.search.*
@@ -36,9 +37,14 @@ import dagger.android.ContributesAndroidInjector
  */
 @Module
 abstract class FragmentBuildersModule {
+
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun homeView(): HomeView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun tabView(): TabView
 
     @Suppress("unused")
     @ContributesAndroidInjector

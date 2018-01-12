@@ -30,20 +30,18 @@ import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.ui.home.HomeView
-import com.sinyuk.fanfou.ui.home.TabEvent
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
-import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
  *
  */
-class MainActivity : AbstractActivity(), View.OnClickListener {
+class MainActivity : AbstractActivity(){
     companion object {
         @JvmStatic
         fun start(context: Context, flags: Int? = null) {
@@ -64,37 +62,12 @@ class MainActivity : AbstractActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        renderUI()
         if (findFragment(HomeView::class.java) == null) {
             loadRootFragment(R.id.fragment_container, HomeView())
         } else {
             showHideFragment(findFragment(HomeView::class.java))
         }
     }
-
-    private fun renderUI() {
-        setupTabLayout()
-    }
-
-    private fun setupTabLayout() {
-        homeTab.setOnClickListener(this)
-        publicTab.setOnClickListener(this)
-        notificationTab.setOnClickListener(this)
-        messageTab.setOnClickListener(this)
-    }
-
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.homeTab -> 0
-            R.id.publicTab -> 1
-            R.id.notificationTab -> 2
-            R.id.messageTab -> 3
-            else -> TODO()
-        }.apply {
-            EventBus.getDefault().post(TabEvent(index = this))
-        }
-    }
-
 
     override fun dispatchKeyEvent(event: KeyEvent?) = if (event?.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK) {
         if (panelRoot.visibility == View.VISIBLE) {

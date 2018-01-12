@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.ui.search
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -31,11 +32,12 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.SUGGESTION_HISTORY_LIMIT
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.util.Objects
-import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -64,7 +66,7 @@ class HistoryView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
-    private val searchViewModel by lazy { obtainViewModel(factory, SearchViewModel::class.java) }
+    private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
 
     private var query: String? = null
 
@@ -73,6 +75,8 @@ class HistoryView : AbstractFragment(), Injectable {
     private val collapsed by lazy { arguments!!.getBoolean("collapsed") }
 
     override fun layoutId() = R.layout.histyory_view
+
+    private lateinit var listing: LiveData<MutableList<Keyword>?>
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
@@ -83,13 +87,13 @@ class HistoryView : AbstractFragment(), Injectable {
         } else {
             null
         }
-        searchViewModel.setQuery(SearchViewModel.QueryParams(query = arguments!!.getString("query"), limit = limit))
-        searchViewModel.listing.observe(this@HistoryView, Observer {
-            it?.observe(this@HistoryView, Observer {
-                adapter.setNewData(it)
-                if (collapsed) showMore(it?.size ?: 0)
-            })
-        })
+        listing = searchViewModel.listing(query = arguments!!.getString("query"), limit = limit)
+                .apply {
+                    observe(this@HistoryView, Observer {
+                        adapter.setNewData(it)
+                        if (collapsed) showMore(it?.size ?: 0)
+                    })
+                }
     }
 
     private fun showMore(size: Int) {
@@ -164,9 +168,15 @@ class HistoryView : AbstractFragment(), Injectable {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onQueryChanged(event: InputEvent) {
         if (!collapsed) return
-        if (BuildConfig.DEBUG) Log.d("HistoryView", "onQueryChanged: " + event.text)
         if (!Objects.equals(event.text, query)) {
-            searchViewModel.setQuery(SearchViewModel.QueryParams(query = event.text, limit = SUGGESTION_HISTORY_LIMIT))
+            listing.removeObservers(this@HistoryView)
+            listing = searchViewModel.listing(query = arguments!!.getString("query"), limit = SUGGESTION_HISTORY_LIMIT)
+                    .apply {
+                        observe(this@HistoryView, Observer {
+                            adapter.setNewData(it)
+                            showMore(it?.size ?: 0)
+                        })
+                    }
         }
     }
 
