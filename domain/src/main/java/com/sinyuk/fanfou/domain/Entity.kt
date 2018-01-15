@@ -25,12 +25,12 @@ package com.sinyuk.fanfou.domain
  *
  */
 
-const val STATUS_PUBLIC_FLAG =  0x00000001
+const val STATUS_PUBLIC_FLAG = 0x00000001
 const val STATUS_MENTION_FLAG = 0x00000010
-const val STATUS_POST_FLAG =    0x00000100
+const val STATUS_POST_FLAG = 0x00000100
 const val STATUS_CONTEXT_FLAG = 0x00001000
 const val STATUS_REPLIED_FLAG = 0x00010000
-const val STATUS_FAVOR_FLAG =   0x00100000
+const val STATUS_FAVOR_FLAG = 0x00100000
 
 fun convertPathToFlag(path: String): Int = when (path) {
     TIMELINE_HOME -> STATUS_PUBLIC_FLAG
@@ -40,4 +40,16 @@ fun convertPathToFlag(path: String): Int = when (path) {
     TIMELINE_CONTEXT -> STATUS_CONTEXT_FLAG
     TIMELINE_FAVORITES -> STATUS_FAVOR_FLAG
     else -> TODO()
+}
+
+
+const val PLAYER_NO_FLAG = 0x00000000
+const val PLAYER_USER_FLAG = 0x00000001
+const val PLAYER_FOLLOWER_FLAG = 0x00000010
+const val PLAYER_FRIEND_FLAG = 0x00000100
+
+fun convertPlayerPathToFlag(path: String): Int = when (path) {
+    USERS_FRIENDS -> PLAYER_FRIEND_FLAG
+    USERS_FOLLOWERS -> PLAYER_FOLLOWER_FLAG
+    else -> PLAYER_NO_FLAG
 }

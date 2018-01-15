@@ -91,6 +91,17 @@ interface RestAPI {
     data class PlayerList @JvmOverloads constructor(@SerializedName("total_number") var total: Int = 0,
                                                     @SerializedName("users") var data: MutableList<Player> = mutableListOf())
 
+    @GET("/users/friends.json?format=html")
+    fun fetch_friends(@Query("id") id: String?,
+                      @Query("count") count: Int,
+                      @Query("page") page: Int? = null): Call<MutableList<Player>>
+
+
+    @GET("/users/followers.json?format=html")
+    fun fetch_followers(@Query("id") id: String?,
+                        @Query("count") count: Int,
+                        @Query("page") page: Int? = null): Call<MutableList<Player>>
+
     @GET("trends/list.json")
     fun trends(): Call<TrendList>
 

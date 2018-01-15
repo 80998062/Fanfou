@@ -99,7 +99,7 @@ class TimelineRepository @Inject constructor(
     }
 
     private fun refresh(path: String, uniqueId: String?, pageSize: Int): LiveData<NetworkState> {
-        val task = FetchBeforeTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = pageSize, db = db)
+        val task = StatusFetchTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = pageSize, db = db)
         appExecutors.networkIO().execute(task)
         return task.networkState
     }

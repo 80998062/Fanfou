@@ -21,12 +21,18 @@
 package com.sinyuk.fanfou.domain.repo
 
 import android.app.Application
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Transformations
+import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
+import android.support.annotation.MainThread
 import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
+import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.isOnline
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
@@ -69,6 +75,41 @@ class PlayerRepository @Inject constructor(
         } finally {
             disk.endTransaction()
         }
+    }
+
+
+    @MainThread
+    fun fetchPlayers(path: String, uniqueId: String? = null, pageSize: Int): Listing<Player> {
+        val sourceFactory = PlayerTiledDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors, db = disk)
+
+        val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
+
+        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setBackgroundThreadExecutor(appExecutors.networkIO()).build()
+
+        val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {
+            it.initialLoad
+        }
+
+        return Listing(
+                pagedList = pagedList,
+                networkState = Transformations.switchMap(sourceFactory.sourceLiveData, {
+                    it.networkState
+                }),
+                retry = {
+                    sourceFactory.sourceLiveData.value?.retryAllFailed()
+                },
+                refresh = {
+                    sourceFactory.sourceLiveData.value?.invalidate()
+                },
+                refreshState = refreshState
+        )
+    }
+
+    @MainThread
+    fun savedPlayers(path: String, pageSize: Int): LiveData<PagedList<Player>> {
+        val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
+        return LivePagedListBuilder(disk.playerDao().players(convertPlayerPathToFlag(path)), pagedListConfig).setBackgroundThreadExecutor(appExecutors.diskIO()).build()
+
     }
 
 }

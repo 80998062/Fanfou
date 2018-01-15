@@ -96,17 +96,18 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
     private fun render(player: Player?) {
         player?.let {
             screenName.text = it.screenName
-            userId.text = String.format(getString(R.string.format_unique_id), it.uniqueId)
+            userId.text = String.format(getString(R.string.format_unique_id), it.id)
             FanfouUtils.parseAndSetText(bio, it.description)
             FanfouUtils.parseAndSetText(link, it.url)
             followerCount.text = it.followersCount.toString()
-            followingCount.text = it.friendsCount.toString()
+            friendCount.text = it.friendsCount.toString()
             postCount.text = (it.statusesCount.toString() + "条饭否")
             actionBarTitle.text = it.screenName
             GlideApp.with(avatar).asDrawable().load(player.profileImageUrlLarge).avatar().transition(withCrossFade()).into(avatar)
             GlideApp.with(profileBackground).asDrawable().load(player.profileBackgroundImageUrl).transition(withCrossFade()).into(profileBackground)
-            followerButton.setOnClickListener { (activity as AbstractActivity).start(FollowerView.newInstance(player.uniqueId)) }
-            followingButton.setOnClickListener { (activity as AbstractActivity).start(FollowingView.newInstance(player.uniqueId)) }
+            // pass NULL to identify yourself
+            followerButton.setOnClickListener { (activity as AbstractActivity).start(FollowingView.newInstance(uniqueId)) }
+            friendButton.setOnClickListener { (activity as AbstractActivity).start(FriendsView.newInstance(uniqueId)) }
 
             if (it.protectedX == true) {
 
@@ -126,11 +127,4 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             }
         }
     }
-
-
-    override fun onBackPressedSupport(): Boolean {
-        pop()
-        return true
-    }
-
 }

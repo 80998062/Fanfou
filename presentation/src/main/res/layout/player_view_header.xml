@@ -170,7 +170,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/followingCount"
+            android:id="@+id/friendCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gap_8"
@@ -180,7 +180,7 @@
             tools:text="121242" />
 
         <com.sinyuk.fanfou.ui.ClickableTextView
-            android:id="@+id/followingButton"
+            android:id="@+id/friendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/gap_8"

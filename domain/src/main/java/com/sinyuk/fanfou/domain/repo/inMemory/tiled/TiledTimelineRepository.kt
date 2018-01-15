@@ -48,11 +48,7 @@ class TiledTimelineRepository @Inject constructor(
     @MainThread
     fun statuses(path: String, uniqueId: String? = null, query: String? = null, pageSize: Int): Listing<Status> {
         val encode = query?.let { URLEncoder.encode(it, "utf-8") }
-        val sourceFactory = TiledStatusDataSourceFactory(restAPI = restAPI,
-                path = path,
-                uniqueId = uniqueId,
-                appExecutors = appExecutors,
-                query = encode)
+        val sourceFactory = TiledStatusDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors, query = encode)
 
         val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
 

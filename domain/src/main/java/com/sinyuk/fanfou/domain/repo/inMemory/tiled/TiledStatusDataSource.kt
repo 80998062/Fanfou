@@ -62,11 +62,11 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                 } else {
                     null
                 }
-                callback.onResult(items, prev)
                 when (items.size) {
                     params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
                     else -> networkState.postValue(NetworkState.TERMINAL)
                 }
+                callback.onResult(items, prev)
             } else {
                 retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))

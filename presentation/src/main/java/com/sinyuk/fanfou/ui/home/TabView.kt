@@ -40,6 +40,7 @@ import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
@@ -113,7 +114,7 @@ class TabView : AbstractFragment(), Injectable {
     private fun setupActionBar() {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
-        avatar.setOnClickListener { start(PlayerView.newInstance()) }
+        avatar.setOnClickListener { (activity as AbstractActivity).start(PlayerView.newInstance()) }
         postFanfouButton.setOnClickListener { toast.toastShort("发送饭否") }
     }
 

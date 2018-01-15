@@ -97,7 +97,7 @@ abstract class FragmentBuildersModule {
 
     @Suppress("unused")
     @ContributesAndroidInjector
-    abstract fun followerView(): FollowerView
+    abstract fun followerView(): FriendsView
 
     @Suppress("unused")
     @ContributesAndroidInjector

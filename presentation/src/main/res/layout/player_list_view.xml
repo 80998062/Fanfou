@@ -22,7 +22,6 @@
     android:id="@+id/recyclerView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/windowBackground"
-    android:overScrollMode="never">
-
-</android.support.v7.widget.RecyclerView>
+    android:scrollbars="vertical"
+    android:scrollbarStyle="outsideOverlay"
+    android:overScrollMode="never" />

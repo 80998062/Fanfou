@@ -36,7 +36,7 @@ import java.io.IOException
  *
  *
  */
-class FetchBeforeTopTask(private val restAPI: RestAPI,
+class StatusFetchTopTask(private val restAPI: RestAPI,
                          private val db: LocalDatabase,
                          private val path: String,
                          private val uniqueId: String?,

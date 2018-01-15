@@ -25,7 +25,7 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/fragment_container"
+        android:id="@+id/friendsListContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
@@ -55,7 +55,7 @@
 
                 <TextView
                     style="@style/toolbarTitle.Linear"
-                    android:text="@string/label_follower" />
+                    android:text="@string/label_friend" />
 
                 <ImageView
                     android:id="@+id/postFanfouButton"

@@ -28,6 +28,7 @@ import android.os.Parcelable
 import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
+import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 import com.sinyuk.fanfou.domain.db.DateConverter
 import java.util.*
 
@@ -61,10 +62,22 @@ data class Player @JvmOverloads constructor(
         @SerializedName("notifications") var notifications: Boolean? = false,
         @SerializedName("created_at") var createdAt: Date? = null,
         @SerializedName("profile_background_image_url") var profileBackgroundImageUrl: String? = "",
-        @Embedded(prefix = "access") var authorization: Authorization? = null
-
+        @Embedded(prefix = "access") var authorization: Authorization? = null,
+        var pathFlag: Int = 0
 
 ) : Parcelable {
+    fun addPath(flags: Int) {
+        pathFlag = pathFlag or flags
+    }
+
+    fun removePath(flags: Int) {
+        pathFlag = pathFlag and flags.inv()
+    }
+
+    fun addPathFlag(path: String) {
+        addPath(convertPlayerPathToFlag(path))
+    }
+
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),

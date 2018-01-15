@@ -48,7 +48,7 @@ import java.util.*
  * Adapter implementation that shows status.
  */
 class StatusPagedListAdapter(
-        private val fragment: Fragment,
+        fragment: Fragment,
         private val retryCallback: () -> Unit,
         private val uniqueId: String?) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
@@ -212,8 +212,6 @@ class StatusPagedListAdapter(
         } else {
             Collections.emptyList<Status>()
         }
-
-
     }
 
 }

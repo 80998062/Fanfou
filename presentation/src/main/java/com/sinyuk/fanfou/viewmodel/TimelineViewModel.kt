@@ -56,6 +56,7 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
             if (it.uniqueId == null) {
                 when (it.path) {
                     TIMELINE_PUBLIC -> keyed.statuses(path = it.path, pageSize = PAGE_SIZE)
+                    TIMELINE_FAVORITES -> tiled.statuses(path = it.path, pageSize = PAGE_SIZE)
                     else -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
                 }
             } else {

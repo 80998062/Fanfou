@@ -21,11 +21,9 @@
 package com.sinyuk.fanfou.domain.db.dao
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Insert
+import android.arch.paging.DataSource
+import android.arch.persistence.room.*
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
-import android.arch.persistence.room.Query
 import com.sinyuk.fanfou.domain.DO.Player
 
 
@@ -44,4 +42,13 @@ interface PlayerDao {
 
     @Insert(onConflict = REPLACE)
     fun insert(player: Player?): Long?
+
+    @Insert(onConflict = REPLACE)
+    fun inserts(items: MutableList<Player>)
+
+    @Update(onConflict = REPLACE)
+    fun update(player: Player)
+
+    @Query("SELECT * FROM players WHERE pathFlag & :path = :path ORDER BY screenName ASC")
+    fun players(path: Int): DataSource.Factory<Int, Player>
 }

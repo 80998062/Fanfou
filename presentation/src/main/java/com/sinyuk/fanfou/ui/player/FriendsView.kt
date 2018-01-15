@@ -24,27 +24,33 @@ import android.os.Bundle
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.USERS_FOLLOWERS
-import kotlinx.android.synthetic.main.follower_view.*
+import com.sinyuk.fanfou.domain.USERS_FRIENDS
+import kotlinx.android.synthetic.main.friends_view.*
 
 /**
  * Created by sinyuk on 2018/1/10.
  *
  */
-class FollowerView : AbstractSwipeFragment(), Injectable {
+class FriendsView : AbstractSwipeFragment(), Injectable {
 
     companion object {
-        fun newInstance(uniqueId: String? = null) = FollowingView().apply {
+        fun newInstance(uniqueId: String? = null) = FriendsView().apply {
             arguments = Bundle().apply { putString("uniqueId", uniqueId) }
         }
     }
 
-    override fun layoutId() = R.layout.follower_view
+    override fun layoutId() = R.layout.friends_view
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        navBack.setOnClickListener { }
+        navBack.setOnClickListener { pop() }
         postFanfouButton.setOnClickListener { }
-        loadRootFragment(R.id.fragment_container, PlayerListView.Path(USERS_FOLLOWERS, arguments!!.getString("uniqueId")))
+        if (findChildFragment(PlayerListView::class.java) == null) {
+            loadRootFragment(R.id.friendsListContainer, PlayerListView.newInstance(USERS_FRIENDS, arguments!!.getString("uniqueId")))
+        } else {
+            showHideFragment(findChildFragment(PlayerListView::class.java))
+        }
     }
+
+
 }

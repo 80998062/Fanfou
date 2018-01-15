@@ -41,8 +41,8 @@
     <string name="action_delete_all">删除全部</string>
     <string name="action_clear">清除</string>
     <string name="name_direct_msg">私信</string>
-    <string name="label_follower">关注者</string>
-    <string name="label_following">正在关注</string>
+    <string name="label_friend">正在关注</string>
+    <string name="label_following">关注者</string>
     <string name="label_search">搜索</string>
     <string name="label_inbox">消息</string>
     <string name="label_direct_msg">私信</string>

@@ -33,9 +33,11 @@
 
     <ImageView
         android:id="@+id/avatar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@mipmap/ic_launcher_round" />
+        android:layout_width="@dimen/player_list_item_avatar_size"
+        android:layout_height="@dimen/player_list_item_avatar_size"
+        android:contentDescription="@string/name_avatar"
+        android:scaleType="centerCrop"
+        tools:src="@mipmap/ic_launcher_round" />
 
     <RelativeLayout
         android:id="@+id/header"
