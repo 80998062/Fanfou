@@ -23,6 +23,9 @@
 package com.sinyuk.fanfou.domain.DO
 
 import android.arch.persistence.room.*
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.db.DateConverter
@@ -61,4 +64,64 @@ data class Player @JvmOverloads constructor(
         @Embedded(prefix = "access") var authorization: Authorization? = null
 
 
-)
+) : Parcelable {
+    constructor(source: Parcel) : this(
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readValue(Boolean::class.java.classLoader) as Boolean?,
+            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Boolean::class.java.classLoader) as Boolean?,
+            source.readValue(Boolean::class.java.classLoader) as Boolean?,
+            source.readSerializable() as Date?,
+            source.readString(),
+            source.readParcelable<Authorization>(Authorization::class.java.classLoader)
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(uniqueId)
+        writeString(id)
+        writeString(name)
+        writeString(screenName)
+        writeString(location)
+        writeString(gender)
+        writeString(birthday)
+        writeString(description)
+        writeString(profileImageUrl)
+        writeString(profileImageUrlLarge)
+        writeString(url)
+        writeValue(protectedX)
+        writeValue(followersCount)
+        writeValue(friendsCount)
+        writeValue(favouritesCount)
+        writeValue(statusesCount)
+        writeValue(photoCount)
+        writeValue(following)
+        writeValue(notifications)
+        writeSerializable(createdAt)
+        writeString(profileBackgroundImageUrl)
+        writeParcelable(authorization, PARCELABLE_WRITE_RETURN_VALUE)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<Player> = object : Parcelable.Creator<Player> {
+            override fun createFromParcel(source: Parcel): Player = Player(source)
+            override fun newArray(size: Int): Array<Player?> = arrayOfNulls(size)
+        }
+    }
+}

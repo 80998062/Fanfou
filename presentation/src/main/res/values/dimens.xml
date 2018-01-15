@@ -39,7 +39,8 @@
     <dimen name="divider_size">0.8dp</dimen>
     <dimen name="action_bar_height">44dp</dimen>
     <dimen name="action_button_size">32dp</dimen>
+    <dimen name="menu_button_size">24dp</dimen>
     <dimen name="player_view_header_row1_height">44dp</dimen>
     <dimen name="tab_bar_height">32dp</dimen>
-    <dimen name="timeline_illustration_size">100dp</dimen>
+    <dimen name="timeline_illustration_size">64dp</dimen>
 </resources>

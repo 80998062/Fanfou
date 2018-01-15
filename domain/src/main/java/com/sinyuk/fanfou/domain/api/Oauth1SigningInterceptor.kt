@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.domain.api
 
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.sinyuk.fanfou.domain.ACCESS_SECRET
 import com.sinyuk.fanfou.domain.ACCESS_TOKEN
 import com.sinyuk.fanfou.domain.BuildConfig
@@ -33,6 +34,7 @@ import okhttp3.Response
 import okio.Buffer
 import okio.ByteString
 import java.io.IOException
+import java.net.URLDecoder
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
@@ -87,7 +89,9 @@ class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferen
      * @param request the request
      * @return the authorization
      */
+
     private fun signRequest(request: Request, accessToken: String?, accessSecret: String?): Request {
+
         val nonce = ByteArray(32)
         random.nextBytes(nonce)
         val oauthNonce = ByteString.of(*nonce).base64().replace("\\W".toRegex(), "")
@@ -132,7 +136,13 @@ class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferen
             first = false
             base.writeUtf8(UrlEscapeUtils.escape(entry.key))
             base.writeUtf8(UrlEscapeUtils.escape("="))
-            base.writeUtf8(UrlEscapeUtils.escape(entry.value))
+            if (entry.key == "q") {
+                base.writeUtf8(UrlEscapeUtils.escape(URLDecoder.decode(entry.value, "utf-8")))
+                Log.d("Interceptor", "q: " + entry.value)
+                Log.d("Interceptor", "q: " + UrlEscapeUtils.escape(entry.value))
+            } else {
+                base.writeUtf8(UrlEscapeUtils.escape(entry.value))
+            }
         }
 
         val signingKey = UrlEscapeUtils.escape(consumerSecret) + "&" + UrlEscapeUtils.escape(accessSecret)

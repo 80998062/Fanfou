@@ -174,7 +174,7 @@ class TabView : AbstractFragment(), Injectable {
                 val query = searchEt.text.toString()
                 collapseSearchView(query)
                 if (query.isNotBlank()) {
-                    (fragments[1] as SearchView).showResult()
+                    (fragments[1] as SearchView).showResult(query)
                     searchViewModel.save(query)
                     EventBus.getDefault().post(QueryEvent(query))
                 }

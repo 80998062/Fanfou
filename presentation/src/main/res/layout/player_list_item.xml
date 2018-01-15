@@ -82,7 +82,7 @@
             android:background="@color/windowBackground"
             android:contentDescription="@string/name_direct_msg"
             android:padding="3dp"
-            android:src="@drawable/ic_direct_msg" />
+            android:src="@drawable/ic_direct_msg_ac" />
 
         <com.sinyuk.fanfou.ui.QMUIRoundButton
             android:id="@+id/followButton"

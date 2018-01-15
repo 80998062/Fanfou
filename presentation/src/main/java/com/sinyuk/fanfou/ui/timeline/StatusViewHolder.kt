@@ -20,19 +20,27 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
+import android.graphics.Bitmap
+import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.util.FanfouFormatter
+import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
+import com.sinyuk.myutils.DateUtils
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 
 /**
@@ -56,11 +64,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         view.createdAt.background = null
         view.content.background = null
         view.screenName.text = status.playerExtracts?.screenName
-        if (status.createdAt == null) {
-            view.createdAt.text = null
-        } else {
-            view.createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
-        }
+        view.createdAt.text = DateUtils.getTimeAgo(view.context, status.createdAt)
 
         val url = when {
             status.photos?.largeurl != null -> status.photos?.largeurl
@@ -77,6 +81,32 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         }
 
         FanfouUtils.parseAndSetText(view.content, status.text)
+
+
+        view.surfaceView.setOnClickListener {
+            if (url == null) {
+                (view.context as AbstractActivity).start(StatusView.newInstance(status))
+            } else {
+                Glide.with(view).asBitmap().load(url).listener(object : RequestListener<Bitmap> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                        (view.context as AbstractActivity).start(StatusView.newInstance(status))
+                        return false
+                    }
+
+                    override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        target.getSize { width, height ->
+                            Bundle().apply {
+                                putInt("w", width)
+                                putInt("h", height)
+                            }.also {
+                                (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it))
+                            }
+                        }
+                        return true
+                    }
+                }).preload()
+            }
+        }
     }
 
 

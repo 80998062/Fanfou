@@ -21,6 +21,8 @@
 package com.sinyuk.fanfou.domain.DO
 
 import android.arch.persistence.room.*
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
 import com.sinyuk.fanfou.domain.convertPathToFlag
@@ -47,16 +49,54 @@ data class Status constructor(
         @SerializedName("isSelf") var isSelf: Boolean = false,
         @SerializedName("favorited") var favorited: Boolean = false,
         var pathFlag: Int = 0
-) {
-     fun addPath(flags: Int) {
+) : Parcelable {
+    fun addPath(flags: Int) {
         pathFlag = pathFlag or flags
     }
 
-     fun removePath(flags: Int) {
+    fun removePath(flags: Int) {
         pathFlag = pathFlag and flags.inv()
     }
 
     fun addPathFlag(path: String) {
         addPath(convertPathToFlag(path))
+    }
+
+    constructor(source: Parcel) : this(
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readParcelable<Player>(Player::class.java.classLoader),
+            source.readSerializable() as Date?,
+            source.readParcelable<PlayerExtracts>(PlayerExtracts::class.java.classLoader),
+            source.readParcelable<Photos>(Photos::class.java.classLoader),
+            1 == source.readInt(),
+            1 == source.readInt(),
+            source.readInt()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(id)
+        writeString(text)
+        writeString(source)
+        writeString(location)
+        writeParcelable(user, 0)
+        writeSerializable(createdAt)
+        writeParcelable(playerExtracts, 0)
+        writeParcelable(photos, 0)
+        writeInt((if (isSelf) 1 else 0))
+        writeInt((if (favorited) 1 else 0))
+        writeInt(pathFlag)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<Status> = object : Parcelable.Creator<Status> {
+            override fun createFromParcel(source: Parcel): Status = Status(source)
+            override fun newArray(size: Int): Array<Status?> = arrayOfNulls(size)
+        }
     }
 }

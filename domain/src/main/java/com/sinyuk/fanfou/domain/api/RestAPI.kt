@@ -23,15 +23,14 @@ package com.sinyuk.fanfou.domain.api
 
 import android.arch.lifecycle.LiveData
 import com.google.gson.annotations.SerializedName
-import com.sinyuk.fanfou.domain.DO.Keyword
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.DO.Trend
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 import java.util.*
 
 /**
@@ -62,19 +61,39 @@ interface RestAPI {
                         @Query("count") count: Int,
                         @Query("page") page: Int): Call<MutableList<Status>>
 
-    @Deprecated("unused")
-    @GET("saved_searches/list.json")
-    fun list_searches(): LiveData<ApiResponse<MutableList<Keyword>>>
 
-    @POST("saved_searches/create.json")
-    fun create_search(@Query("query") query: String): Call<Keyword>
+//    @GET("/search/public_timeline.json?format=html")
+//    fun search_statuses(@Query(value = "q", encoded = false) query: String,
+//                        @Query("count") count: Int,
+//                        @Query("page") page: Int? = null): Call<MutableList<Status>>
+
+    companion object {
+        fun buildQueryUrl(query: String, count: Int, page: Int? = null): String = "http://api.fanfou.com/search/public_timeline.json?format=html&q=\"圣诞\"&count=50&page=1"
+    }
+
+    @GET
+    fun search_statuses(@Url url: String): Call<MutableList<Status>>
 
 
-    @POST("saved_searches/destroy.json")
-    fun delete_search(@Query("id") id: String): Call<Keyword>
+    @GET("/search/user_timeline.json?format=html")
+    fun search_user_statuses(@Query(value = "q", encoded = false) query: String,
+                             @Query("count") count: Int,
+                             @Query("id") id: String,
+                             @Query("page") page: Int? = null): Call<MutableList<Status>>
+
+
+    @GET("/search/users.json?format=html")
+    fun search_users(@Query(value = "q", encoded = false) query: String,
+                     @Query("count") count: Int,
+                     @Query("id") id: String,
+                     @Query("page") page: Int? = null): Call<PlayerList>
+
+    data class PlayerList @JvmOverloads constructor(@SerializedName("total_number") var total: Int = 0,
+                                                    @SerializedName("users") var data: MutableList<Player> = mutableListOf())
 
     @GET("trends/list.json")
     fun trends(): Call<TrendList>
 
-    data class TrendList constructor(@SerializedName("as_of") var date: Date, @SerializedName("trends") var data: MutableList<Trend>)
+    data class TrendList @JvmOverloads constructor(@SerializedName("as_of") var date: Date? = null,
+                                                   @SerializedName("trends") var data: MutableList<Trend> = mutableListOf())
 }

@@ -23,7 +23,7 @@ package com.sinyuk.fanfou.domain.repo
 import android.app.Application
 import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.DATABASE_IN_MEMORY
+import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
@@ -35,13 +35,14 @@ import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/12/8.
+ *
  */
 class PlayerRepository @Inject constructor(
         val application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
-        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(application, url, interceptor) {
+        @Named(DATABASE_IN_DISK) private val disk: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
     fun profile(uniqueId: String, forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
         override fun onFetchFailed() {
@@ -54,19 +55,19 @@ class PlayerRepository @Inject constructor(
         override fun shouldFetch(data: Player?) = isOnline(application) && (forcedUpdate || data == null)
 
 
-        override fun loadFromDb() = memory.playerDao().query(uniqueId)
+        override fun loadFromDb() = disk.playerDao().query(uniqueId)
 
 
         override fun createCall() = restAPI.show_user(uniqueId)
     }.asLiveData()
 
     private fun savePlayer(item: Player) {
-        memory.beginTransaction()
+        disk.beginTransaction()
         try {
-            Log.d("savePlayer", "insert: " + memory.playerDao().insert(item))
-            memory.setTransactionSuccessful()
+            Log.d("savePlayer", "insert: " + disk.playerDao().insert(item))
+            disk.setTransactionSuccessful()
         } finally {
-            memory.endTransaction()
+            disk.endTransaction()
         }
     }
 

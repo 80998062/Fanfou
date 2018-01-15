@@ -20,6 +20,9 @@
 
 package com.sinyuk.fanfou.domain.DO
 
+import android.os.Parcel
+import android.os.Parcelable
+
 /**
  * Created by sinyuk on 2017/12/1.
  *
@@ -30,8 +33,7 @@ data class PlayerExtracts constructor(
         var screenName: String? = "",
         var profileImageUrl: String? = "",
         var profileImageUrlLarge: String? = "",
-        var profileBackgroundImageUrl: String? = "") {
-
+        var profileBackgroundImageUrl: String? = "") : Parcelable {
     constructor(player: Player) : this(
             uniqueId = player.uniqueId,
             id = player.id,
@@ -40,4 +42,32 @@ data class PlayerExtracts constructor(
             profileImageUrlLarge = player.profileImageUrlLarge,
             profileBackgroundImageUrl = player.profileBackgroundImageUrl
     )
+
+    constructor(source: Parcel) : this(
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString(),
+            source.readString()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(uniqueId)
+        writeString(id)
+        writeString(screenName)
+        writeString(profileImageUrl)
+        writeString(profileImageUrlLarge)
+        writeString(profileBackgroundImageUrl)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<PlayerExtracts> = object : Parcelable.Creator<PlayerExtracts> {
+            override fun createFromParcel(source: Parcel): PlayerExtracts = PlayerExtracts(source)
+            override fun newArray(size: Int): Array<PlayerExtracts?> = arrayOfNulls(size)
+        }
+    }
 }

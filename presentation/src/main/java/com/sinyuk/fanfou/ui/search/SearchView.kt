@@ -20,14 +20,11 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
-import android.support.v4.app.FragmentPagerAdapter
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.ui.AccordionTransformer
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
-import kotlinx.android.synthetic.main.public_view.*
 import javax.inject.Inject
 
 /**
@@ -41,6 +38,7 @@ class SearchView : AbstractFragment(), Injectable {
 
     @Inject lateinit var toast: ToastUtils
 
+    var currentFragment = 0
 
     private lateinit var fragments: MutableList<AbstractFragment>
 
@@ -48,36 +46,49 @@ class SearchView : AbstractFragment(), Injectable {
         super.onLazyInitView(savedInstanceState)
 
         fragments = if (findChildFragment(TrendingView::class.java) == null) {
-            mutableListOf(TrendingView(), SuggestionView(), SearchResultView())
+            mutableListOf(TrendingView(), SuggestionView())
         } else {
-            mutableListOf(findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java), findChildFragment(SearchResultView::class.java))
+            mutableListOf(findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java))
         }
 
-        setupViewPager()
+        loadMultipleRootFragment(R.id.searchView, 0, fragments[0], fragments[1])
+        currentFragment = 0
     }
 
-    private fun setupViewPager() {
-        viewPager.offscreenPageLimit = fragments.size
-        viewPager.setPagingEnabled(false)
-        viewPager.setPageTransformer(false, AccordionTransformer())
-        viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
-            override fun getItem(position: Int) = fragments[position]
-            override fun getCount() = fragments.size
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("currentFragment", currentFragment)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        currentFragment = savedInstanceState?.getInt("currentFragment") ?: 0
+    }
+
+    fun showResult(query: String) {
+        if (currentFragment == 2) return
+        if (findChildFragment(SearchResultView::class.java) == null) {
+            SearchResultView.newInstance(query).also {
+                loadRootFragment(R.id.searchView, it)
+                showHideFragment(it, fragments[currentFragment])
+                fragments.add(it)
+            }
+        } else {
+            showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
         }
-    }
-
-    var currentFragment = 0
-        get() = viewPager.currentItem
-
-    fun showResult() {
-        viewPager.setCurrentItem(2, false)
+        currentFragment = 2
     }
 
     fun showSuggestion() {
-        viewPager.setCurrentItem(1, false)
+        if (currentFragment == 1) return
+        showHideFragment(findChildFragment(SuggestionView::class.java), fragments[currentFragment])
+        currentFragment = 1
     }
 
+
     fun showTrending() {
-        viewPager.setCurrentItem(0, false)
+        if (currentFragment == 0) return
+        showHideFragment(findChildFragment(TrendingView::class.java), fragments[currentFragment])
+        currentFragment = 0
     }
 }

@@ -22,12 +22,8 @@ package com.sinyuk.fanfou.domain.repo.inMemory.tiled
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
-import android.util.Log
-import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.BuildConfig
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.api.RestAPI
 import retrofit2.Call
 import retrofit2.Callback
@@ -41,17 +37,17 @@ import java.io.IOException
 class TiledStatusDataSource(private val restAPI: RestAPI,
                             private val path: String,
                             private val uniqueId: String?,
+                            private val query: String? = null,
                             private val appExecutors: AppExecutors) : PageKeyedDataSource<Int, Status>() {
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {
-        if (BuildConfig.DEBUG) {
-            Log.d("TiledStatusDataSource", "loadAfter: " + params.key)
-        }
         networkState.postValue(NetworkState.LOADING)
         try {
             val response = when (path) {
                 TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
-                else -> restAPI.fetch_from_path(id = uniqueId, count = params.requestedLoadSize, page = params.key, path = path)
+                SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = params.key))
+                SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = params.key)
+                else -> TODO()
             }.execute()
 
             if (response.isSuccessful) {
@@ -84,9 +80,6 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
     }
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Status>) {
-        if (BuildConfig.DEBUG) {
-            Log.d("TiledStatusDataSource", "loadInitial: " + params.requestedLoadSize)
-        }
         // update network states.
         // we also provide an initial load state to the listeners so that the UI can know when the
         // very first list is loaded.
@@ -95,7 +88,9 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
 
         when (path) {
             TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = 1)
-            else -> restAPI.fetch_from_path(id = uniqueId, count = params.requestedLoadSize, page = 1, path = path)
+            SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = 1))
+            SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = 1)
+            else -> TODO()
         }.enqueue(object : Callback<MutableList<Status>> {
             override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>) {
                 if (response.isSuccessful) {
@@ -146,13 +141,12 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {
-        if (BuildConfig.DEBUG) {
-            Log.d("TiledStatusDataSource", "loadAfter: " + params.key)
-        }
         networkState.postValue(NetworkState.LOADING)
         try {
             val response = when (path) {
                 TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
+                SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = params.key))
+                SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = params.key)
                 else -> TODO()
             }.execute()
 

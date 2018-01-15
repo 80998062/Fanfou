@@ -20,7 +20,30 @@
 
 package com.sinyuk.fanfou.domain.DO
 
+import android.os.Parcel
+import android.os.Parcelable
+
 /**
  * Created by sinyuk on 2017/12/6.
  */
-data class Authorization constructor(val token: String?, val secret: String?)
+data class Authorization constructor(val token: String?, val secret: String?) : Parcelable {
+    constructor(source: Parcel) : this(
+            source.readString(),
+            source.readString()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(token)
+        writeString(secret)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<Authorization> = object : Parcelable.Creator<Authorization> {
+            override fun createFromParcel(source: Parcel): Authorization = Authorization(source)
+            override fun newArray(size: Int): Array<Authorization?> = arrayOfNulls(size)
+        }
+    }
+}

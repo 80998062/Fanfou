@@ -51,7 +51,7 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="bottom"
             android:orientation="horizontal">
 
             <ImageView
@@ -114,7 +114,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/gap_8"
-                android:layout_weight="0.618"
+                android:layout_weight="0.382"
                 android:contentDescription="TODO"
                 android:scaleType="centerCrop" />
         </LinearLayout>

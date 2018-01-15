@@ -57,6 +57,11 @@ const val TIMELINE_MENTIONS = "mentions"
 
 const val TIMELINE_PUBLIC = "public_timeline"
 
+const val SEARCH_TIMELINE_PUBLIC = "public_timeline"
+
+const val SEARCH_USERS = "users"
+
+const val SEARCH_USER_TIMELINE = "user_timeline"
 
 const val USERS_FRIENDS = "friends"
 
@@ -86,6 +91,6 @@ const val AUTHOR_FAILED_MSG = "获取第三方应用授权失败"
 const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道怎么了"
 
 
-
 const val SUGGESTION_HISTORY_LIMIT = 5
 
+const val STATUS_LIMIT = 140

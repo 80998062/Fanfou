@@ -23,12 +23,11 @@ package com.sinyuk.fanfou.ui.search
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
-import android.util.Log
 import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.domain.SEARCH_TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
@@ -56,21 +55,25 @@ class SearchResultView : AbstractFragment(), Injectable {
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
+
+        query = arguments!!.getString("query")
         fragmentList = if (findChildFragment(TimelineView::class.java) == null) {
-            mutableListOf(TimelineView.newInstance(TIMELINE_USER), SignInView())
+            mutableListOf(TimelineView.search(SEARCH_TIMELINE_PUBLIC, query), SignInView())
         } else {
+            (findChildFragment(TimelineView::class.java) as TimelineView).search(query)
             mutableListOf(findChildFragment(TimelineView::class.java), findChildFragment(SignInView::class.java))
         }
         setupViewPager()
     }
 
 
-    private var query: String? = null
+    private lateinit var query: String
 
     lateinit var fragmentList: MutableList<Fragment>
 
     private fun setupViewPager() {
         viewPager.offscreenPageLimit = fragmentList.size
+        viewPager.setPagingEnabled(false)
         viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
             override fun getItem(position: Int) = fragmentList[position]
 
@@ -91,10 +94,10 @@ class SearchResultView : AbstractFragment(), Injectable {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onQuery(event: QueryEvent) {
         if (Objects.equals(event.query, query)) {
-
+            // TODO
         } else {
             query = event.query!!
-            Log.d("SearchResultView", "onQuery: " + query)
+            findChildFragment(TimelineView::class.java)?.search(query)
         }
     }
 

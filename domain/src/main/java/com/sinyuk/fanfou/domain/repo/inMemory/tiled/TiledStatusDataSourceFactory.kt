@@ -28,16 +28,17 @@ import com.sinyuk.fanfou.domain.api.RestAPI
 
 /**
  * Created by sinyuk on 2017/12/29.
- * 
+ *
  */
 class TiledStatusDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,
                                    private val uniqueId: String?,
+                                   private val query: String?,
                                    private val appExecutors: AppExecutors) : DataSource.Factory<Int, Status> {
     val sourceLiveData = MutableLiveData<TiledStatusDataSource>()
 
     override fun create(): DataSource<Int, Status> {
-        val source = TiledStatusDataSource(restAPI, path, uniqueId, appExecutors)
+        val source = TiledStatusDataSource(restAPI, path, uniqueId, query, appExecutors)
         sourceLiveData.postValue(source)
         return source
     }

@@ -21,6 +21,14 @@
         <item name="android:scaleType">centerInside</item>
     </style>
 
+    <style name="menu_button">
+        <item name="android:layout_width">@dimen/action_button_size</item>
+        <item name="android:layout_height">@dimen/action_button_size</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
     <style name="action_textbutton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/action_button_size</item>

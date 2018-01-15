@@ -26,8 +26,9 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/12/8.
+ *
  */
-class PlayerViewModel @Inject constructor(val repo: PlayerRepository) : ViewModel() {
+class PlayerViewModel @Inject constructor(private val repo: PlayerRepository) : ViewModel() {
 
 
     fun profile(uniqueId: String, forced: Boolean = false) = repo.profile(uniqueId, forced)

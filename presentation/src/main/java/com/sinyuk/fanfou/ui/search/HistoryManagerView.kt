@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractFragment
+import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -34,7 +34,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/5.
  *
  */
-class HistoryManagerView : AbstractFragment(), Injectable {
+class HistoryManagerView : AbstractSwipeFragment(), Injectable {
 
     companion object {
         fun newInstance(query: String?) = HistoryManagerView().apply {

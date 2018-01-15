@@ -26,6 +26,7 @@ import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.*
 import com.sinyuk.fanfou.ui.search.*
+import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -101,4 +102,8 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun followingView(): FollowingView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun statusView(): StatusView
 }

@@ -37,6 +37,7 @@ import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
+import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -61,6 +62,14 @@ class TimelineView : AbstractFragment(), Injectable {
                 putString("uniqueId", uniqueId)
             }
         }
+
+        fun search(path: String, query: String, uniqueId: String? = null) = TimelineView().apply {
+            arguments = Bundle().apply {
+                putString("path", path)
+                putString("query", query)
+                putString("uniqueId", uniqueId)
+            }
+        }
     }
 
     override fun layoutId(): Int? = R.layout.timeline_view
@@ -75,15 +84,17 @@ class TimelineView : AbstractFragment(), Injectable {
 
     private lateinit var timelinePath: String
     private var uniqueId: String? = null
+    private var query: String? = null
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
         arguments?.let {
             timelinePath = it.getString("path")
             uniqueId = it.getString("uniqueId")
+            query = it.getString("query")
         }.run {
-            timelineViewModel.setParams(TimelineViewModel.PathAndPlayer(path = timelinePath, uniqueId = uniqueId))
+            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, uniqueId = uniqueId, query = query))
         }
 
         setupRecyclerView()
@@ -97,6 +108,16 @@ class TimelineView : AbstractFragment(), Injectable {
                 it.msg?.let { toast.toastShort(it) }
             }
         })
+    }
+
+    fun search(q: String) {
+        if (Objects.equals(q, query)) {
+            // TODO
+        } else {
+            query = q
+            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, uniqueId = uniqueId, query = query))
+            timelineViewModel.refresh()
+        }
     }
 
 

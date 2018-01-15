@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -18,11 +18,13 @@
   ~  */
   -->
 
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/recyclerView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-</android.support.v7.widget.RecyclerView>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="@color/colorControlNormal"
+        android:pathData="M831.9,768L192,768.2V378.3l302.8,192.7a32.1,32.1 0,0 0,34.4 0L832,378.3 831.9,768zM192,255.8L192.1,256 832,255.8v46.7l-320,203.6L192,302.4V255.8zM831.9,192H192.1A64,64 0,0 0,128 255.8v512.4C128,803.4 156.8,832 192.1,832h639.8A64,64 0,0 0,896 768.2V255.8A64,64 0,0 0,831.9 192z" />
+</vector>

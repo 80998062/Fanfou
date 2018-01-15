@@ -24,10 +24,9 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.LayoutInflater
-import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
-import com.sinyuk.fanfou.BuildConfig
+import android.view.View
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
@@ -78,15 +77,12 @@ class HistoryView : AbstractFragment(), Injectable {
 
     private lateinit var listing: LiveData<MutableList<Keyword>?>
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
 
-        val limit = if (collapsed) {
-            SUGGESTION_HISTORY_LIMIT
-        } else {
-            null
-        }
+        val limit = if (collapsed) SUGGESTION_HISTORY_LIMIT else null
+
         listing = searchViewModel.listing(query = arguments!!.getString("query"), limit = limit)
                 .apply {
                     observe(this@HistoryView, Observer {
@@ -112,7 +108,7 @@ class HistoryView : AbstractFragment(), Injectable {
         LayoutInflater.from(context).inflate(R.layout.suggestion_list_footer, recyclerView, false).apply {
             setOnClickListener {
                 (activity as AbstractActivity).start(HistoryManagerView.newInstance(query = query))
-                KPSwitchConflictUtil.hidePanelAndKeyboard(recyclerView)
+                KeyboardUtil.hideKeyboard(recyclerView)
             }
         }
     }
@@ -170,7 +166,7 @@ class HistoryView : AbstractFragment(), Injectable {
         if (!collapsed) return
         if (!Objects.equals(event.text, query)) {
             listing.removeObservers(this@HistoryView)
-            listing = searchViewModel.listing(query = arguments!!.getString("query"), limit = SUGGESTION_HISTORY_LIMIT)
+            listing = searchViewModel.listing(query = event.text, limit = SUGGESTION_HISTORY_LIMIT)
                     .apply {
                         observe(this@HistoryView, Observer {
                             adapter.setNewData(it)
@@ -179,16 +175,4 @@ class HistoryView : AbstractFragment(), Injectable {
                     }
         }
     }
-
-    override fun onSupportInvisible() {
-        super.onSupportInvisible()
-        if (BuildConfig.DEBUG) Log.d("HistoryView", "Invisible")
-
-    }
-
-    override fun onSupportVisible() {
-        super.onSupportVisible()
-        if (BuildConfig.DEBUG) Log.d("HistoryView", "Visible")
-    }
-
 }

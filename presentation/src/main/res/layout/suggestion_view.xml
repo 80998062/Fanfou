@@ -27,23 +27,6 @@
     android:layout_height="match_parent"
     android:background="@color/windowBackground">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="1000dp"
-                android:padding="100dp"
-                android:text="To the melted chicken add marshmellow, melon, adobo sauce and shredded asparagus." />
-        </android.support.v4.widget.NestedScrollView>
-    </FrameLayout>
-
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"

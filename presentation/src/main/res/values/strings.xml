@@ -46,4 +46,10 @@
     <string name="label_search">搜索</string>
     <string name="label_inbox">消息</string>
     <string name="label_direct_msg">私信</string>
+    <string name="label_status">状态</string>
+    <string name="action_reply">回复</string>
+    <string name="action_repost">转发</string>
+    <string name="action_like">喜欢</string>
+    <string name="action_directmsg">私信</string>
+    <string name="hint_repost_and_reply">回复并转发</string>
 </resources>
