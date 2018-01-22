@@ -48,6 +48,7 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
@@ -115,7 +116,7 @@ class TabView : AbstractFragment(), Injectable {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
         avatar.setOnClickListener { (activity as AbstractActivity).start(PlayerView.newInstance()) }
-        postFanfouButton.setOnClickListener { toast.toastShort("发送饭否") }
+        postFanfouButton.setOnClickListener { (activity as AbstractActivity).start(EditorView()) }
     }
 
 

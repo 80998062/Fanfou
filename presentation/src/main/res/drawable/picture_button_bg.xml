@@ -17,14 +17,11 @@
   ~  * limitations under the License.
   ~  */
   -->
-<cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
 
-    <cn.dreamtobe.kpswitch.widget.KPSwitchFSPanelFrameLayout
-        android:id="@+id/panelRoot"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/keyboard_panel_height" />
-</cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <size
+        android:width="24dp"
+        android:height="24dp" />
+    <solid android:color="@color/scrim" />
+</shape>

@@ -37,6 +37,13 @@ data class Photos constructor(
         @SerializedName("largeurl")
         var largeurl: String? = null
 ) : Parcelable {
+
+    fun bestUrl() = when {
+        largeurl != null -> largeurl
+        thumburl != null -> thumburl
+        else -> imageurl
+    }
+
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),

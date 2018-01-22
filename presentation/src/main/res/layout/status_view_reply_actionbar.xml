@@ -41,6 +41,7 @@
         style="@style/menu_button"
         android:layout_marginEnd="@dimen/gap_8"
         android:indeterminate="false"
+        android:progress="0"
         android:progressBackgroundTint="@color/colorAccentLt"
         android:progressTint="@color/colorAccent" />
 

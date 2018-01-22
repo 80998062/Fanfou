@@ -52,4 +52,11 @@
     <string name="action_like">喜欢</string>
     <string name="action_directmsg">私信</string>
     <string name="hint_repost_and_reply">回复并转发</string>
+    <string name="action_post">发送</string>
+    <string name="hint_post_fanfou">说点什么呢?</string>
+    <string name="action_addpicture">添加图片</string>
+    <string name="name_picture">图片</string>
+    <string name="action_mention">\@别人</string>
+    <string name="name_edit">编辑</string>
+    <string name="action_more">更多</string>
 </resources>

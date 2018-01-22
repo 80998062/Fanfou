@@ -29,6 +29,7 @@ import me.yokeyword.fragmentation.SupportFragment
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
  */
 abstract class AbstractFragment : SupportFragment() {
 

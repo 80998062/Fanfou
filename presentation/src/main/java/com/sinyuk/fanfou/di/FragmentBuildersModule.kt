@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
@@ -106,4 +107,10 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun statusView(): StatusView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun editorView(): EditorView
+
+
 }

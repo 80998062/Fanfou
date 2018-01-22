@@ -66,18 +66,14 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         view.screenName.text = status.playerExtracts?.screenName
         view.createdAt.text = DateUtils.getTimeAgo(view.context, status.createdAt)
 
-        val url = when {
-            status.photos?.largeurl != null -> status.photos?.largeurl
-            status.photos?.thumburl != null -> status.photos?.thumburl
-            else -> status.photos?.imageurl
-        }
+        val url = status.photos?.bestUrl()
 
         if (url == null) {
             view.image.visibility = View.GONE
             glide.clear(view.image)
         } else {
             view.image.visibility = View.VISIBLE
-            glide.load(url).illustrationThumb().into(view.image)
+            glide.load(url).illustrationThumb(view.context).into(view.image)
         }
 
         FanfouUtils.parseAndSetText(view.content, status.text)
@@ -94,13 +90,11 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
                     }
 
                     override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                        target.getSize { width, height ->
+                        resource?.apply {
                             Bundle().apply {
                                 putInt("w", width)
                                 putInt("h", height)
-                            }.also {
-                                (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it))
-                            }
+                            }.also { (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it)) }
                         }
                         return true
                     }

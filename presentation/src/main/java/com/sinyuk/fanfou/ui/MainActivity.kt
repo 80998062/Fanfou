@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.ui.home.HomeView
@@ -41,7 +42,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/11/28.
  *
  */
-class MainActivity : AbstractActivity(){
+class MainActivity : AbstractActivity() {
     companion object {
         @JvmStatic
         fun start(context: Context, flags: Int? = null) {
@@ -53,15 +54,20 @@ class MainActivity : AbstractActivity(){
 
     override fun layoutId() = R.layout.main_activity
 
-    @Inject lateinit var factory: ViewModelProvider.Factory
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
     @Suppress("unused")
     private val accountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
     @Suppress("unused")
     private val searchViewModel by lazy { obtainViewModel(factory, SearchViewModel::class.java) }
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        KeyboardUtil.attach(this@MainActivity, panelRoot)
+
         if (findFragment(HomeView::class.java) == null) {
             loadRootFragment(R.id.fragment_container, HomeView())
         } else {
@@ -79,6 +85,7 @@ class MainActivity : AbstractActivity(){
     } else {
         super.dispatchKeyEvent(event)
     }
+
 
 
 }

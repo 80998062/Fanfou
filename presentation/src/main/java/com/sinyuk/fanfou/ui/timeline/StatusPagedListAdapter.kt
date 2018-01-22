@@ -189,7 +189,7 @@ class StatusPagedListAdapter(
     class StatusPreloadProvider constructor(private val adapter: StatusPagedListAdapter, private val fragment: Fragment, private val imageWidthPixels: Int) : ListPreloader.PreloadModelProvider<Status> {
 
         override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
-            return GlideApp.with(fragment).load(item.photos?.imageurl).illustrationThumb().override(imageWidthPixels, imageWidthPixels)
+            return GlideApp.with(fragment).load(item.photos?.imageurl).illustrationThumb(fragment.context!!).override(imageWidthPixels, imageWidthPixels)
         }
 
         override fun getPreloadItems(position: Int): MutableList<Status> = if (adapter.currentList?.isNotEmpty() == true && position < adapter.currentList?.size ?: 0) {

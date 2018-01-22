@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.viewmodel
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.repo.PlayerRepository
 import javax.inject.Inject
@@ -76,5 +77,8 @@ class PlayerViewModel @Inject constructor(private val repo: PlayerRepository) : 
     fun refresh() {
         repoResult?.value?.refresh?.invoke()
     }
+
+    fun filter(keyword: String) = repo.filter(keyword)
+    fun updateMentionedAt(player: Player) = repo.updateMentionedAt(player)
 
 }

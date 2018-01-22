@@ -20,9 +20,12 @@
 
 package com.sinyuk.fanfou.glide
 
+import android.content.Context
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.request.RequestOptions
+import com.sinyuk.myutils.ConvertUtils
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 /**
  * Created by sinyuk on 2018/1/10.
@@ -38,14 +41,14 @@ object MyGlideExt {
 
     @GlideOption
     @JvmStatic
-    fun illustrationThumb(options: RequestOptions) {
-        options.centerCrop()/*.apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(16,0)))*/
+    fun illustrationThumb(options: RequestOptions, context: Context) {
+        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 8f), 0)))
     }
 
 
     @GlideOption
     @JvmStatic
-    fun illustrationLarge(options: RequestOptions) {
-        options.centerCrop()
+    fun illustrationLarge(options: RequestOptions, context: Context) {
+        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 16f), 0)))
     }
 }

@@ -19,13 +19,15 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingLeft="@dimen/gap_16"
     android:paddingRight="@dimen/gap_16"
-    tools:background="@color/white">
+    tools:background="@color/white"
+    tools:layout_gravity="center_vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -64,6 +66,17 @@
             tools:background="@color/textColorHint"
             tools:text="asdasdas" />
 
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/moreButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/action_more"
+            android:src="@drawable/ic_more" />
     </LinearLayout>
 
     <TextView
@@ -78,12 +91,16 @@
         tools:background="@color/textColorHint"
         tools:text="Clemens cob mixed with basil leafs." />
 
-    <ImageView
+    <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/gap_8"
+        android:layout_marginBottom="@dimen/gap_12"
+        android:contentDescription="@string/name_picture"
         android:scaleType="centerCrop"
+        app:riv_border_color="@color/divider_color"
+        app:riv_border_width="0.5dp"
+        app:riv_corner_radius="0dp"
         tools:src="@drawable/sample" />
 
     <LinearLayout

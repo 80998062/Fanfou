@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -17,14 +17,9 @@
   ~  * limitations under the License.
   ~  */
   -->
-<cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
 
-    <cn.dreamtobe.kpswitch.widget.KPSwitchFSPanelFrameLayout
-        android:id="@+id/panelRoot"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/keyboard_panel_height" />
-</cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout>
+<vector android:autoMirrored="true" android:height="24dp"
+    android:viewportHeight="1024.0" android:viewportWidth="1024.0"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M448.5,496H256a32,32 0,0 0,0 64l147,-0.2 -233.6,233.6a32,32 0,0 0,45.2 45.2l233.7,-233.6v147.3a32,32 0,1 0,64 0v-192.5a63.8,63.8 0,0 0,-63.7 -63.7M838.6,201.4a32,32 0,0 0,-45.2 0L576,418.8V272a32,32 0,0 0,-64 0v192.5c0,35.1 28.6,63.7 63.7,63.7h192.5a32,32 0,1 0,0 -64l-147.5,0.2 217.9,-217.9a32,32 0,0 0,0 -45.2"/>
+</vector>

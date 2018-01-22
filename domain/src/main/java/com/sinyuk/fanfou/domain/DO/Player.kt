@@ -28,6 +28,7 @@ import android.os.Parcelable
 import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
 import android.support.annotation.NonNull
 import com.google.gson.annotations.SerializedName
+import com.linkedin.android.spyglass.mentions.Mentionable
 import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 import com.sinyuk.fanfou.domain.db.DateConverter
 import java.util.*
@@ -38,7 +39,7 @@ import java.util.*
  *
  */
 
-@Entity(tableName = "players", indices = arrayOf(Index("uniqueId"), Index("name")))
+@Entity(tableName = "players", indices = [(Index("uniqueId")), (Index("name"))])
 @TypeConverters(DateConverter::class)
 data class Player @JvmOverloads constructor(
         @PrimaryKey @NonNull @SerializedName("unique_id") var uniqueId: String = "",
@@ -63,9 +64,21 @@ data class Player @JvmOverloads constructor(
         @SerializedName("created_at") var createdAt: Date? = null,
         @SerializedName("profile_background_image_url") var profileBackgroundImageUrl: String? = "",
         @Embedded(prefix = "access") var authorization: Authorization? = null,
-        var pathFlag: Int = 0
+        var pathFlag: Int = 0,
+        var mentionedAt: Date? = null
 
-) : Parcelable {
+) : Parcelable, Mentionable {
+    override fun getSuggestibleId() = uniqueId.hashCode()
+
+    override fun getSuggestiblePrimaryText() = screenName
+
+    override fun getDeleteStyle(): Mentionable.MentionDeleteStyle = Mentionable.MentionDeleteStyle.FULL_DELETE
+
+    override fun getTextForDisplayMode(mode: Mentionable.MentionDisplayMode?) = when (mode) {
+        Mentionable.MentionDisplayMode.FULL -> "@" + screenName!! + " "
+        else -> ""
+    }
+
     fun addPath(flags: Int) {
         pathFlag = pathFlag or flags
     }

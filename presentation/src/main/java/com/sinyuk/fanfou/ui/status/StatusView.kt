@@ -35,7 +35,6 @@ import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.bumptech.glide.request.RequestOptions
 import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
@@ -46,7 +45,6 @@ import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import com.sinyuk.fanfou.util.FanfouFormatter
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.status_view.*
 import kotlinx.android.synthetic.main.status_view_footer.*
 import kotlinx.android.synthetic.main.status_view_header.*
@@ -78,19 +76,23 @@ class StatusView : AbstractSwipeFragment(), Injectable {
         setupKeyboard()
     }
 
+    private var keyboardListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     private fun setupKeyboard() {
-        KeyboardUtil.attach(activity, panelRoot, {
-            if (it) {
-                if (replyEt.requestFocus()) replyEt.setSelection(replyEt.text.length)
-            } else {
-                replyEt.clearFocus()
-            }
+
+        keyboardListener = KeyboardUtil.attach(activity, panelRoot, {
+            if (BuildConfig.DEBUG) Log.i("StatusView", "keyboardShowing: " + it)
+            panelRootContainer.visibility =
+                    if (it) {
+                        if (replyEt.requestFocus()) replyEt.setSelection(replyEt.text.length)
+                        View.VISIBLE
+                    } else {
+                        replyEt.clearFocus()
+                        View.GONE
+                    }
         })
 
-        fullscreenButton.setOnClickListener { }
 
-        textCountProgress.isIndeterminate = false
         textCountProgress.max = STATUS_LIMIT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) textCountProgress.min = 0
 
@@ -114,7 +116,7 @@ class StatusView : AbstractSwipeFragment(), Injectable {
         })
 
         rootView.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+            if (event.action == MotionEvent.ACTION_UP) KPSwitchConflictUtil.hidePanelAndKeyboard(panelRootContainer)
             return@setOnTouchListener false
         }
     }
@@ -127,7 +129,8 @@ class StatusView : AbstractSwipeFragment(), Injectable {
         screenName.text = status.playerExtracts?.screenName
         FanfouUtils.parseAndSetText(content, status.text)
         FanfouUtils.parseAndSetText(source, String.format(sourceFormat, status.source))
-        userId.text = String.format(uidFormat, status.playerExtracts?.id)
+        val formatedId = String.format(uidFormat, status.playerExtracts?.id)
+        userId.text = formatedId
         createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
 
         if (status.photos == null) {
@@ -138,7 +141,6 @@ class StatusView : AbstractSwipeFragment(), Injectable {
                 image.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
                     override fun onGlobalLayout() {
                         image.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        if (BuildConfig.DEBUG) Log.d("StatusView", "宽: ${it.getInt("w")} , 高: ${it.getInt("h")}")
                         val ratio = it.getInt("h", 0) * 1.0f / it.getInt("w", 1)
                         val lps = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                         lps.height = (image.width * ratio).toInt()
@@ -147,16 +149,22 @@ class StatusView : AbstractSwipeFragment(), Injectable {
                 })
             }
 
-            val url = when {
-                status.photos?.largeurl != null -> status.photos?.largeurl
-                status.photos?.thumburl != null -> status.photos?.thumburl
-                else -> status.photos?.imageurl
-            }
-
-            GlideApp.with(this@StatusView).asDrawable().load(url).illustrationLarge()
-                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(16, 0))).transition(withCrossFade()).into(image)
-
+            GlideApp.with(this@StatusView).asBitmap().load(status.photos?.bestUrl()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(image)
         }
+
+
+        //
+
+        fullscreenButton.setOnClickListener {}
+
+        moreButton.setOnClickListener {}
+
     }
+
+    override fun onDestroy() {
+        keyboardListener?.let { KeyboardUtil.detach(activity, it) }
+        activity?.currentFocus?.let { KeyboardUtil.hideKeyboard(it) }
+        super.onDestroy()
+    }
+
 }

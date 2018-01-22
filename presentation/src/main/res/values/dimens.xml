@@ -44,4 +44,7 @@
     <dimen name="tab_bar_height">32dp</dimen>
     <dimen name="timeline_illustration_size">64dp</dimen>
     <dimen name="player_list_item_avatar_size">48dp</dimen>
+    <dimen name="player_list_item_small_height">48dp</dimen>
+    <dimen name="mentioned_list_height">240dp</dimen>
+    <dimen name="picture_corner_radius_large">6dp</dimen>
 </resources>

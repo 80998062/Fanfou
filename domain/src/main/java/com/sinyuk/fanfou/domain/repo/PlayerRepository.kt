@@ -26,6 +26,7 @@ import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
+import android.support.annotation.WorkerThread
 import android.util.Log
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
@@ -36,6 +37,7 @@ import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.isOnline
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -110,6 +112,17 @@ class PlayerRepository @Inject constructor(
         val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
         return LivePagedListBuilder(disk.playerDao().players(convertPlayerPathToFlag(path)), pagedListConfig).setBackgroundThreadExecutor(appExecutors.diskIO()).build()
 
+    }
+
+    @MainThread
+    fun filter(keyword: String) = disk.playerDao().filter(query = keyword)
+
+    @WorkerThread
+    fun updateMentionedAt(player: Player) {
+        appExecutors.diskIO().execute {
+            player.mentionedAt = Date(System.currentTimeMillis())
+            disk.runInTransaction { disk.playerDao().update(player) }
+        }
     }
 
 }
