@@ -15,9 +15,10 @@
     <string name="name_following">正在关注</string>
     <string name="name_follower">关注者</string>
     <string name="format_unique_id">\@%s</string>
-    <string name="action_edit_profile">编辑</string>
-    <string name="action_unfollow">取消关注</string>
+    <string name="action_edit_profile">编辑资料</string>
+    <string name="action_unfollow">不再关注</string>
     <string name="action_follow">关注</string>
+    <string name="action_begin_follow">开始关注</string>
     <string name="no_new_statuses">没有新的状态</string>
     <string name="name_trend">趋势</string>
     <string name="action_show_more">显示更多</string>
@@ -59,4 +60,7 @@
     <string name="action_mention">\@别人</string>
     <string name="name_edit">编辑</string>
     <string name="action_more">更多</string>
+    <string name="action_expand">展开</string>
+    <string name="name_backdrop">资料背景图</string>
+    <string name="name_picture_thumb">缩略图</string>
 </resources>

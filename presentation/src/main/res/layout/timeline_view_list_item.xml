@@ -109,14 +109,18 @@
                 tools:background="@color/textColorHint"
                 tools:text="Clemens cob mixed with basil leafs." />
 
-            <com.sinyuk.fanfou.ui.SquareImageView
+            <com.sinyuk.fanfou.ui.BadgedImageView
                 android:id="@+id/image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/gap_8"
                 android:layout_weight="0.382"
-                android:contentDescription="TODO"
-                android:scaleType="centerCrop" />
+                android:contentDescription="@string/name_picture_thumb"
+                android:scaleType="centerCrop"
+                app:badgeGravity="bottom|end"
+                app:badgePadding="@dimen/gap_8"
+                app:riv_border_width="0dp"
+                app:riv_corner_radius="@dimen/picture_corner_radius_small" />
         </LinearLayout>
 
     </RelativeLayout>

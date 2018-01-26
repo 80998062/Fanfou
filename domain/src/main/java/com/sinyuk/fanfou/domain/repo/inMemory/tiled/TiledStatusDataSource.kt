@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.domain.repo.inMemory.tiled
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
 import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.RestAPI
 import retrofit2.Call
@@ -40,44 +41,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                             private val query: String? = null,
                             private val appExecutors: AppExecutors) : PageKeyedDataSource<Int, Status>() {
 
-    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {
-        networkState.postValue(NetworkState.LOADING)
-        try {
-            val response = when (path) {
-                TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
-                SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = params.key))
-                SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = params.key)
-                else -> TODO()
-            }.execute()
-
-            if (response.isSuccessful) {
-                val items = if (response.body() == null) {
-                    mutableListOf()
-                } else {
-                    response.body()!!
-                }
-                retry = null
-                val prev = if (params.key > 1) {
-                    params.key - 1
-                } else {
-                    null
-                }
-                when (items.size) {
-                    params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
-                    else -> networkState.postValue(NetworkState.TERMINAL)
-                }
-                callback.onResult(items, prev)
-            } else {
-                retry = { loadAfter(params, callback) }
-                networkState.postValue(NetworkState.error("error code: ${response.code()}"))
-            }
-
-
-        } catch (e: IOException) {
-            retry = { loadAfter(params, callback) }
-            networkState.postValue(NetworkState.error(e.message ?: "unknown error"))
-        }
-    }
+    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Status>) {}
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Status>) {
         // update network states.
@@ -87,6 +51,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         initialLoad.postValue(NetworkState.LOADING)
 
         when (path) {
+            TIMELINE_CONTEXT, TIMELINE_PUBLIC, TIMELINE_USER -> restAPI.fetch_from_path(path = path, id = uniqueId, count = params.requestedLoadSize, page = 1)
             TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = 1)
             SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = 1))
             SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = 1)
@@ -94,12 +59,10 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         }.enqueue(object : Callback<MutableList<Status>> {
             override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>) {
                 if (response.isSuccessful) {
+                    val items = mapResponse(response.body())
 
-                    val items = if (response.body() == null) {
-                        mutableListOf()
-                    } else {
-                        response.body()!!
-                    }
+                    if (path == TIMELINE_CONTEXT && items.isNotEmpty()) items.removeAt(0)  // 上下文消息会返回原文本身,过滤掉
+
                     retry = null
                     var next: Int? = null
                     when (items.size) {
@@ -144,6 +107,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         networkState.postValue(NetworkState.LOADING)
         try {
             val response = when (path) {
+                TIMELINE_CONTEXT, TIMELINE_PUBLIC, TIMELINE_USER -> restAPI.fetch_from_path(path = path, id = uniqueId, count = params.requestedLoadSize, page = params.key)
                 TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
                 SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = params.key))
                 SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = params.key)
@@ -151,11 +115,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
             }.execute()
 
             if (response.isSuccessful) {
-                val items = if (response.body() == null) {
-                    mutableListOf()
-                } else {
-                    response.body()!!
-                }
+                val items = mapResponse(response.body())
                 retry = null
                 var next: Int? = null
                 when (items.size) {
@@ -200,6 +160,15 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                 it.invoke()
             }
         }
+    }
+
+    fun mapResponse(response: MutableList<Status>?) = if (response == null) {
+        mutableListOf()
+    } else {
+        for (item in response) {
+            item.user?.let { item.playerExtracts = PlayerExtracts(it) }
+        }
+        response
     }
 
 

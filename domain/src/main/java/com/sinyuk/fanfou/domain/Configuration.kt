@@ -57,11 +57,11 @@ const val TIMELINE_MENTIONS = "mentions"
 
 const val TIMELINE_PUBLIC = "public_timeline"
 
-const val SEARCH_TIMELINE_PUBLIC = "public_timeline"
+const val SEARCH_TIMELINE_PUBLIC = "search_public_timeline"
 
-const val SEARCH_USERS = "users"
+const val SEARCH_USERS = "search_users"
 
-const val SEARCH_USER_TIMELINE = "user_timeline"
+const val SEARCH_USER_TIMELINE = "search_user_timeline"
 
 const val USERS_FRIENDS = "friends"
 
@@ -94,3 +94,10 @@ const val UNHANDLE_VISIBLE_ERROR_MESSAGE = "☍ (¦3ꇤ[▓▓] 我也不知道�
 const val SUGGESTION_HISTORY_LIMIT = 5
 
 const val STATUS_LIMIT = 140
+
+object StatusCreation {
+    const val CREATE_NEW = 0x00
+    const val REPOST_STATUS = 0x11
+    const val REPLY_TO_STATUS = 0x12
+    const val REPLY_TO_USER = 0x13
+}

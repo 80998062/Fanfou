@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.DO
 
+import android.arch.persistence.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
@@ -35,20 +36,30 @@ data class Photos constructor(
         @SerializedName("thumburl")
         var thumburl: String? = null,
         @SerializedName("largeurl")
-        var largeurl: String? = null
+        var largeurl: String? = null,
+        @Ignore
+        var hasFadedIn: Boolean = false
+
 ) : Parcelable {
 
+
     fun bestUrl() = when {
-        largeurl != null -> largeurl
-        thumburl != null -> thumburl
-        else -> imageurl
+        isAnimated(thumburl) == true -> thumburl
+        isAnimated(imageurl) == true -> imageurl
+        isAnimated(largeurl) == true -> largeurl
+        else -> when {
+            largeurl != null -> largeurl
+            thumburl != null -> thumburl
+            else -> imageurl
+        }
     }
 
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),
             source.readString(),
-            source.readString()
+            source.readString(),
+            1 == source.readInt()
     )
 
     override fun describeContents() = 0
@@ -58,6 +69,7 @@ data class Photos constructor(
         writeString(imageurl)
         writeString(thumburl)
         writeString(largeurl)
+        writeInt((if (hasFadedIn) 1 else 0))
     }
 
     companion object {
@@ -66,5 +78,7 @@ data class Photos constructor(
             override fun createFromParcel(source: Parcel): Photos = Photos(source)
             override fun newArray(size: Int): Array<Photos?> = arrayOfNulls(size)
         }
+
+        fun isAnimated(url: String?) = url?.contains("gif", false)
     }
 }

@@ -37,7 +37,7 @@
         android:layout_alignTop="@+id/replyEt"
         android:background="@drawable/search_view_bg" />
 
-    <EditText
+    <com.linkedin.android.spyglass.ui.MentionsEditText
         android:id="@+id/replyEt"
         android:layout_width="match_parent"
         android:layout_height="28dp"
@@ -65,5 +65,6 @@
         android:layout_centerInParent="true"
         android:layout_marginEnd="@dimen/gap_8"
         android:layout_marginStart="@dimen/gap_8"
+        android:contentDescription="@string/action_expand"
         android:src="@drawable/ic_fullscreen" />
 </RelativeLayout>

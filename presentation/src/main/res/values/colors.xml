@@ -16,6 +16,6 @@
     <color name="colorControlActivated">#3FADEC</color>
     <color name="colorControlDisable">#E6EBEF</color>
     <color name="white">#ffffff</color>
-    <color name="scrim">#85121212</color>
+    <color name="scrim">#6b4e4d4d</color>
 
 </resources>

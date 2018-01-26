@@ -27,7 +27,6 @@ import android.arch.lifecycle.Transformations.switchMap
 import android.arch.lifecycle.ViewModel
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
-import com.sinyuk.fanfou.domain.repo.inMemory.keyed.KeyedTimelineRepository
 import com.sinyuk.fanfou.domain.repo.inMemory.tiled.TiledTimelineRepository
 import javax.inject.Inject
 
@@ -36,10 +35,9 @@ import javax.inject.Inject
  *
  */
 class TimelineViewModel @Inject constructor(private val disk: TimelineRepository,
-                                            private val keyed: KeyedTimelineRepository,
                                             private val tiled: TiledTimelineRepository) : ViewModel() {
 
-    data class TimelinePath(val path: String, val uniqueId: String? = null, val query: String? = null)
+    data class TimelinePath(val path: String, val id: String? = null, val query: String? = null)
 
     private val paramLive = MutableLiveData<TimelinePath>()
 
@@ -52,26 +50,21 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
     }
 
     private val repoResult = map(paramLive, {
-        if (it.query == null) {
-            if (it.uniqueId == null) {
+        when (it.path) {
+            SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.id)
+            else -> if (it.id == null) {
                 when (it.path) {
-                    TIMELINE_PUBLIC -> keyed.statuses(path = it.path, pageSize = PAGE_SIZE)
-                    TIMELINE_FAVORITES -> tiled.statuses(path = it.path, pageSize = PAGE_SIZE)
+                    TIMELINE_PUBLIC, TIMELINE_FAVORITES -> tiled.statuses(path = it.path, pageSize = PAGE_SIZE)
                     else -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
                 }
             } else {
                 when (it.path) {
-                    TIMELINE_FAVORITES -> tiled.statuses(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE)
-                    else -> keyed.statuses(path = it.path, uniqueId = it.uniqueId, pageSize = PAGE_SIZE)
+                    TIMELINE_CONTEXT, TIMELINE_FAVORITES, TIMELINE_USER -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
+                    else -> TODO()
                 }
             }
-        } else {
-            when (it.path) {
-                SEARCH_TIMELINE_PUBLIC -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE)
-                SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.uniqueId)
-                else -> TODO()
-            }
         }
+
     })
 
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!

@@ -62,6 +62,7 @@ interface RestAPI {
                         @Query("page") page: Int): Call<MutableList<Status>>
 
 
+
 //    @GET("/search/public_timeline.json?format=html")
 //    fun search_statuses(@Query(value = "q", encoded = false) query: String,
 //                        @Query("count") count: Int,

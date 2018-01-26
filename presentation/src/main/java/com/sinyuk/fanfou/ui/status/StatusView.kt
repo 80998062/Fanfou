@@ -20,12 +20,14 @@
 
 package com.sinyuk.fanfou.ui.status
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.text.Editable
-import android.text.InputFilter
 import android.text.TextWatcher
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -35,27 +37,48 @@ import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
-import com.sinyuk.fanfou.BuildConfig
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult
+import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager
+import com.linkedin.android.spyglass.tokenization.QueryToken
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig
+import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.STATUS_LIMIT
+import com.sinyuk.fanfou.domain.StatusCreation
+import com.sinyuk.fanfou.domain.TIMELINE_CONTEXT
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
+import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
+import com.sinyuk.fanfou.ui.editor.EditorView
+import com.sinyuk.fanfou.ui.editor.MentionListView
+import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.FanfouFormatter
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
+import com.sinyuk.fanfou.viewmodel.PlayerViewModel
 import kotlinx.android.synthetic.main.status_view.*
 import kotlinx.android.synthetic.main.status_view_footer.*
 import kotlinx.android.synthetic.main.status_view_header.*
 import kotlinx.android.synthetic.main.status_view_reply_actionbar.*
+import javax.inject.Inject
 
 
 /**
  * Created by sinyuk on 2018/1/12.
  *
  */
-class StatusView : AbstractSwipeFragment(), Injectable {
+class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
+
+
     companion object {
         fun newInstance(status: Status, photoExtra: Bundle? = null) = StatusView().apply {
             arguments = Bundle().apply {
@@ -67,21 +90,34 @@ class StatusView : AbstractSwipeFragment(), Injectable {
 
     override fun layoutId() = R.layout.status_view
 
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
+
+    private val playerViewModel by lazy { obtainViewModelFromActivity(factory, PlayerViewModel::class.java) }
+
+
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
-        navBack.setOnClickListener { pop() }
+
         val status = arguments!!.getParcelable<Status>("status")
-        renderUI(status)
+        navBack.setOnClickListener { pop() }
+        setupEditor(status)
         setupKeyboard()
+        onFormValidation(0)
+        renderUI(status)
+
+        if (findChildFragment(TimelineView::class.java) == null) {
+            loadRootFragment(R.id.contextTimelineContainer, TimelineView.newInstance(TIMELINE_CONTEXT, status.id))
+        } else {
+            showHideFragment(findChildFragment(TimelineView::class.java))
+        }
     }
 
     private var keyboardListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     private fun setupKeyboard() {
-
         keyboardListener = KeyboardUtil.attach(activity, panelRoot, {
-            if (BuildConfig.DEBUG) Log.i("StatusView", "keyboardShowing: " + it)
             panelRootContainer.visibility =
                     if (it) {
                         if (replyEt.requestFocus()) replyEt.setSelection(replyEt.text.length)
@@ -92,28 +128,6 @@ class StatusView : AbstractSwipeFragment(), Injectable {
                     }
         })
 
-
-        textCountProgress.max = STATUS_LIMIT
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) textCountProgress.min = 0
-
-        replyEt.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(STATUS_LIMIT))
-
-        replyCommitButton.isEnabled = false
-
-        replyCommitButton.setOnClickListener { }
-
-        replyEt.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {}
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                textCountProgress.progress = count
-                replyCommitButton.isEnabled = count > 0 || count < STATUS_LIMIT
-            }
-        })
 
         rootView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) KPSwitchConflictUtil.hidePanelAndKeyboard(panelRootContainer)
@@ -129,8 +143,8 @@ class StatusView : AbstractSwipeFragment(), Injectable {
         screenName.text = status.playerExtracts?.screenName
         FanfouUtils.parseAndSetText(content, status.text)
         FanfouUtils.parseAndSetText(source, String.format(sourceFormat, status.source))
-        val formatedId = String.format(uidFormat, status.playerExtracts?.id)
-        userId.text = formatedId
+        val formattedId = String.format(uidFormat, status.playerExtracts?.id)
+        userId.text = formattedId
         createdAt.text = FanfouFormatter.convertDateToStr(status.createdAt!!)
 
         if (status.photos == null) {
@@ -149,17 +163,122 @@ class StatusView : AbstractSwipeFragment(), Injectable {
                 })
             }
 
-            GlideApp.with(this@StatusView).asBitmap().load(status.photos?.bestUrl()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(image)
+            GlideApp.with(this@StatusView).asDrawable().load(status.photos?.bestUrl()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(image)
         }
 
-
-        //
-
-        fullscreenButton.setOnClickListener {}
 
         moreButton.setOnClickListener {}
 
     }
+
+
+    private val config = WordTokenizerConfig.Builder().setExplicitChars("@").setThreshold(3).setMaxNumKeywords(5).setWordBreakChars(" ").build()
+
+    private fun setupEditor(status: Status) {
+        replyEt.tokenizer = WordTokenizer(config)
+        replyEt.setAvoidPrefixOnTap(true)
+        replyEt.setQueryTokenReceiver(this)
+        replyEt.setSuggestionsVisibilityManager(this)
+        replyEt.setAvoidPrefixOnTap(true)
+
+        replyCommitButton.setOnClickListener { }
+
+        fullscreenButton.setOnClickListener {
+            (activity as AbstractActivity).start(EditorView.newInstance(status.id, replyEt.mentionsText, StatusCreation.REPOST_STATUS))
+            replyEt.text = null
+        }
+
+        textCountProgress.max = STATUS_LIMIT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) textCountProgress.min = 0
+
+        replyEt.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                onTextCountUpdated(s?.length ?: 0)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+        })
+    }
+
+
+    /**
+     * @param count 字数
+     */
+    private fun onTextCountUpdated(count: Int) {
+        textCountProgress.progress = count
+        onFormValidation(count)
+    }
+
+
+    private fun onFormValidation(count: Int) {
+        if (count in 1..STATUS_LIMIT) {
+            if (replyCommitButton.isEnabled) return
+            (replyCommitButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlActivated))
+            replyCommitButton.isEnabled = true
+        } else {
+            if (!replyCommitButton.isEnabled) return
+            (replyCommitButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlDisable))
+            replyCommitButton.isEnabled = false
+        }
+    }
+
+
+    @Suppress("PrivatePropertyName")
+    private val BUCKET = "player-mentioned"
+
+    private var playerLiveData: LiveData<MutableList<Player>>? = null
+    override fun onQueryReceived(queryToken: QueryToken): MutableList<String> {
+        playerLiveData = playerViewModel.filter(queryToken.keywords).apply {
+            observe(this@StatusView, Observer<MutableList<Player>> { t ->
+                playerLiveData?.removeObservers(this@StatusView)
+                onReceiveSuggestionsResult(SuggestionsResult(queryToken, t), BUCKET)
+            })
+        }
+        return arrayOf(BUCKET).toMutableList()
+    }
+
+    override fun onReceiveSuggestionsResult(result: SuggestionsResult, bucket: String) {
+        val data = result.suggestions
+        displaySuggestions(data?.isNotEmpty() == true)
+        if (data?.isEmpty() != false) return
+        if (findChildFragment(MentionListView::class.java) == null) {
+            val fragment = MentionListView.newInstance(data.toTypedArray())
+            fragment.onItemClickListener = object : MentionListView.OnItemClickListener {
+                override fun onItemClick(position: Int, item: Suggestible) {
+                    (item as Player).let {
+                        replyEt.insertMention(it)
+                        displaySuggestions(false)
+                        playerViewModel.updateMentionedAt(it) //
+                        onTextCountUpdated(replyEt.text.length)
+                        replyEt.requestFocus()
+                        replyEt.setSelection(replyEt.text.length)
+                    }
+                }
+            }
+            loadRootFragment(R.id.mentionLayout, fragment)
+        } else {
+            findChildFragment(MentionListView::class.java)?.apply {
+                showHideFragment(this)
+                updateListView(data = data)
+            }
+        }
+    }
+
+    override fun displaySuggestions(display: Boolean) {
+        viewAnimator.displayedChildId = if (display) {
+            R.id.mentionLayout
+        } else {
+            R.id.coordinator
+        }
+    }
+
+    override fun isDisplayingSuggestions() = viewAnimator.displayedChildId == R.id.mentionLayout
 
     override fun onDestroy() {
         keyboardListener?.let { KeyboardUtil.detach(activity, it) }

@@ -74,17 +74,19 @@
             android:textSize="@dimen/text_12"
             tools:text="\@~asdasdas" />
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/directMsgButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/gap_8"
             android:layout_toStartOf="@+id/followButton"
-            android:background="@color/windowBackground"
+            android:background="@drawable/button_bg_outline_oval_ac"
             android:contentDescription="@string/name_direct_msg"
-            android:padding="3dp"
-            android:src="@drawable/ic_direct_msg_ac" />
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_mail_ac"
+            app:riv_border_width="0dp"
+            app:riv_corner_radius="12dp" />
 
         <com.sinyuk.fanfou.ui.QMUIRoundButton
             android:id="@+id/followButton"
@@ -97,9 +99,9 @@
             android:paddingStart="@dimen/gap_16"
             android:textColor="?android:colorAccent"
             android:textSize="@dimen/text_14"
-            app:qmui_borderColor="#ccc"
+            app:qmui_borderColor="#3FADEC"
             app:qmui_borderWidth="1dp"
-            app:qmui_radius="@dimen/gap_16"
+            app:qmui_radius="12dp"
             tools:text="相互关注" />
     </RelativeLayout>
 

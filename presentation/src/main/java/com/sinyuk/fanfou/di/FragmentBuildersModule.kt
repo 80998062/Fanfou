@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.editor.EditorView
+import com.sinyuk.fanfou.ui.editor.MentionListView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
@@ -112,5 +113,9 @@ abstract class FragmentBuildersModule {
     @ContributesAndroidInjector
     abstract fun editorView(): EditorView
 
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun mentionListView(): MentionListView
 
 }

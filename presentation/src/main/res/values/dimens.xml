@@ -38,6 +38,7 @@
     <dimen name="text_30">30sp</dimen>
     <dimen name="divider_size">0.8dp</dimen>
     <dimen name="action_bar_height">44dp</dimen>
+    <dimen name="collapse_min_height">68dp</dimen>
     <dimen name="action_button_size">32dp</dimen>
     <dimen name="menu_button_size">24dp</dimen>
     <dimen name="player_view_header_row1_height">44dp</dimen>
@@ -47,4 +48,5 @@
     <dimen name="player_list_item_small_height">48dp</dimen>
     <dimen name="mentioned_list_height">240dp</dimen>
     <dimen name="picture_corner_radius_large">6dp</dimen>
+    <dimen name="picture_corner_radius_small">4dp</dimen>
 </resources>

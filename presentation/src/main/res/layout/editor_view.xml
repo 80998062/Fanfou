@@ -54,8 +54,8 @@
             android:gravity="center"
             android:paddingEnd="@dimen/gap_12"
             android:paddingStart="@dimen/gap_12"
-            android:text="@string/action_post"
             android:textColor="@color/white"
+            app:qmui_backgroundColor="#3FADEC"
             app:qmui_radius="14dp" />
     </LinearLayout>
 
@@ -115,8 +115,8 @@
 
                 <android.support.v4.widget.Space
                     android:id="@+id/emptyLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp" />
 
                 <FrameLayout
                     android:id="@+id/pictureLayout"
@@ -132,24 +132,11 @@
                         layout="@layout/editor_picture_list_item" />
                 </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/mentionLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/divider_size"
-                        android:background="@color/divider_color" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/mentionList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/windowBackground"
-                        android:overScrollMode="never" />
-                </LinearLayout>
+                    android:orientation="vertical" />
             </com.sinyuk.fanfou.ui.BetterViewAnimator>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

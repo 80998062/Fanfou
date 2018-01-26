@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -32,21 +33,18 @@ import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
-import com.sinyuk.fanfou.util.obtainViewModelFromActivity
-import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.timeline_view.*
 import kotlinx.android.synthetic.main.timeline_view_list_header_public.view.*
 import javax.inject.Inject
+import javax.inject.Named
 
 
 /**
@@ -56,34 +54,36 @@ import javax.inject.Inject
 class TimelineView : AbstractFragment(), Injectable {
 
     companion object {
-        fun newInstance(path: String, uniqueId: String? = null) = TimelineView().apply {
+        fun newInstance(path: String, id: String? = null) = TimelineView().apply {
             arguments = Bundle().apply {
                 putString("path", path)
-                putString("uniqueId", uniqueId)
+                putString("id", id)
             }
         }
 
-        fun search(path: String, query: String, uniqueId: String? = null) = TimelineView().apply {
+        fun search(path: String, query: String, id: String? = null) = TimelineView().apply {
             arguments = Bundle().apply {
                 putString("path", path)
                 putString("query", query)
-                putString("uniqueId", uniqueId)
+                putString("id", id)
             }
         }
     }
 
     override fun layoutId(): Int? = R.layout.timeline_view
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
     private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
 
-    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
+//    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
     private lateinit var timelinePath: String
-    private var uniqueId: String? = null
+    private var id: String? = null
     private var query: String? = null
 
 
@@ -91,11 +91,11 @@ class TimelineView : AbstractFragment(), Injectable {
         super.onLazyInitView(savedInstanceState)
         arguments?.let {
             timelinePath = it.getString("path")
-            uniqueId = it.getString("uniqueId")
+            id = it.getString("id")
             query = it.getString("query")
         }.run {
-            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, uniqueId = uniqueId, query = query))
-        }
+                    timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query))
+                }
 
         setupRecyclerView()
         setupSwipeRefresh()
@@ -115,7 +115,7 @@ class TimelineView : AbstractFragment(), Injectable {
             // TODO
         } else {
             query = q
-            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, uniqueId = uniqueId, query = query))
+            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query))
             timelineViewModel.refresh()
         }
     }
@@ -142,6 +142,9 @@ class TimelineView : AbstractFragment(), Injectable {
 
     private lateinit var publicHeader: View
 
+    @field:[Inject Named(TYPE_GLOBAL)]
+    lateinit var sharedPreferences: SharedPreferences
+
     private fun setupRecyclerView() {
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
@@ -153,7 +156,7 @@ class TimelineView : AbstractFragment(), Injectable {
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, uniqueId)
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null))
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
@@ -182,7 +185,9 @@ class TimelineView : AbstractFragment(), Injectable {
 
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
+        val scroll2Top = adapter.itemCount == 0
         adapter.setList(it)
+        if (scroll2Top) recyclerView.run { recyclerView.scrollToPosition(0) } // prevent recyclerView scroll to bottom when data first loaded
     }
 
     private val networkConsumer = Observer<NetworkState> {

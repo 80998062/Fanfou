@@ -21,6 +21,11 @@
 package com.sinyuk.fanfou.util
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.support.v4.content.ContextCompat
+import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.ui.QMUIRoundButton
+import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
 
 /**
  * Created by sinyuk on 2018/1/4.
@@ -31,3 +36,25 @@ import android.content.Context
  * convert px to dp
  */
 fun px2dp(context: Context, pxValue: Float) = (pxValue / context.resources.displayMetrics.density + 0.5f).toInt()
+
+
+fun QMUIRoundButton.toggleOutline(enable: Boolean) {
+    if (enable) {
+        (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorAccent))
+        setTextColor(ContextCompat.getColor(context, R.color.white))
+    } else {
+        (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.transparent))
+        setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+    }
+}
+
+/**
+ * 背景色为<colorControlDisable/>和<colorAccent/>
+ */
+fun QMUIRoundButton.toggleSolid(enable: Boolean) {
+    if (enable) {
+        (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorAccent))
+    } else {
+        (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorControlDisable))
+    }
+}

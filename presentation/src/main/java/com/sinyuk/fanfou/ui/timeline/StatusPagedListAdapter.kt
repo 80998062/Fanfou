@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -40,6 +41,7 @@ import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
+import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import java.util.*
 
 /**
@@ -53,6 +55,9 @@ class StatusPagedListAdapter(
         private val uniqueId: String?) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
+
+    //
+    private val initialGifBadgeColor = ContextCompat.getColor(fragment.context!!, R.color.scrim)
 
     private val glide: GlideRequests = GlideApp.with(fragment)
 
@@ -211,6 +216,15 @@ class StatusPagedListAdapter(
 
         } else {
             Collections.emptyList<Status>()
+        }
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
+        super.onViewRecycled(holder)
+        if (holder is StatusViewHolder) {
+            // reset the badge  which are dynamically determined
+            holder.itemView.image.setBadgeColor(initialGifBadgeColor)
+            holder.itemView.image.drawBadge = false
         }
     }
 

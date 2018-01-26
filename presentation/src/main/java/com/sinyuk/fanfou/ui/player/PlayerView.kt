@@ -21,7 +21,9 @@
 package com.sinyuk.fanfou.ui.player
 
 import android.arch.lifecycle.Observer
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.sinyuk.fanfou.R
@@ -31,16 +33,22 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
+import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.util.toggleOutline
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
+import com.sinyuk.myutils.math.MathUtils
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.player_view.*
 import kotlinx.android.synthetic.main.player_view_header.*
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/12/7.
@@ -55,14 +63,16 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         }
     }
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
     private val accountViewModel: AccountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
-    private val playerViewModel: PlayerViewModel by lazy { obtainViewModelFromActivity(factory, PlayerViewModel::class.java) }
+    private val playerViewModel: PlayerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
 
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
     private val uniqueId by lazy { arguments?.getString("uniqueId") }
 
@@ -71,16 +81,42 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         closeButton.setOnClickListener { activity?.onBackPressed() }
     }
 
+    @field:[Inject Named(TYPE_GLOBAL)]
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
-        if (uniqueId == null) {
-            accountViewModel.user.observe(this@PlayerView, playerObserver)
+
+        if (isSelf()) {
+            accountViewModel.user.observe(this@PlayerView, Observer { subscribe(it) })
         } else {
-            playerViewModel.profile(uniqueId!!).observe(this@PlayerView, playerObserver)
+            playerViewModel.profile(uniqueId!!).observe(this@PlayerView, Observer { subscribe(it) })
+        }
+
+        appBarLayout.addOnOffsetChangedListener { v, verticalOffset ->
+            val max = v.totalScrollRange
+            val minHeight = collapsingToolbarLayout.minimumHeight
+            when {
+                verticalOffset == 0 -> {
+                    avatar.alpha = 1f
+                    titleLayout.alpha = 0f
+                }
+                -verticalOffset < max -> {
+                    MathUtils.constrain(0f, 1f, -verticalOffset * 1.0f / max).also {
+                        avatar.alpha = 1 - it
+                        titleLayout.alpha = it
+                    }
+                }
+                -verticalOffset == max -> {
+                    avatar.alpha = 0f
+                    titleLayout.alpha = 1f
+                }
+            }
+            Log.i("OnOffsetChanged", "max: $max, min: $minHeight, offset: $verticalOffset")
         }
     }
 
-    private val playerObserver by lazy { Observer<Resource<Player>> { subscribe(it) } }
+    private fun isSelf() = uniqueId == null || uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
 
     private fun subscribe(resource: Resource<Player>?) {
         resource?.let {
@@ -115,16 +151,29 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
                 loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
             }
 
-            if (uniqueId == null) {
+            if (isSelf()) {
                 // isSelf
+                directMsgButton.visibility = View.GONE
                 followOrEdit.text = getString(R.string.action_edit_profile)
+                followOrEdit.toggleOutline(true)
+                followOrEdit.setOnClickListener { }
             } else {
+                directMsgButton.visibility = View.VISIBLE
+                directMsgButton.setOnClickListener { }
                 if (player.following == true) {
-                    followOrEdit.text = getString(R.string.action_unfollow)
+                    followOrEdit.text = getString(R.string.name_following)
+                    followOrEdit.toggleOutline(true)
+                    followOrEdit.setOnClickListener { }
                 } else {
-                    followOrEdit.text = getString(R.string.action_follow)
+                    followOrEdit.text = getString(R.string.action_begin_follow)
+                    followOrEdit.toggleOutline(false)
+                    followOrEdit.setOnClickListener { }
                 }
             }
+
+            followOrEdit.visibility = View.VISIBLE
         }
     }
+
+
 }

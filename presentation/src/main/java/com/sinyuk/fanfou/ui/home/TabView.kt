@@ -45,6 +45,7 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.StatusCreation
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
@@ -72,10 +73,12 @@ import javax.inject.Inject
 class TabView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.home_tab_view
 
-    @Inject lateinit var factory: ViewModelProvider.Factory
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
@@ -116,7 +119,7 @@ class TabView : AbstractFragment(), Injectable {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
         avatar.setOnClickListener { (activity as AbstractActivity).start(PlayerView.newInstance()) }
-        postFanfouButton.setOnClickListener { (activity as AbstractActivity).start(EditorView()) }
+        postFanfouButton.setOnClickListener { (activity as AbstractActivity).start(EditorView.newInstance(action = StatusCreation.CREATE_NEW)) }
     }
 
 

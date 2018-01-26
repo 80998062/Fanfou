@@ -42,13 +42,13 @@ object MyGlideExt {
     @GlideOption
     @JvmStatic
     fun illustrationThumb(options: RequestOptions, context: Context) {
-        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 8f), 0)))
+        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 4f), 0)))
     }
 
 
     @GlideOption
     @JvmStatic
     fun illustrationLarge(options: RequestOptions, context: Context) {
-        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 16f), 0)))
+        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 6f), 0)))
     }
 }

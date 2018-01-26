@@ -21,11 +21,11 @@
 package com.sinyuk.fanfou.ui
 
 import android.content.Context
-import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.view.View
+import com.makeramen.roundedimageview.RoundedImageView
 
-class SquareImageView : AppCompatImageView {
+open class SquareImageView : RoundedImageView {
 
     // Inherited constructors
 
