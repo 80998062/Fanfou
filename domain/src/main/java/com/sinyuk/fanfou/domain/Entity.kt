@@ -31,6 +31,7 @@ const val STATUS_POST_FLAG = 0x00000100
 const val STATUS_CONTEXT_FLAG = 0x00001000
 const val STATUS_REPLIED_FLAG = 0x00010000
 const val STATUS_FAVOR_FLAG = 0x00100000
+const val STATUS_DRAFT_FLAG = 0x01000000
 
 fun convertPathToFlag(path: String): Int = when (path) {
     TIMELINE_HOME -> STATUS_PUBLIC_FLAG

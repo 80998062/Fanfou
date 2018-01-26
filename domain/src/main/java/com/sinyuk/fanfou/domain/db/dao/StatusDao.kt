@@ -32,7 +32,7 @@ import com.sinyuk.fanfou.domain.DO.Status
 @Dao
 interface StatusDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun inserts(statuses: MutableList<Status>): MutableList<Long>
+    fun inserts(statuses: MutableList<Status>): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(status: Status): Long

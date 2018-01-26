@@ -20,16 +20,24 @@
 
 package com.sinyuk.fanfou.ui.home
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProvider
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.widget.DrawerLayout
+import android.util.Log
 import android.view.View
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
+import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
+import com.yalantis.colormatchtabs.colormatchtabs.adapter.ColorTabAdapter
+import com.yalantis.colormatchtabs.colormatchtabs.listeners.OnColorTabSelectedListener
+import com.yalantis.colormatchtabs.colormatchtabs.model.ColorTab
 import kotlinx.android.synthetic.main.home_view.*
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
@@ -38,12 +46,14 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/11.
  *
  */
-class HomeView : AbstractFragment(), Injectable, View.OnClickListener {
+class HomeView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.home_view
 
-    @Inject lateinit var factory: ViewModelProvider.Factory
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
@@ -63,10 +73,10 @@ class HomeView : AbstractFragment(), Injectable, View.OnClickListener {
 
         drawerLayout.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
+
             }
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -74,29 +84,35 @@ class HomeView : AbstractFragment(), Injectable, View.OnClickListener {
             }
 
             override fun onDrawerOpened(drawerView: View) {
-
+                KeyboardUtil.hideKeyboard(drawerView)
             }
         })
 
         setupTabLayout()
     }
 
-    private fun setupTabLayout() {
-        homeTab.setOnClickListener(this)
-        publicTab.setOnClickListener(this)
-        notificationTab.setOnClickListener(this)
-        messageTab.setOnClickListener(this)
-    }
 
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.homeTab -> 0
-            R.id.publicTab -> 1
-            R.id.notificationTab -> 2
-            R.id.messageTab -> 3
-            else -> TODO()
-        }.apply {
-            EventBus.getDefault().post(TabEvent(index = this))
+    @SuppressLint("Recycle")
+    private fun setupTabLayout() {
+        val colors = resources.getStringArray(R.array.tab_colors)
+        val icons = resources.obtainTypedArray(R.array.tab_icons)
+        resources.getStringArray(R.array.tab_titles).apply {
+            forEachIndexed { index, title ->
+                val color = Color.parseColor(colors[index])
+                val icon = icons.getDrawable(index)
+                tabLayout.addTab(ColorTabAdapter.createColorTab(tabLayout, title, color, icon))
+            }
         }
+
+        tabLayout.addOnColorTabSelectedListener(object : OnColorTabSelectedListener {
+            override fun onSelectedTab(tab: ColorTab?) {
+                if (BuildConfig.DEBUG) Log.i("onSelectedTab", "position: " + tab?.position)
+                EventBus.getDefault().post(TabEvent(index = tab?.position ?: 0))
+            }
+
+            override fun onUnselectedTab(tab: ColorTab?) {
+            }
+        })
+
     }
 }

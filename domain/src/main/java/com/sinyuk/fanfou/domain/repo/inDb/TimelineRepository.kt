@@ -105,17 +105,17 @@ class TimelineRepository @Inject constructor(
     }
 
     @WorkerThread
-    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?) {
-        if (body?.isNotEmpty() == true) {
-            for (status in body) {
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                db.statusDao().query(status.id)?.let {
-                    status.addPath(it.pathFlag)
-                }
-                status.addPathFlag(path)
+    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
+        for (status in body) {
+            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+            db.statusDao().query(status.id)?.let {
+                status.addPath(it.pathFlag)
             }
-            db.statusDao().inserts(body)
+            status.addPathFlag(path)
         }
+        db.statusDao().inserts(body)
+    } else {
+        0
     }
 
 

@@ -32,7 +32,20 @@
         <item>消息</item>
         <item>私信</item>
     </string-array>
-    <string-array name="tab_titles_search" >
+    <string-array name="tab_colors">
+        <item>#3FADEC</item>
+        <item>#3FADEC</item>
+        <item>#3FADEC</item>
+        <item>#3FADEC</item>
+    </string-array>
+
+    <integer-array name="tab_icons">
+        <item>@drawable/ic_tab_homepage</item>
+        <item>@drawable/ic_tab_search</item>
+        <item>@drawable/ic_tab_message</item>
+        <item>@drawable/ic_tab_mail</item>
+    </integer-array>
+    <string-array name="tab_titles_search">
         <item>状态</item>
         <item>用户</item>
     </string-array>

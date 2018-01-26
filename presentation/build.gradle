@@ -50,6 +50,7 @@ dependencies {
     implementation "cn.dreamtobe.kpswitch:library:1.6.0"
     implementation "com.linkedin.android.spyglass:spyglass:1.4.0"
     implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation "com.github.Yalantis:ColorMatchTabsAndroid:v0.0.1"
 
     implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.archLifecycleVersion"

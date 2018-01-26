@@ -40,7 +40,7 @@ import retrofit2.Response
  */
 class StatusBoundaryCallback(
         private val webservice: RestAPI,
-        private val handleResponse: (String, String?, MutableList<Status>?) -> Unit,
+        private val handleResponse: (String, String?, MutableList<Status>?) -> Int,
         private val path: String,
         private val uniqueId: String?,
         private val appExecutors: AppExecutors,
@@ -78,8 +78,11 @@ class StatusBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            handleResponse(path, uniqueId, response.body())
-            it.recordSuccess()
+            if (handleResponse(path, uniqueId, response.body()) > 0) {
+                it.recordSuccess()
+            }else{
+
+            }
         }
     }
 

@@ -25,10 +25,8 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
-import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
+import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.text.Editable
 import android.text.TextWatcher
@@ -151,15 +149,6 @@ class TabView : AbstractFragment(), Injectable {
             (fragments[1] as SearchView).showTrending()
         }
 
-        searchEt.setOnFocusChangeListener { _, hasFocus ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (hasFocus) {
-                    searchEt.compoundDrawableTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
-                } else {
-                    searchEt.compoundDrawableTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.textColorHint))
-                }
-            }
-        }
         searchEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -274,7 +263,13 @@ class TabView : AbstractFragment(), Injectable {
                     findChildFragment(MessageView::class.java))
         }
 
-        loadMultipleRootFragment(R.id.fakeViewPager, 0, fragments[0], fragments[1], fragments[2], fragments[3])
+        viewPager.setPagingEnabled(false)
+        viewPager.offscreenPageLimit = fragments.size
+        viewPager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
+            override fun getItem(position: Int) = fragments[position]
+
+            override fun getCount() = fragments.size
+        }
         onPageSwitched(TabEvent(index = 0))
     }
 
@@ -314,7 +309,7 @@ class TabView : AbstractFragment(), Injectable {
             viewAnimator.displayedChildId = R.id.textSwitcher
             textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])
         }
-        currentFragment?.let { showHideFragment(fragments[to], fragments[it]) }
+        currentFragment?.let { viewPager.setCurrentItem(to, false) }
         currentFragment = to
     }
 

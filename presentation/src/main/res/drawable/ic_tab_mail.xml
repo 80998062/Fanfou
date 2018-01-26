@@ -1,0 +1,25 @@
+<!--
+  ~ /*
+  ~  * Apache License
+  ~  *
+  ~  * Copyright [2017] Sinyuk
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<vector android:height="24dp" android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M512,576a32,32 0,0 1,-17.2 -5L128,337.6v430.7A64,64 0,0 0,192.1 832h639.9A64,64 0,0 0,896 768.2V337.9l-366.8,233.1A32.1,32.1 0,0 1,512 576"/>
+    <path android:fillColor="#FF000000" android:pathData="M831.9,192H192.1A64,64 0,0 0,128 255.8v4.9l384,245.4 384,-244v-6.2A64,64 0,0 0,831.9 192"/>
+</vector>
