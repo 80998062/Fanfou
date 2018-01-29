@@ -26,7 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
-import com.sinyuk.fanfou.domain.repo.inDb.NoMoreDataThrowable;
+import com.sinyuk.fanfou.domain.Status;
 
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -171,20 +171,15 @@ public class PagingRequestHelper {
         StatusReport report = null;
         synchronized (mLock) {
             RequestQueue queue = mRequestQueues[type.ordinal()];
-            if (queue.mRunning != null) {
-                return false;
-            }
+            if (queue.mRunning != null) return false;
             queue.mRunning = request;
             queue.mStatus = Status.RUNNING;
             queue.mFailed = null;
             queue.mLastError = null;
-            if (hasListeners) {
-                report = prepareStatusReportLocked();
-            }
+            if (hasListeners) report = prepareStatusReportLocked();
+
         }
-        if (report != null) {
-            dispatchReport(report);
-        }
+        if (report != null) dispatchReport(report);
         final RequestWrapper wrapper = new RequestWrapper(request, this, type);
         wrapper.run();
         return true;
@@ -192,17 +187,9 @@ public class PagingRequestHelper {
 
     @GuardedBy("mLock")
     private StatusReport prepareStatusReportLocked() {
-        Throwable[] errors = new Throwable[]{
-                mRequestQueues[0].mLastError,
-                mRequestQueues[1].mLastError,
-                mRequestQueues[2].mLastError
-        };
-        return new StatusReport(
-                getStatusForLocked(RequestType.INITIAL),
-                getStatusForLocked(RequestType.BEFORE),
-                getStatusForLocked(RequestType.AFTER),
-                errors
-        );
+        Throwable[] errors = new Throwable[]{mRequestQueues[0].mLastError, mRequestQueues[1].mLastError, mRequestQueues[2].mLastError};
+
+        return new StatusReport(getStatusForLocked(RequestType.INITIAL), getStatusForLocked(RequestType.BEFORE), getStatusForLocked(RequestType.AFTER), errors);
     }
 
     @GuardedBy("mLock")
@@ -223,22 +210,24 @@ public class PagingRequestHelper {
                 queue.mFailed = null;
                 queue.mStatus = Status.SUCCESS;
             } else {
-                if (throwable instanceof NoMoreDataThrowable){
+                if (throwable instanceof NoMoreDataThrowable) {
                     queue.mLastError = null;
-                    queue.mStatus = Status.;
-                }else {
+                    if (wrapper.mType == RequestType.BEFORE) {
+                        queue.mStatus = Status.REACH_TOP;
+                    } else {
+                        queue.mStatus = Status.REACH_BOTTOM;
+                    }
+                } else {
                     queue.mLastError = throwable;
                     queue.mStatus = Status.FAILED;
+                    queue.mFailed = wrapper;
                 }
-                queue.mFailed = wrapper;
             }
-            if (hasListeners) {
-                report = prepareStatusReportLocked();
-            }
+            if (hasListeners) report = prepareStatusReportLocked();
+
         }
-        if (report != null) {
-            dispatchReport(report);
-        }
+        if (report != null) dispatchReport(report);
+
     }
 
     private void dispatchReport(StatusReport report) {
@@ -344,6 +333,21 @@ public class PagingRequestHelper {
                 }
             }
 
+
+            /**
+             * Call this method when the new data is fetched
+             * but we are run out of data.
+             */
+            @SuppressWarnings("unused")
+            public final void recordNoMore() {
+                if (mCalled.compareAndSet(false, true)) {
+                    mHelper.recordResult(mWrapper, new NoMoreDataThrowable());
+                } else {
+                    throw new IllegalStateException(
+                            "already called recordSuccess or recordFailure");
+                }
+            }
+
             /**
              * Call this method with the failure message and the request can be retried via
              * {@link #retryAllFailed()}.
@@ -365,6 +369,9 @@ public class PagingRequestHelper {
                 }
             }
         }
+    }
+
+    private static class NoMoreDataThrowable extends Throwable {
     }
 
     /**
@@ -414,6 +421,14 @@ public class PagingRequestHelper {
          */
         public boolean hasError() {
             return initial == Status.FAILED || before == Status.FAILED || after == Status.FAILED;
+        }
+
+        public boolean hasReachedBottom() {
+            return initial == Status.REACH_BOTTOM || after == Status.REACH_BOTTOM;
+        }
+
+        public boolean hasReachedTop() {
+            return before == Status.REACH_TOP;
         }
 
         /**
@@ -472,23 +487,6 @@ public class PagingRequestHelper {
         void onStatusChange(@NonNull StatusReport report);
     }
 
-    /**
-     * Represents the status of a Request for each {@link RequestType}.
-     */
-    public enum Status {
-        /**
-         * There is current a running request.
-         */
-        RUNNING,
-        /**
-         * The last request has succeeded or no such requests have ever been run.
-         */
-        SUCCESS,
-        /**
-         * The last request has failed.
-         */
-        FAILED
-    }
 
     /**
      * Available request types.

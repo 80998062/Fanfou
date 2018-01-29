@@ -92,6 +92,13 @@ data class Status constructor(
         writeInt(pathFlag)
     }
 
+    override fun equals(other: Any?) = if (other is Status) {
+        id == other.id && favorited == other.favorited
+    } else {
+        false
+    }
+
+
     companion object {
         @JvmField
         val CREATOR: Parcelable.Creator<Status> = object : Parcelable.Creator<Status> {

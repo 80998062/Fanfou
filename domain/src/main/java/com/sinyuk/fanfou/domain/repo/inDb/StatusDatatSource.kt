@@ -20,8 +20,26 @@
 
 package com.sinyuk.fanfou.domain.repo.inDb
 
+import android.arch.paging.ItemKeyedDataSource
+import com.sinyuk.fanfou.domain.DO.Status
+
 /**
- * Created by sinyuk on 2018/1/26.
- *
+ * Created by sinyuk on 2018/1/29.
  */
-class NoMoreDataThrowable : Throwable("Has reached the last page")
+class StatusDatatSource : ItemKeyedDataSource<String, Status>() {
+
+    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<Status>) {
+
+    }
+
+    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<Status>) {
+
+    }
+
+    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
+
+    }
+
+
+    override fun getKey(item: Status) = item.id
+}

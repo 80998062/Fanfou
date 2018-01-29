@@ -83,8 +83,8 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                         initialLoad.postValue(NetworkState.LOADED)
                     }
                     else -> {
-                        networkState.postValue(NetworkState.TERMINAL)
-                        initialLoad.postValue(NetworkState.TERMINAL)
+                        networkState.postValue(NetworkState.REACH_BOTTOM)
+                        initialLoad.postValue(NetworkState.REACH_BOTTOM)
                     }
                 }
             } else {
@@ -118,7 +118,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                 callback.onResult(items)
                 when (items.size) {
                     params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
-                    else -> networkState.postValue(NetworkState.TERMINAL)
+                    else -> networkState.postValue(NetworkState.REACH_BOTTOM)
 
                 }
             } else {

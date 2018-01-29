@@ -57,10 +57,10 @@ class NetworkStateItemViewHolder(view: View,
 
     fun bind(networkState: NetworkState?) {
         when (networkState?.status) {
-            Status.TERMINAL -> viewAnimator.displayedChildId = R.id.finishedLayout
+            Status.REACH_BOTTOM -> viewAnimator.displayedChildId = R.id.finishedLayout
             Status.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
             Status.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
-            Status.SUCCESS -> TODO()
+            Status.SUCCESS, Status.REACH_TOP -> TODO()
         }
 
         progressBar.isIndeterminate = networkState?.status == Status.RUNNING

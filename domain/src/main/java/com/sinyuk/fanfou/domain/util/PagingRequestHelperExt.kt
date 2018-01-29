@@ -26,9 +26,7 @@ import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.NetworkState
 
 private fun getErrorMessage(report: PagingRequestHelper.StatusReport): String {
-    return PagingRequestHelper.RequestType.values().mapNotNull {
-        report.getErrorFor(it)?.message
-    }.first()
+    return PagingRequestHelper.RequestType.values().mapNotNull { report.getErrorFor(it)?.message }.first()
 }
 
 fun PagingRequestHelper.createStatusLiveData(): LiveData<NetworkState> {
@@ -37,6 +35,8 @@ fun PagingRequestHelper.createStatusLiveData(): LiveData<NetworkState> {
         when {
             report.hasRunning() -> liveData.postValue(NetworkState.LOADING)
             report.hasError() -> liveData.postValue(NetworkState.error(getErrorMessage(report)))
+            report.hasReachedBottom() -> liveData.postValue(NetworkState.REACH_BOTTOM)
+            report.hasReachedTop() -> liveData.postValue(NetworkState.REACH_TOP)
             else -> liveData.postValue(NetworkState.LOADED)
         }
     }

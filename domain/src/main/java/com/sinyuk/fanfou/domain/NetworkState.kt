@@ -30,7 +30,8 @@ enum class Status {
     RUNNING,
     SUCCESS,
     FAILED,
-    TERMINAL
+    REACH_BOTTOM,
+    REACH_TOP
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -40,7 +41,8 @@ data class NetworkState private constructor(
     companion object {
         val LOADED = NetworkState(Status.SUCCESS)
         val LOADING = NetworkState(Status.RUNNING)
-        val TERMINAL = NetworkState(Status.TERMINAL)
+        val REACH_BOTTOM = NetworkState(Status.REACH_BOTTOM)
+        val REACH_TOP = NetworkState(Status.REACH_TOP)
         fun error(msg: String?) = NetworkState(Status.FAILED, msg)
     }
 }

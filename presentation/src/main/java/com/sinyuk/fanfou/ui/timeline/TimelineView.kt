@@ -191,7 +191,11 @@ class TimelineView : AbstractFragment(), Injectable {
     }
 
     private val networkConsumer = Observer<NetworkState> {
-        adapter.setNetworkState(it)
+        if (it?.status == com.sinyuk.fanfou.domain.Status.REACH_TOP) {
+            toast.toastShort("没有新的东西")
+        } else {
+            adapter.setNetworkState(it)
+        }
     }
 
 

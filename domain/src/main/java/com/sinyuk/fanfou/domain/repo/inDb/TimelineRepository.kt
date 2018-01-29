@@ -68,7 +68,7 @@ class TimelineRepository @Inject constructor(
 
         val config = PagedList.Config.Builder()
                 .setPageSize(pageSize)
-                .setEnablePlaceholders(true)
+                .setEnablePlaceholders(false)
                 .setPrefetchDistance(pageSize)
                 .setInitialLoadSizeHint(pageSize)
 
@@ -113,7 +113,7 @@ class TimelineRepository @Inject constructor(
             }
             status.addPathFlag(path)
         }
-        db.statusDao().inserts(body)
+        db.statusDao().inserts(body).size
     } else {
         0
     }

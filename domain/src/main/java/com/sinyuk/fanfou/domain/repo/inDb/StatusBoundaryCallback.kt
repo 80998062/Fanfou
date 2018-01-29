@@ -78,30 +78,29 @@ class StatusBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            if (handleResponse(path, uniqueId, response.body()) > 0) {
+            if (handleResponse(path, uniqueId, response.body()) == networkPageSize) {
                 it.recordSuccess()
-            }else{
-
+            } else {
+                // 其实没有发生错误,只是返回的数据不足一页
+                it.recordNoMore()
             }
         }
     }
 
     override fun onItemAtFrontLoaded(itemAtFront: Status) {
-        // ignored, since we only ever append to what's in the DB
+//        helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
+//            webservice.fetch_from_path(path = path, count = networkPageSize, since = itemAtFront.id, id = uniqueId).enqueue(createWebserviceCallback(it))
+//        }
     }
 
     private fun createWebserviceCallback(it: PagingRequestHelper.Request.Callback)
             : Callback<MutableList<Status>> {
         return object : Callback<MutableList<Status>> {
-            override fun onFailure(
-                    call: Call<MutableList<Status>>,
-                    t: Throwable) {
+            override fun onFailure(call: Call<MutableList<Status>>, t: Throwable) {
                 it.recordFailure(t)
             }
 
-            override fun onResponse(
-                    call: Call<MutableList<Status>>,
-                    response: Response<MutableList<Status>>) {
+            override fun onResponse(call: Call<MutableList<Status>>, response: Response<MutableList<Status>>) {
                 insertItemsIntoDb(response, it)
             }
         }
