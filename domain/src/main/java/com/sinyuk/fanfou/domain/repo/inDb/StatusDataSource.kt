@@ -20,7 +20,7 @@
 
 package com.sinyuk.fanfou.domain.repo.inDb
 
-import android.arch.paging.ItemKeyedDataSource
+import android.arch.paging.PageKeyedDataSource
 import android.util.Log
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
@@ -30,31 +30,32 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSource(private val dao: StatusDao, private val path: Int) : ItemKeyedDataSource<String, Status>() {
-
-    private val TAG = "StatusDataSource"
-    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<Status>) {
-
-    }
-
-    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<Status>) {
+class StatusDataSource(private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
+    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Status>) {
         val data = dao.loadInitial(path, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadInitial: " + data.size)
-        callback.onResult(data)
+        if (data.isEmpty()) {
+            callback.onResult(data, null, null)
+        } else {
+            callback.onResult(data, null, data.last().id)
+        }
     }
 
-    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<Status>) {
+    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
         val data = dao.loadAfter(path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + params.key)
-        callback.onResult(data)
+        if (data.isEmpty()) {
+            callback.onResult(data, null)
+        } else {
+            callback.onResult(data, data.last().id)
+        }
     }
 
-    override fun invalidate() {
-        super.invalidate()
+    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
     }
 
-    override fun getKey(item: Status): String {
-        if (BuildConfig.DEBUG) Log.i(TAG, "key: " + item.id)
-        return item.id
+    companion object {
+        const val TAG = "StatusDataSource"
     }
+
 }

@@ -27,6 +27,7 @@ import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.support.annotation.WorkerThread
+import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
@@ -51,6 +52,10 @@ class TimelineRepository @Inject constructor(
         private val appExecutors: AppExecutors,
         @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
+    companion object {
+        const val TAG = "TimelineRepository"
+    }
+
     /**
      * 加载保存的所有状态,并自动请求新的旧状态
      * @param pageSize 一次请求的条数
@@ -69,28 +74,27 @@ class TimelineRepository @Inject constructor(
         val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
 
         // create a data source factory from Room
-        val dataSourceFactory = StatusDatatSourceFactory(db.statusDao(), convertPathToFlag(path))
+        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path))
 
-        val pagedList = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setBackgroundThreadExecutor(appExecutors.diskIO()).build()
+        dataSourceFactory.create().addInvalidatedCallback {
+            Log.i(TAG, "invalidated")
+        }
+        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback)
+                .setInitialLoadKey(null)
+                .setBackgroundThreadExecutor(appExecutors.diskIO())
+
 
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val refreshTrigger = MutableLiveData<Unit>()
-        val refreshState = Transformations.switchMap(refreshTrigger, {
-            refresh(path, uniqueId, pageSize)
-        })
+        val refreshState = Transformations.switchMap(refreshTrigger, { refresh(path, uniqueId, pageSize) })
 
         return Listing(
-                pagedList = pagedList,
+                pagedList = builder.build(),
                 networkState = boundaryCallback.networkState,
-                retry = {
-                    boundaryCallback.helper.retryAllFailed()
-                },
-                refresh = {
-                    refreshTrigger.value = null
-                    dataSourceFactory.sourceLiveData.value?.invalidate()
-                },
+                retry = { boundaryCallback.helper.retryAllFailed() },
+                refresh = { refreshTrigger.value = null },
                 refreshState = refreshState
         )
     }
@@ -105,9 +109,7 @@ class TimelineRepository @Inject constructor(
     private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
         for (status in body) {
             status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            db.statusDao().query(status.id)?.let {
-                status.addPath(it.pathFlag)
-            }
+            db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
             status.addPathFlag(path)
         }
         db.statusDao().inserts(body).size

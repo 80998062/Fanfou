@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.repo.inDb
 
-import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
@@ -29,12 +28,6 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDatatSourceFactory(private val dao: StatusDao, private val path: Int) : DataSource.Factory<String, Status> {
-    val sourceLiveData = MutableLiveData<StatusDataSource>()
-
-    override fun create(): DataSource<String, Status> {
-        val source = StatusDataSource(dao, path)
-        sourceLiveData.postValue(source)
-        return source
-    }
+class StatusDataSourceFactory(private val dao: StatusDao, private val path: Int) : DataSource.Factory<String, Status> {
+    override fun create() = StatusDataSource(dao, path)
 }

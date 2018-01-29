@@ -49,7 +49,11 @@ class StatusBoundaryCallback(
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
 
-    private val TAG = "StatusBoundaryCallback"
+    companion object {
+        const val TAG = "StatusBoundaryCallback"
+
+    }
+
     val helper = PagingRequestHelper(appExecutors.networkIO())
     val networkState = helper.createStatusLiveData()
 
