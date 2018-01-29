@@ -25,10 +25,10 @@ import android.arch.lifecycle.MutableLiveData
 import android.content.SharedPreferences
 import com.sinyuk.fanfou.domain.ACCESS_SECRET
 import com.sinyuk.fanfou.domain.ACCESS_TOKEN
-import com.sinyuk.fanfou.domain.TYPE_GLOBAL
-import com.sinyuk.fanfou.domain.util.XauthUtils
 import com.sinyuk.fanfou.domain.DO.Authorization
 import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.util.XauthUtils
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,9 +39,9 @@ import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/12/6.
+ *
  */
-class SignInTask
-constructor(private val account: String,
+class SignInTask constructor(private val account: String,
             private val password: String,
             private val client: OkHttpClient,
             @Named(TYPE_GLOBAL) private val preferences: SharedPreferences) : Runnable {

@@ -66,17 +66,13 @@ class TimelineRepository @Inject constructor(
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
 
-        val config = PagedList.Config.Builder()
-                .setPageSize(pageSize)
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(pageSize)
-                .setInitialLoadSizeHint(pageSize)
-
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
 
         // create a data source factory from Room
-        val dataSourceFactory = db.statusDao().timeline(convertPathToFlag(path))
+        val dataSourceFactory = StatusDatatSourceFactory(db.statusDao(), convertPathToFlag(path))
 
-        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback)
+        val pagedList = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setBackgroundThreadExecutor(appExecutors.diskIO()).build()
+
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
@@ -86,13 +82,14 @@ class TimelineRepository @Inject constructor(
         })
 
         return Listing(
-                pagedList = builder.build(),
+                pagedList = pagedList,
                 networkState = boundaryCallback.networkState,
                 retry = {
                     boundaryCallback.helper.retryAllFailed()
                 },
                 refresh = {
                     refreshTrigger.value = null
+                    dataSourceFactory.sourceLiveData.value?.invalidate()
                 },
                 refreshState = refreshState
         )

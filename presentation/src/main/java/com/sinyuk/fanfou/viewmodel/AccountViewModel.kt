@@ -25,11 +25,11 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import android.support.annotation.VisibleForTesting
-import com.sinyuk.fanfou.domain.repo.AccountRepository
-import com.sinyuk.fanfou.domain.util.AbsentLiveData
 import com.sinyuk.fanfou.domain.DO.Authorization
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
+import com.sinyuk.fanfou.domain.repo.AccountRepository
+import com.sinyuk.fanfou.domain.util.AbsentLiveData
 import com.sinyuk.fanfou.util.Objects
 import javax.inject.Inject
 
@@ -38,7 +38,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/12/6.
  *
  */
-class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewModel() {
+class AccountViewModel @Inject constructor(private val repo: AccountRepository) : ViewModel() {
 
     @VisibleForTesting
     private val login = MutableLiveData<Authorization>()
@@ -59,10 +59,10 @@ class AccountViewModel @Inject constructor(val repo: AccountRepository) : ViewMo
     /**
      * 检查是否登录
      */
-    fun checkLogin() {
+    fun invalidteLogin() {
         val current = Authorization(repo.accessToken(), repo.accessSecret())
         if (!Objects.equals(current, login.value)) {
-            login.value = current
+            login.postValue(current)
         }
     }
 

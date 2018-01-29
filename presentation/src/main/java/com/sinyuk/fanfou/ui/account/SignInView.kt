@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.account
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.sinyuk.fanfou.R
@@ -31,8 +30,8 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Authorization
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.ui.MainActivity
-import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.ui.home.HomeView
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.signin_view.*
@@ -47,17 +46,18 @@ class SignInView : AbstractFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.signin_view
 
 
-    @Inject lateinit var factory: ViewModelProvider.Factory
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
-    private val accountViewModel: AccountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
+    private val accountViewModel: AccountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         loginButton.setOnClickListener { onLogin() }
-
     }
 
     private fun onLogin() {
@@ -67,20 +67,15 @@ class SignInView : AbstractFragment(), Injectable {
                 .observe(this@SignInView, Observer<Resource<Authorization>> {
                     when (it?.states) {
                         States.ERROR -> {
-                            it.message?.let { toast.toastShort(it) }
+                            accountViewModel.invalidteLogin()
+                            loginButton.isEnabled = true
                         }
                         States.SUCCESS -> {
-                            accountViewModel.checkLogin()
+                            accountViewModel.invalidteLogin()
+                            startWithPop(HomeView())
                         }
-                        else -> TODO()
+                        else -> loginButton.isEnabled = false
                     }
                 })
-    }
-
-    private fun toHome() {
-        context?.let {
-            MainActivity.start(context!!, Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            activity!!.finish()
-        }
     }
 }

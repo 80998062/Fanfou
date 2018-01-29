@@ -21,8 +21,7 @@
 package com.sinyuk.fanfou.ui
 
 import android.arch.lifecycle.ViewModelProvider
-import android.content.Context
-import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -30,6 +29,9 @@ import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
+import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
@@ -37,20 +39,13 @@ import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by sinyuk on 2017/11/28.
  *
  */
 class MainActivity : AbstractActivity() {
-    companion object {
-        @JvmStatic
-        fun start(context: Context, flags: Int? = null) {
-            val intent = Intent(context, MainActivity::class.java)
-            flags?.let { intent.flags = flags }
-            context.startActivity(intent)
-        }
-    }
 
     override fun layoutId() = R.layout.main_activity
 
@@ -63,15 +58,25 @@ class MainActivity : AbstractActivity() {
     @Inject
     lateinit var toast: ToastUtils
 
+    @field:[Named(TYPE_GLOBAL) Inject]
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         KeyboardUtil.attach(this@MainActivity, panelRoot)
 
-        if (findFragment(HomeView::class.java) == null) {
-            loadRootFragment(R.id.fragment_container, HomeView())
+        if (sharedPreferences.getString(UNIQUE_ID, null) == null) {
+            if (findFragment(SignInView::class.java) == null) {
+                loadRootFragment(R.id.fragment_container, SignInView())
+            } else {
+                showHideFragment(findFragment(SignInView::class.java))
+            }
         } else {
-            showHideFragment(findFragment(HomeView::class.java))
+            if (findFragment(HomeView::class.java) == null) {
+                loadRootFragment(R.id.fragment_container, HomeView())
+            } else {
+                showHideFragment(findFragment(HomeView::class.java))
+            }
         }
     }
 
@@ -85,7 +90,6 @@ class MainActivity : AbstractActivity() {
     } else {
         super.dispatchKeyEvent(event)
     }
-
 
 
 }

@@ -89,9 +89,7 @@ class TabView : AbstractFragment(), Injectable {
         accountViewModel.user.observe(this, Observer {
             when (it?.states) {
                 States.SUCCESS -> renderAccount(it.data)
-                else -> {
-                    renderAccount(null)
-                }
+                else -> renderAccount(null)
             }
         })
     }

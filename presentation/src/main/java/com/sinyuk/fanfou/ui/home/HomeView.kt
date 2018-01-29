@@ -32,8 +32,6 @@ import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.util.obtainViewModelFromActivity
-import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import com.yalantis.colormatchtabs.colormatchtabs.adapter.ColorTabAdapter
 import com.yalantis.colormatchtabs.colormatchtabs.listeners.OnColorTabSelectedListener
@@ -51,10 +49,8 @@ class HomeView : AbstractFragment(), Injectable {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
     @Inject
     lateinit var toast: ToastUtils
-
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
@@ -64,7 +60,6 @@ class HomeView : AbstractFragment(), Injectable {
         } else {
             showHideFragment(findChildFragment(TabView::class.java))
         }
-
         renderUI()
     }
 

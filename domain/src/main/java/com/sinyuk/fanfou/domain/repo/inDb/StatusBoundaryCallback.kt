@@ -22,8 +22,10 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
+import android.util.Log
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
@@ -47,6 +49,7 @@ class StatusBoundaryCallback(
         private val networkPageSize: Int)
     : PagedList.BoundaryCallback<Status>() {
 
+    private val TAG = "StatusBoundaryCallback"
     val helper = PagingRequestHelper(appExecutors.networkIO())
     val networkState = helper.createStatusLiveData()
 
@@ -55,7 +58,9 @@ class StatusBoundaryCallback(
      */
     @MainThread
     override fun onZeroItemsLoaded() {
+        if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded")
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
+            if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded: true")
             webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId).enqueue(createWebserviceCallback(it))
         }
     }
@@ -65,7 +70,9 @@ class StatusBoundaryCallback(
      */
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
+        if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: " + itemAtEnd.id)
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
+            if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: true")
             webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId).enqueue(createWebserviceCallback(it))
         }
     }
@@ -81,17 +88,12 @@ class StatusBoundaryCallback(
             if (handleResponse(path, uniqueId, response.body()) == networkPageSize) {
                 it.recordSuccess()
             } else {
-                // 其实没有发生错误,只是返回的数据不足一页
                 it.recordNoMore()
             }
         }
     }
 
-    override fun onItemAtFrontLoaded(itemAtFront: Status) {
-//        helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-//            webservice.fetch_from_path(path = path, count = networkPageSize, since = itemAtFront.id, id = uniqueId).enqueue(createWebserviceCallback(it))
-//        }
-    }
+    override fun onItemAtFrontLoaded(itemAtFront: Status) {}
 
     private fun createWebserviceCallback(it: PagingRequestHelper.Request.Callback)
             : Callback<MutableList<Status>> {
