@@ -227,5 +227,4 @@ class StatusPagedListAdapter(
             holder.itemView.image.drawBadge = false
         }
     }
-
 }

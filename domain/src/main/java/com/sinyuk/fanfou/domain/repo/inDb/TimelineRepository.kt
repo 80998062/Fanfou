@@ -26,15 +26,21 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
+import android.arch.persistence.room.InvalidationTracker
 import android.support.annotation.WorkerThread
-import com.sinyuk.fanfou.domain.*
+import android.util.Log
+import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
+import com.sinyuk.fanfou.domain.convertPathToFlag
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -60,24 +66,18 @@ class TimelineRepository @Inject constructor(
      * @param pageSize 一次请求的条数
      */
     fun statuses(path: String, uniqueId: String? = null, pageSize: Int): Listing<Status> {
+
+        // create a data source factory from Room
+        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path))
+
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
-        val boundaryCallback = StatusBoundaryCallback(
-                webservice = restAPI,
-                path = path,
-                uniqueId = uniqueId,
-                handleResponse = this::insertResultIntoDb,
-                appExecutors = appExecutors,
-                networkPageSize = PAGE_SIZE)
+        val boundaryCallback = StatusBoundaryCallback(webservice = restAPI, path = path, uniqueId = uniqueId, handleResponse = this::insertResultIntoDb,
+                appExecutors = appExecutors, networkPageSize = pageSize)
 
         val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
 
-        // create a data source factory from Room
-        val dataSourceFactory = StatusDataSourceFactory(db, db.statusDao(), convertPathToFlag(path))
-
-
-        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback)
-                .setInitialLoadKey(null)
+        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setInitialLoadKey(null)
                 .setBackgroundThreadExecutor(appExecutors.diskIO())
 
 
@@ -87,8 +87,19 @@ class TimelineRepository @Inject constructor(
         val refreshTrigger = MutableLiveData<Unit>()
         val refreshState = Transformations.switchMap(refreshTrigger, { refresh(path, uniqueId, pageSize) })
 
+        val pagedList = builder.build()
+
+        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
+            override fun onInvalidated(tables: MutableSet<String>) {
+                if (isInvalid.compareAndSet(true, false)) {
+                    Log.i(TAG, "onInvalidated: " + tables.first())
+                    dataSourceFactory.sourceLiveData.value?.invalidate()
+                }
+            }
+        })
+
         return Listing(
-                pagedList = builder.build(),
+                pagedList = pagedList,
                 networkState = boundaryCallback.networkState,
                 retry = { boundaryCallback.helper.retryAllFailed() },
                 refresh = { refreshTrigger.value = null },
@@ -102,17 +113,28 @@ class TimelineRepository @Inject constructor(
         return task.networkState
     }
 
+    private val isInvalid = AtomicBoolean(false)
+
     @WorkerThread
-    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
-        for (status in body) {
-            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
-            status.addPathFlag(path)
+    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?): Int {
+        if (body?.isNotEmpty() == true) {
+            val count: Int
+            try {
+                db.beginTransaction()
+                for (status in body) {
+                    status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                    db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
+                    status.addPathFlag(path)
+                }
+                count = db.statusDao().inserts(body).size
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+                isInvalid.set(true)
+            }
+            return count
+        } else {
+            return 0
         }
-        db.statusDao().inserts(body).size
-    } else {
-        0
     }
-
-
 }

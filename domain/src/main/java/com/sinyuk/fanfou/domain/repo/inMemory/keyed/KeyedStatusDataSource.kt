@@ -119,7 +119,6 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                 when (items.size) {
                     params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
                     else -> networkState.postValue(NetworkState.REACH_BOTTOM)
-
                 }
             } else {
                 retry = { loadAfter(params, callback) }

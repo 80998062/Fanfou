@@ -68,9 +68,7 @@ class KeyedTimelineRepository @Inject constructor(
 
         return Listing(
                 pagedList = pagedList,
-                networkState = Transformations.switchMap(sourceFactory.sourceLiveData, {
-                    it.networkState
-                }),
+                networkState = Transformations.switchMap(sourceFactory.sourceLiveData, { it.networkState }),
                 retry = {
                     sourceFactory.sourceLiveData.value?.retryAllFailed()
                 },

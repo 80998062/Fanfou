@@ -185,9 +185,24 @@ class TimelineView : AbstractFragment(), Injectable {
 
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
-        val scroll2Top = adapter.itemCount == 0
+        // record the last scroll position
+        val lastScrollPosition = adapter.itemCount
         adapter.setList(it)
-        if (scroll2Top) recyclerView.run { recyclerView.scrollToPosition(0) } // prevent recyclerView scroll to bottom when data first loaded
+        // TODO: Unsupported, can this be less tricky?
+        recyclerView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                recyclerView.removeOnLayoutChangeListener(this)
+                if (lastScrollPosition <= 0) {
+                    recyclerView.scrollToPosition(0)
+                } else {
+                    if (adapter.itemCount > lastScrollPosition) {
+                        recyclerView.scrollToPosition(lastScrollPosition + 1)
+                    } else {
+                        recyclerView.scrollToPosition(lastScrollPosition)
+                    }
+                }
+            }
+        })
     }
 
     private val networkConsumer = Observer<NetworkState> {

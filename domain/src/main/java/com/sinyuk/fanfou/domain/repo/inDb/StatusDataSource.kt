@@ -21,25 +21,23 @@
 package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PageKeyedDataSource
-import android.arch.persistence.room.InvalidationTracker
 import android.util.Log
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
 
 /**
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSource(private val db: LocalDatabase, private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
+class StatusDataSource(private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
 
     init {
-        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
-            override fun onInvalidated(tables: MutableSet<String>) {
-                invalidate()
-            }
-        })
+//        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
+//            override fun onInvalidated(tables: MutableSet<String>) {
+//                invalidate()
+//            }
+//        })
     }
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Status>) {
@@ -48,7 +46,7 @@ class StatusDataSource(private val db: LocalDatabase, private val dao: StatusDao
         if (data.isEmpty()) {
             callback.onResult(data, null, null)
         } else {
-            callback.onResult(data, null, data.last().id)
+            callback.onResult(data, data.first().id, data.last().id)
         }
     }
 
@@ -64,11 +62,14 @@ class StatusDataSource(private val db: LocalDatabase, private val dao: StatusDao
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
-    }
-
-    override fun isInvalid(): Boolean {
-        db.invalidationTracker.refreshVersionsAsync()
-        return super.isInvalid()
+        val data = dao.loadBefore(path, params.key, params.requestedLoadSize)
+        if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + params.key)
+        if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + data.size)
+        if (data.isEmpty()) {
+            callback.onResult(data, null)
+        } else {
+            callback.onResult(data, data.first().id)
+        }
     }
 
     companion object {

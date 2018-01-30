@@ -60,4 +60,10 @@ interface StatusDao {
             " createdAt < (SELECT createdAt FROM statuses WHERE id = :id)" +
             " ORDER BY createdAt DESC LIMIT :limit")
     fun loadAfter(path: Int, id: String, limit: Int): MutableList<Status>
+
+
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
+            " createdAt > (SELECT createdAt FROM statuses WHERE id = :id)" +
+            " ORDER BY createdAt DESC LIMIT :limit")
+    fun loadBefore(path: Int, id: String, limit: Int): MutableList<Status>
 }
