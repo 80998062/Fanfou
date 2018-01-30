@@ -25,6 +25,7 @@ import android.arch.paging.PagedList
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import com.bumptech.glide.Glide
@@ -36,6 +37,7 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.ui.MarginDecoration
+import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -101,11 +103,16 @@ class TimelineView : AbstractFragment(), Injectable {
         setupSwipeRefresh()
     }
 
+
+    var refreshCallback: RefreshCallback? = null
+
     private fun setupSwipeRefresh() {
         timelineViewModel.refreshState.observe(this@TimelineView, Observer {
-            setRefresh(it?.status == com.sinyuk.fanfou.domain.Status.RUNNING)
+            val refresh = it?.status == com.sinyuk.fanfou.domain.Status.RUNNING
+            setRefresh(refresh)
+            refreshCallback?.toggle(refresh)
             if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
-                it.msg?.let { toast.toastShort(it) }
+                it.msg?.let { refreshCallback?.error(Throwable(it)) }
             }
         })
     }
@@ -118,6 +125,10 @@ class TimelineView : AbstractFragment(), Injectable {
             timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query))
             timelineViewModel.refresh()
         }
+    }
+
+    fun refresh() {
+        timelineViewModel.refresh()
     }
 
 
@@ -186,16 +197,16 @@ class TimelineView : AbstractFragment(), Injectable {
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
         // record the last scroll position
-        val lastScrollPosition = adapter.itemCount
+        val lastScrollPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
         adapter.setList(it)
         // TODO: Unsupported, can this be less tricky?
         recyclerView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
             override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
                 recyclerView.removeOnLayoutChangeListener(this)
-                if (lastScrollPosition <= 0) {
+                if (lastScrollPosition == RecyclerView.NO_POSITION) {
                     recyclerView.scrollToPosition(0)
                 } else {
-                    if (adapter.itemCount > lastScrollPosition) {
+                    if (adapter.itemCount >= lastScrollPosition) {
                         recyclerView.scrollToPosition(lastScrollPosition + 1)
                     } else {
                         recyclerView.scrollToPosition(lastScrollPosition)
@@ -207,7 +218,7 @@ class TimelineView : AbstractFragment(), Injectable {
 
     private val networkConsumer = Observer<NetworkState> {
         if (it?.status == com.sinyuk.fanfou.domain.Status.REACH_TOP) {
-            toast.toastShort("没有新的东西")
+            // never happen
         } else {
             adapter.setNetworkState(it)
         }

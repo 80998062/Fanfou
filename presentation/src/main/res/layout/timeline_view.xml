@@ -17,35 +17,15 @@
   ~  * limitations under the License.
   ~  */
   -->
-<com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/viewAnimator"
+
+
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:inAnimation="@android:anim/fade_in"
-    android:outAnimation="@android:anim/fade_out"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:overScrollMode="never"
+    android:scrollbarFadeDuration="@android:integer/config_shortAnimTime"
+    android:scrollbarStyle="outsideOverlay"
+    android:scrollbars="vertical"
+    android:verticalScrollbarPosition="defaultPosition" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:overScrollMode="never"
-        android:scrollbarFadeDuration="@android:integer/config_shortAnimTime"
-        android:scrollbarStyle="outsideOverlay"
-        android:scrollbars="vertical"
-        android:verticalScrollbarPosition="defaultPosition" />
-
-    <FrameLayout
-        android:id="@+id/emptyLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="empty"
-            android:textSize="40sp" />
-    </FrameLayout>
-</com.sinyuk.fanfou.ui.BetterViewAnimator>

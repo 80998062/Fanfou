@@ -52,19 +52,10 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
     private val repoResult = map(paramLive, {
         when (it.path) {
             SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.id)
-            else -> if (it.id == null) {
-                when (it.path) {
-                    TIMELINE_PUBLIC, TIMELINE_FAVORITES -> tiled.statuses(path = it.path, pageSize = PAGE_SIZE)
-                    else -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
-                }
-            } else {
-                when (it.path) {
-                    TIMELINE_CONTEXT, TIMELINE_FAVORITES, TIMELINE_USER -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-                    else -> TODO()
-                }
-            }
+            TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES, TIMELINE_USER -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
+            TIMELINE_HOME -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
+            else -> TODO()
         }
-
     })
 
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
@@ -78,5 +69,9 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
 
     fun refresh() {
         repoResult?.value?.refresh?.invoke()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
     }
 }

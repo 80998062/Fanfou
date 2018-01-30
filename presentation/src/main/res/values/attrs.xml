@@ -157,4 +157,9 @@
         <attr name="badgePadding" format="dimension|reference" />
     </declare-styleable>
 
+
+    <declare-styleable name="refresh_PullRefreshLayout">
+        <attr name="refreshColors" format="reference" />
+        <attr name="refreshColor" format="reference" />
+    </declare-styleable>
 </resources>

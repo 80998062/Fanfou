@@ -44,7 +44,6 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.StatusCreation
-import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.editor.EditorView
@@ -53,7 +52,6 @@ import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
-import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
@@ -251,11 +249,11 @@ class TabView : AbstractFragment(), Injectable {
     private lateinit var fragments: MutableList<AbstractFragment>
 
     private fun setupViewPager() {
-        fragments = if (findChildFragment(TimelineView::class.java) == null) {
-            mutableListOf(TimelineView.newInstance(TIMELINE_HOME), SearchView(), SignInView(), MessageView())
+        fragments = if (findChildFragment(IndexView::class.java) == null) {
+            mutableListOf(IndexView(), SearchView(), SignInView(), MessageView())
         } else {
             mutableListOf(
-                    findChildFragment(TimelineView::class.java),
+                    findChildFragment(IndexView::class.java),
                     findChildFragment(SearchView::class.java),
                     findChildFragment(SignInView::class.java),
                     findChildFragment(MessageView::class.java))

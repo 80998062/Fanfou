@@ -57,10 +57,11 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
                 val apiResponse = ApiResponse(response)
                 if (apiResponse.isSuccessful()) {
                     val data = apiResponse.body
-                    if (data?.isNotEmpty() == true) {
-                        insertResultIntoDb(data)
+                    if (insertResultIntoDb(data) == pageSize) {
+                        networkState.postValue(NetworkState.LOADED)
+                    } else {
+                        networkState.postValue(NetworkState.REACH_TOP)
                     }
-                    networkState.postValue(NetworkState.LOADED)
                 } else {
                     networkState.postValue(NetworkState.error("error code: ${response.code()}"))
                 }
@@ -73,16 +74,15 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
 
 
     @WorkerThread
-    private fun insertResultIntoDb(body: MutableList<Status>?) {
-        if (body?.isNotEmpty() == true) {
-            for (status in body) {
-                status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                db.statusDao().query(status.id)?.let {
-                    status.addPath(it.pathFlag)
-                }
-                status.addPathFlag(path)
-            }
-            db.statusDao().inserts(body)
+    private fun insertResultIntoDb(body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
+        for (status in body) {
+            status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+            db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
+            status.addPathFlag(path)
         }
+        db.statusDao().inserts(body).size
+    } else {
+        0
     }
+
 }

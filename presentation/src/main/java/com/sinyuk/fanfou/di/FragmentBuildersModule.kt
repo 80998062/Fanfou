@@ -24,6 +24,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.editor.MentionListView
 import com.sinyuk.fanfou.ui.home.HomeView
+import com.sinyuk.fanfou.ui.home.IndexView
 import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.*
@@ -117,5 +118,10 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun mentionListView(): MentionListView
+
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun indexView(): IndexView
 
 }
