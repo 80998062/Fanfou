@@ -27,7 +27,6 @@ import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.support.annotation.WorkerThread
-import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
@@ -71,14 +70,12 @@ class TimelineRepository @Inject constructor(
                 appExecutors = appExecutors,
                 networkPageSize = PAGE_SIZE)
 
-        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
 
         // create a data source factory from Room
-        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path))
+        val dataSourceFactory = StatusDataSourceFactory(db, db.statusDao(), convertPathToFlag(path))
 
-        dataSourceFactory.create().addInvalidatedCallback {
-            Log.i(TAG, "invalidated")
-        }
+
         val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback)
                 .setInitialLoadKey(null)
                 .setBackgroundThreadExecutor(appExecutors.diskIO())

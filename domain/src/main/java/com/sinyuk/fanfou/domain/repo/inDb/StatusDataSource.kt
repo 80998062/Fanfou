@@ -21,16 +21,27 @@
 package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.paging.PageKeyedDataSource
+import android.arch.persistence.room.InvalidationTracker
 import android.util.Log
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.db.dao.StatusDao
 
 /**
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSource(private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
+class StatusDataSource(private val db: LocalDatabase, private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
+
+    init {
+        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
+            override fun onInvalidated(tables: MutableSet<String>) {
+                invalidate()
+            }
+        })
+    }
+
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Status>) {
         val data = dao.loadInitial(path, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadInitial: " + data.size)
@@ -44,6 +55,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int) : Page
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
         val data = dao.loadAfter(path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + params.key)
+        if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + data.size)
         if (data.isEmpty()) {
             callback.onResult(data, null)
         } else {
@@ -52,6 +64,11 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int) : Page
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
+    }
+
+    override fun isInvalid(): Boolean {
+        db.invalidationTracker.refreshVersionsAsync()
+        return super.isInvalid()
     }
 
     companion object {
