@@ -32,7 +32,9 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/gap_16"
+        android:fontFamily="cursive"
         android:text="@string/name_public_timeline"
         android:textColor="?android:textColorSecondary"
         android:textStyle="bold" />
@@ -42,38 +44,20 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <com.sinyuk.fanfou.ui.BetterViewAnimator
-        android:id="@+id/viewAnimator"
+
+    <com.sinyuk.fanfou.ui.QMUIRoundButton
+        android:id="@+id/refreshButton"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:inAnimation="@android:anim/slide_in_left"
-        android:outAnimation="@android:anim/slide_out_right">
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="0dp" />
-
-        <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/loadingLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:indicatorColor="@color/colorAccentLt"
-            app:indicatorName="BallPulseIndicator"
-            app:minWidth="24dp" />
-
-        <TextView
-            android:id="@+id/refreshLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingEnd="@dimen/gap_16"
-            android:paddingStart="@dimen/gap_16"
-            android:text="@string/action_switch_to_refresh"
-            android:textColor="@color/colorAccentLt"
-            android:textSize="@dimen/text_12" />
-
-    </com.sinyuk.fanfou.ui.BetterViewAnimator>
-
+        android:layout_height="20dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="@dimen/gap_16"
+        android:gravity="center"
+        android:paddingEnd="@dimen/gap_10"
+        android:paddingStart="@dimen/gap_10"
+        android:text="@string/action_switch_to_refresh"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_10"
+        app:qmui_backgroundColor="@color/colorAccent"
+        app:qmui_radius="10dp" />
 
 </LinearLayout>

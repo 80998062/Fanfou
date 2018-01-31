@@ -75,7 +75,7 @@ class TimelineRepository @Inject constructor(
         val boundaryCallback = StatusBoundaryCallback(webservice = restAPI, path = path, uniqueId = uniqueId, handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors, networkPageSize = pageSize)
 
-        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(10).setInitialLoadSizeHint(pageSize)
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize)
 
         val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setInitialLoadKey(null)
                 .setBackgroundThreadExecutor(appExecutors.diskIO())
@@ -109,7 +109,7 @@ class TimelineRepository @Inject constructor(
 
     private fun refresh(path: String, uniqueId: String?, pageSize: Int): LiveData<NetworkState> {
         isInvalid.set(true)
-        val task = StatusFetchTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = 1, db = db)
+        val task = StatusFetchTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = pageSize, db = db)
         appExecutors.networkIO().execute(task)
         return task.networkState
     }

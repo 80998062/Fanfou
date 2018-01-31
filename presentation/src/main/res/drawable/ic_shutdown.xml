@@ -1,0 +1,30 @@
+<!--
+  ~ /*
+  ~  * Apache License
+  ~  *
+  ~  * Copyright [2017] Sinyuk
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:autoMirrored="true"
+    android:viewportHeight="1024.0"
+    android:viewportWidth="1024.0">
+    <path
+        android:fillColor="@color/colorControlNormal"
+        android:pathData="M746.1,221.5q39.9,28.4 70.9,64.3t53.2,77.6 33.7,88.2 11.5,94.4q0,82.5 -31.5,154.7t-85.1,125.9 -125.9,85.1 -154.7,31.5q-81.6,0 -153.8,-31.5t-126.4,-85.1 -85.1,-125.9 -31,-154.7q0,-47 11.1,-92.2t31.5,-86 50.5,-76.3 67.4,-63.8q19.5,-14.2 42.1,-10.6t36.8,22.2 10.6,41.7 -22.2,37.2q-55.9,40.8 -85.6,100.2t-29.7,127.7q0,58.5 22.2,110.4t60.7,90.4 90.4,61.2 110.4,22.6 110.4,-22.6 90.4,-61.2 61.2,-90.4 22.6,-110.4q0,-69.2 -31.9,-130.8t-89.6,-101.5q-19.5,-13.3 -23.5,-36.4t9.3,-42.6q13.3,-18.6 36.4,-22.6t42.6,9.3zM518.2,548.7q-23.1,0 -39.5,-16.4t-16.4,-39.5l0,-336.9q0,-23.1 16.4,-39.9t39.5,-16.8q23.9,0 40.3,16.8t16.4,39.9l0,336.9q0,23.1 -16.4,39.5t-40.3,16.4z" />
+</vector>

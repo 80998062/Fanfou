@@ -41,7 +41,6 @@ import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
-import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import java.util.*
 
 /**
@@ -216,15 +215,6 @@ class StatusPagedListAdapter(
 
         } else {
             Collections.emptyList<Status>()
-        }
-    }
-
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
-        super.onViewRecycled(holder)
-        if (holder is StatusViewHolder) {
-            // reset the badge  which are dynamically determined
-            holder.itemView.image.setBadgeColor(initialGifBadgeColor)
-            holder.itemView.image.drawBadge = false
         }
     }
 }

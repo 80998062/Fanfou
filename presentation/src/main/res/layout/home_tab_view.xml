@@ -52,6 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/status_bar_height"
+                android:transitionName="@string/transition_toolbar"
                 app:contentInsetStart="0dp"
                 app:layout_scrollFlags="enterAlways|scroll|snap">
 
@@ -74,12 +75,14 @@
                             android:id="@+id/navBack"
                             style="@style/action_button"
                             android:contentDescription="@string/name_avatar"
-                            android:src="@drawable/ic_back" />
+                            android:src="@drawable/ic_back"
+                            android:transitionName="@string/transition_toolbar_button_1" />
 
                         <ImageView
                             android:id="@+id/avatar"
                             style="@style/action_button"
                             android:contentDescription="@string/name_avatar"
+                            android:transitionName="@string/transition_toolbar_button_1"
                             tools:src="@mipmap/ic_launcher_round" />
 
                     </com.sinyuk.fanfou.ui.BetterViewAnimator>
@@ -109,6 +112,7 @@
                                 android:textColor="@color/textColorPrimary"
                                 android:textSize="@dimen/text_14"
                                 android:textStyle="bold"
+                                android:transitionName="@string/transition_toolbar_title"
                                 tools:text="@string/label_home" />
                         </TextSwitcher>
 
@@ -164,13 +168,15 @@
                             android:id="@+id/postFanfouButton"
                             style="@style/action_button"
                             android:contentDescription="@string/action_post_fanfou"
-                            android:src="@drawable/ic_rice" />
+                            android:src="@drawable/ic_rice"
+                            android:transitionName="@string/transition_toolbar_button_2" />
 
                         <ImageView
                             android:id="@+id/searchPlayerButton"
                             style="@style/action_button"
                             android:contentDescription="@string/action_addfriend"
-                            android:src="@drawable/ic_addfriend" />
+                            android:src="@drawable/ic_addfriend"
+                            android:transitionName="@string/transition_toolbar_button_2" />
 
                         <TextView
                             android:id="@+id/searchCloseButton"
@@ -180,19 +186,22 @@
                             android:gravity="center"
                             android:text="@string/action_cancel"
                             android:textColor="@color/colorAccent"
-                            android:textSize="@dimen/text_14" />
+                            android:textSize="@dimen/text_14"
+                            android:transitionName="@string/transition_toolbar_button_2" />
 
                         <ImageView
                             android:id="@+id/inboxSettingsButton"
                             style="@style/action_button"
                             android:contentDescription="@string/action_settings_inbox"
-                            android:src="@drawable/ic_settings_alt" />
+                            android:src="@drawable/ic_settings_alt"
+                            android:transitionName="@string/transition_toolbar_button_2" />
 
                         <ImageView
                             android:id="@+id/sendMessageButton"
                             style="@style/action_button"
                             android:contentDescription="@string/action_sendmessage"
-                            android:src="@drawable/ic_sendmessage" />
+                            android:src="@drawable/ic_sendmessage"
+                            android:transitionName="@string/transition_toolbar_button_2" />
                     </com.sinyuk.fanfou.ui.BetterViewAnimator>
 
                 </LinearLayout>

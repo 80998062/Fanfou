@@ -21,7 +21,9 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.arch.lifecycle.Observer
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -32,11 +34,14 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
+import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
+import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.timeline_view_list_header_public.*
 import kotlinx.android.synthetic.main.trending_view.*
 import javax.inject.Inject
 
@@ -44,12 +49,16 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/9.
  *
  */
-class TrendingView : AbstractFragment(), Injectable {
+class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
+
+
     override fun layoutId() = R.layout.trending_view
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
 
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
@@ -61,7 +70,6 @@ class TrendingView : AbstractFragment(), Injectable {
         setupTrendList()
 
         searchViewModel.trends().observe(this@TrendingView, Observer {
-            searchViewModel.trends().removeObservers(this@TrendingView)
             when (it?.states) {
                 States.SUCCESS -> {
                     adapter.setNewData(it.data)
@@ -73,8 +81,27 @@ class TrendingView : AbstractFragment(), Injectable {
 
                 }
             }
-            if (findChildFragment(TimelineView::class.java) == null) loadRootFragment(R.id.publicViewContainer, TimelineView.newInstance(TIMELINE_PUBLIC))
+            if (findChildFragment(TimelineView::class.java) == null) {
+                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
+                fragment.refreshCallback = this@TrendingView
+                loadRootFragment(R.id.publicViewContainer, fragment)
+                refreshButton.setOnClickListener {
+                    toggleRefreshButton(false)
+                    findChildFragment(TimelineView::class.java)?.refresh()
+                }
+            } else {
+                showHideFragment(findChildFragment(TimelineView::class.java))
+            }
         })
+    }
+
+    private fun toggleRefreshButton(enable: Boolean) {
+        refreshButton.isEnabled = enable
+        if (enable) {
+            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
+        } else {
+            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlDisable))
+        }
     }
 
     private lateinit var adapter: TrendAdapter
@@ -96,9 +123,17 @@ class TrendingView : AbstractFragment(), Injectable {
 
         adapter = TrendAdapter().apply {
             addHeaderView(header)
-            setOnItemClickListener { _, _, position -> }
+            setOnItemClickListener { _, _, _ -> }
             trendList.adapter = this
         }
     }
 
+
+    override fun toggle(enable: Boolean) {
+        toggleRefreshButton(!enable)
+    }
+
+    override fun error(throwable: Throwable) {
+        toggleRefreshButton(false)
+    }
 }

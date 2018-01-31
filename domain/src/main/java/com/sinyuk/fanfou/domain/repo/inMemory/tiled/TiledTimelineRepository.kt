@@ -27,6 +27,7 @@ import android.arch.paging.PagedList
 import android.support.annotation.MainThread
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.api.ConnectionLiveData
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.repo.Listing
@@ -45,6 +46,9 @@ class TiledTimelineRepository @Inject constructor(
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
+
+    private val connectionState = ConnectionLiveData(application)
+
     @MainThread
     fun statuses(path: String, uniqueId: String? = null, query: String? = null, pageSize: Int): Listing<Status> {
         val encode = query?.let { URLEncoder.encode(it, "utf-8") }

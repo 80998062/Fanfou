@@ -26,9 +26,9 @@
 
 
     <FrameLayout
+        android:id="@+id/drawerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorAccent"
         android:tag="menu" />
 
     <LinearLayout

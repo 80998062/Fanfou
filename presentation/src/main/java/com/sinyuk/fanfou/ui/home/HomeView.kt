@@ -32,6 +32,7 @@ import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.myutils.system.ToastUtils
 import com.yalantis.colormatchtabs.colormatchtabs.adapter.ColorTabAdapter
 import com.yalantis.colormatchtabs.colormatchtabs.listeners.OnColorTabSelectedListener
@@ -60,6 +61,14 @@ class HomeView : AbstractFragment(), Injectable {
         } else {
             showHideFragment(findChildFragment(TabView::class.java))
         }
+
+
+        if (findChildFragment(DrawerView::class.java) == null) {
+            loadRootFragment(R.id.drawerViewContainer, DrawerView())
+        } else {
+            showHideFragment(findChildFragment(DrawerView::class.java))
+        }
+
         renderUI()
     }
 
@@ -75,17 +84,17 @@ class HomeView : AbstractFragment(), Injectable {
             }
 
             override fun onDrawerClosed(drawerView: View) {
-
+                findChildFragment(DrawerView::class.java)?.userVisibleHint = false
             }
 
             override fun onDrawerOpened(drawerView: View) {
+                findChildFragment(DrawerView::class.java)?.userVisibleHint = true
                 KeyboardUtil.hideKeyboard(drawerView)
             }
         })
 
         setupTabLayout()
     }
-
 
     @SuppressLint("Recycle")
     private fun setupTabLayout() {

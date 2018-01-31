@@ -67,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/gap_8"
                 android:minWidth="56dp"
+                android:ellipsize="end"
                 android:textColor="@color/textColorPrimary"
                 android:textSize="@dimen/text_16"
                 android:textStyle="bold"
@@ -102,14 +103,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="3dp"
                 android:minHeight="56dp"
                 android:textColor="@color/textStatusContent"
                 android:textSize="@dimen/text_14"
                 tools:background="@color/textColorHint"
-                tools:text="Clemens cob mixed with basil leafs." />
+                tools:text="Clemens cob mixed with basil leafs.Extums resistere!Going to the heavens of man doesn’t realize tantra anymore than praising creates powerful affirmation.A falsis, vita brevis barcas.Cum humani generis studere, omnes abnobaes perdere raptus, fidelis axonaes." />
 
-            <com.sinyuk.fanfou.ui.BadgedImageView
+            <com.sinyuk.fanfou.ui.SquareImageView
                 android:id="@+id/image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -117,8 +118,6 @@
                 android:layout_weight="0.382"
                 android:contentDescription="@string/name_picture_thumb"
                 android:scaleType="centerCrop"
-                app:badgeGravity="bottom|end"
-                app:badgePadding="@dimen/gap_8"
                 app:riv_border_width="0dp"
                 app:riv_corner_radius="@dimen/picture_corner_radius_small" />
         </LinearLayout>

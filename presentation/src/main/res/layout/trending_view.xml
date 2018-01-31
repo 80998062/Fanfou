@@ -44,12 +44,19 @@
             app:contentInsetStart="0dp"
             app:layout_scrollFlags="scroll">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/trendList"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:overScrollMode="never" />
+                android:orientation="vertical">
 
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/trendList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never" />
+
+                <include layout="@layout/timeline_view_list_header_public" />
+            </LinearLayout>
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

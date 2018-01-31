@@ -20,16 +20,10 @@
 
 package com.sinyuk.fanfou.ui.timeline
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
 import android.graphics.Bitmap
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -46,12 +40,10 @@ import com.bumptech.glide.request.target.Target
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
-import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.status.StatusView
-import com.sinyuk.fanfou.util.ObservableColorMatrix
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import com.sinyuk.myutils.ConvertUtils
 import com.sinyuk.myutils.DateUtils
@@ -129,42 +121,40 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         } else {
             view.image.visibility = View.VISIBLE
             glide.load(url)
-                    .apply(RequestOptions.bitmapTransform(roundedCornersTransformation))
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                            return false
-                        }
-
-                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                            if (!status.photos!!.hasFadedIn) {
-                                view.image.setHasTransientState(true)
-                                val cm = ObservableColorMatrix()
-                                val saturation = ObjectAnimator.ofFloat(cm, ObservableColorMatrix.SATURATION, 0f, 1f)
-                                saturation.addUpdateListener {
-                                    // just animating the color matrix does not invalidate the
-                                    // drawable so need this update listener.  Also have to create a
-                                    // new CMCF as the matrix is immutable :(
-                                    view.image.colorFilter = ColorMatrixColorFilter(cm)
-                                }
-                                saturation.duration = 2000L
-                                saturation.interpolator = FastOutSlowInInterpolator()
-                                saturation.addListener(object : AnimatorListenerAdapter() {
-                                    override fun onAnimationEnd(animation: Animator) {
-                                        view.image.clearColorFilter()
-                                        view.image.setHasTransientState(false)
-                                    }
-                                })
-                                saturation.start()
-                                status.photos!!.hasFadedIn = true
-                            }
-                            return false
-                        }
-                    })
-                    .transition(withCrossFade())
+                    .apply(RequestOptions.bitmapTransform(roundedCornersTransformation).centerCrop())
+//                    .listener(object : RequestListener<Drawable> {
+//                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+//                            return false
+//                        }
+//
+//                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+//                            if (!status.photos!!.hasFadedIn) {
+//                                view.image.setHasTransientState(true)
+//                                val cm = ObservableColorMatrix()
+//                                val saturation = ObjectAnimator.ofFloat(cm, ObservableColorMatrix.SATURATION, 0f, 1f)
+//                                saturation.addUpdateListener {
+//                                    // just animating the color matrix does not invalidate the
+//                                    // drawable so need this update listener.  Also have to create a
+//                                    // new CMCF as the matrix is immutable :(
+//                                    view.image.colorFilter = ColorMatrixColorFilter(cm)
+//                                }
+//                                saturation.duration = 2000L
+//                                saturation.interpolator = FastOutSlowInInterpolator()
+//                                saturation.addListener(object : AnimatorListenerAdapter() {
+//                                    override fun onAnimationEnd(animation: Animator) {
+//                                        view.image.clearColorFilter()
+//                                        view.image.setHasTransientState(false)
+//                                    }
+//                                })
+//                                saturation.start()
+//                                status.photos!!.hasFadedIn = true
+//                            }
+//                            return false
+//                        }
+//                    })
+                    .dontAnimate()
                     .into(view.image)
         }
-
-        view.image.drawBadge = Photos.isAnimated(url) ?: false
 
         FanfouUtils.parseAndSetText(view.content, status.text)
 

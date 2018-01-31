@@ -38,6 +38,8 @@ import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
+import me.yokeyword.fragmentation.anim.DefaultHorizontalAnimator
+import me.yokeyword.fragmentation.anim.FragmentAnimator
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -91,5 +93,9 @@ class MainActivity : AbstractActivity() {
         super.dispatchKeyEvent(event)
     }
 
+
+    override fun onCreateFragmentAnimator(): FragmentAnimator {
+        return DefaultHorizontalAnimator()
+    }
 
 }

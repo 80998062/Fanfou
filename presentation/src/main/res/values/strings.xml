@@ -63,4 +63,14 @@
     <string name="action_expand">展开</string>
     <string name="name_backdrop">资料背景图</string>
     <string name="name_picture_thumb">缩略图</string>
+    <string name="name_profile">我的</string>
+    <string name="transition_toolbar_button_1">transition_toolbar_button_1</string>
+    <string name="transition_toolbar">transition_toolbar</string>
+    <string name="transition_toolbar_title">transition_toolbar_title</string>
+    <string name="transition_toolbar_button_2">transition_toolbar_button_2</string>
+    <string name="name_draft">草稿</string>
+    <string name="name_settings">设置</string>
+    <string name="name_help">帮助</string>
+    <string name="name_about">关于</string>
+    <string name="name_night_mode">夜间模式</string>
 </resources>

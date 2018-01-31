@@ -9,6 +9,8 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowBackground">@color/windowBackground</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <!-- enable window content transitions -->
+        <item name="android:windowContentTransitions">true</item>
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
         <item name="android:textColorHint">@color/textColorHint</item>
     </style>
@@ -66,6 +68,19 @@
     <style name="toolbarTitle.Linear">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="drawer_menu_item">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawablePadding">@dimen/gap_16</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">@dimen/gap_8</item>
+        <item name="android:paddingEnd">@dimen/gap_16</item>
+        <item name="android:paddingStart">@dimen/gap_16</item>
+        <item name="android:paddingTop">@dimen/gap_8</item>
+        <item name="android:textColor">@color/text_click_secondary_primary</item>
+        <item name="android:textSize">@dimen/text_16</item>
     </style>
 
     <dimen name="keyboard_panel_height">200dp</dimen>

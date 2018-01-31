@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.di
 
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.editor.MentionListView
 import com.sinyuk.fanfou.ui.home.HomeView
@@ -123,5 +124,9 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun indexView(): IndexView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun drawerView(): DrawerView
 
 }

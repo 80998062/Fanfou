@@ -30,6 +30,9 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.text.Editable
 import android.text.TextWatcher
+import android.transition.Explode
+import android.transition.Fade
+import android.transition.TransitionSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -112,7 +115,28 @@ class TabView : AbstractFragment(), Injectable {
     private fun setupActionBar() {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
-        avatar.setOnClickListener { (activity as AbstractActivity).start(PlayerView.newInstance()) }
+        avatar.setOnClickListener {
+            val set = TransitionSet()
+            Explode().apply {
+                excludeTarget(getString(R.string.transition_toolbar_button_1), true)
+                excludeTarget(getString(R.string.transition_toolbar_button_2), true)
+                excludeTarget(getString(R.string.transition_toolbar_title), true)
+                set.addTransition(this)
+            }
+
+
+            Fade().apply {
+                addTarget(getString(R.string.transition_toolbar_button_1))
+                addTarget(getString(R.string.transition_toolbar_button_2))
+                addTarget(getString(R.string.transition_toolbar_title))
+                set.addTransition(this)
+            }
+
+            exitTransition = set
+            reenterTransition = set
+
+            (activity as AbstractActivity).start(PlayerView.newInstance())
+        }
         postFanfouButton.setOnClickListener { (activity as AbstractActivity).start(EditorView.newInstance(action = StatusCreation.CREATE_NEW)) }
     }
 
