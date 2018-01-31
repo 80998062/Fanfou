@@ -41,7 +41,7 @@ fun px2dp(context: Context, pxValue: Float) = (pxValue / context.resources.displ
 fun QMUIRoundButton.toggleOutline(enable: Boolean) {
     if (enable) {
         (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorAccent))
-        setTextColor(ContextCompat.getColor(context, R.color.white))
+        setTextColor(ContextCompat.getColor(context, android.R.color.white))
     } else {
         (background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.transparent))
         setTextColor(ContextCompat.getColor(context, R.color.colorAccent))

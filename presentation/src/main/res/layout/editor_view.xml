@@ -24,14 +24,14 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/windowBackground"
+    android:background="?android:windowBackground"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar_height"
         android:layout_marginTop="@dimen/status_bar_height"
-        android:background="@color/white"
+        android:background="?android:colorPrimary"
         android:orientation="horizontal">
 
         <ImageView
@@ -54,8 +54,8 @@
             android:gravity="center"
             android:paddingEnd="@dimen/gap_12"
             android:paddingStart="@dimen/gap_12"
-            android:textColor="@color/white"
-            app:qmui_backgroundColor="#3FADEC"
+            android:textColor="@color/textColor"
+            app:qmui_backgroundColor="@color/colorAccent"
             app:qmui_radius="14dp" />
     </LinearLayout>
 
@@ -75,7 +75,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="?android:colorPrimary"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -102,7 +102,7 @@
                     android:minHeight="108dp"
                     android:nestedScrollingEnabled="false"
                     android:paddingBottom="@dimen/gap_8"
-                    android:textColorHighlight="@color/colorAccentLt"
+                    android:textColorHighlight="?android:colorAccent"
                     android:textSize="@dimen/text_14"
                     tools:text="Large, al dente pudding is best decorated with iced triple sec.Messis cito ducunt ad velox olla.Visus, zelus, et cacula.Sunt orexises desiderium emeritis, dexter plasmatores.Eheu.Dexter devatio sensim apertos idoleum est." />
 
@@ -122,7 +122,7 @@
                     android:id="@+id/pictureLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
+                    android:background="?android:colorPrimary"
                     android:paddingBottom="@dimen/gap_16"
                     android:paddingEnd="@dimen/gap_16"
                     android:paddingStart="56dp">
@@ -145,7 +145,7 @@
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar_height"
-        android:background="@color/white"
+        android:background="?android:colorPrimary"
         android:orientation="horizontal"
         android:paddingEnd="@dimen/gap_12"
         android:paddingStart="@dimen/gap_12">
@@ -182,8 +182,7 @@
             android:indeterminate="false"
             android:padding="5dp"
             android:progress="0"
-            android:progressBackgroundTint="@color/colorAccentLt"
-            android:progressTint="@color/colorAccent" />
+            android:progressBackgroundTint="@color/colorAccentLt" />
     </LinearLayout>
 
     <cn.dreamtobe.kpswitch.widget.KPSwitchFSPanelLinearLayout

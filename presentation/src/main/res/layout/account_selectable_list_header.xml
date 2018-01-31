@@ -31,7 +31,7 @@
         android:layout_gravity="center"
         android:padding="@dimen/gap_8"
         android:text="@string/label_account"
-        android:textColor="@color/textColorPrimary"
+        android:textColor="?android:textColorPrimary"
         android:textSize="@dimen/text_14" />
 
     <View

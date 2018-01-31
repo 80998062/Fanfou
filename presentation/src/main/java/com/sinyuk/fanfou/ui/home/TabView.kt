@@ -30,9 +30,6 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.text.Editable
 import android.text.TextWatcher
-import android.transition.Explode
-import android.transition.Fade
-import android.transition.TransitionSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -49,9 +46,9 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.StatusCreation
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
+import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.message.MessageView
-import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
@@ -115,28 +112,7 @@ class TabView : AbstractFragment(), Injectable {
     private fun setupActionBar() {
         viewAnimator.displayedChildId = R.id.textSwitcher
         navigationAnimator.displayedChildId = R.id.avatar
-        avatar.setOnClickListener {
-            val set = TransitionSet()
-            Explode().apply {
-                excludeTarget(getString(R.string.transition_toolbar_button_1), true)
-                excludeTarget(getString(R.string.transition_toolbar_button_2), true)
-                excludeTarget(getString(R.string.transition_toolbar_title), true)
-                set.addTransition(this)
-            }
-
-
-            Fade().apply {
-                addTarget(getString(R.string.transition_toolbar_button_1))
-                addTarget(getString(R.string.transition_toolbar_button_2))
-                addTarget(getString(R.string.transition_toolbar_title))
-                set.addTransition(this)
-            }
-
-            exitTransition = set
-            reenterTransition = set
-
-            (activity as AbstractActivity).start(PlayerView.newInstance())
-        }
+        avatar.setOnClickListener { EventBus.getDefault().post(DrawerToggleEvent()) }
         postFanfouButton.setOnClickListener { (activity as AbstractActivity).start(EditorView.newInstance(action = StatusCreation.CREATE_NEW)) }
     }
 

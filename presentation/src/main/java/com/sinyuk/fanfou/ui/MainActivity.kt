@@ -82,6 +82,7 @@ class MainActivity : AbstractActivity() {
         }
     }
 
+
     override fun dispatchKeyEvent(event: KeyEvent?) = if (event?.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK) {
         if (panelRoot.visibility == View.VISIBLE) {
             KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)

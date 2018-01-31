@@ -36,14 +36,14 @@
         android:paddingLeft="@dimen/gap_16"
         android:paddingRight="@dimen/gap_16"
         android:paddingTop="@dimen/gap_8"
-        tools:background="@android:color/white">
+        android:background="?android:itemBackground">
 
         <ImageView
             android:id="@+id/avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher_round" />
+            tools:src="@mipmap/ic_launcher_round" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/name_new_account"
-                android:textColor="@color/textColorSecondary"
+                android:textColor="?android:textColorSecondary"
                 android:textSize="@dimen/text_12" />
 
 
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/hint_add_new_account_emoji"
-                android:textColor="@color/textColorHint"
+                android:textColor="?android:textColorHint"
                 android:textSize="@dimen/text_10" />
 
         </LinearLayout>
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/gap_8"
             android:text="@string/action_add"
-            android:textColor="@color/colorAccent"
+            android:textColor="?android:colorAccent"
             android:textSize="@dimen/text_14" />
     </LinearLayout>
 </FrameLayout>

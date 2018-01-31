@@ -40,7 +40,7 @@
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="?android:itemBackground"
         android:orientation="vertical"
         android:paddingBottom="@dimen/gap_16"
         android:paddingLeft="@dimen/gap_16"
@@ -68,10 +68,10 @@
                 android:layout_marginStart="@dimen/gap_8"
                 android:minWidth="56dp"
                 android:ellipsize="end"
-                android:textColor="@color/textColorPrimary"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="@dimen/text_16"
                 android:textStyle="bold"
-                tools:background="@color/textColorHint" />
+                tools:background="?android:textColorHint" />
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
@@ -84,9 +84,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="36dp"
-                android:textColor="@color/textColorHint"
+                android:textColor="?android:textColorHint"
                 android:textSize="@dimen/text_12"
-                tools:background="@color/textColorHint" />
+                tools:background="?android:textColorHint" />
         </LinearLayout>
 
 
@@ -105,9 +105,9 @@
                 android:ellipsize="end"
                 android:lineSpacingExtra="3dp"
                 android:minHeight="56dp"
-                android:textColor="@color/textStatusContent"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="@dimen/text_14"
-                tools:background="@color/textColorHint"
+                tools:background="?android:textColorHint"
                 tools:text="Clemens cob mixed with basil leafs.Extums resistere!Going to the heavens of man doesn’t realize tantra anymore than praising creates powerful affirmation.A falsis, vita brevis barcas.Cum humani generis studere, omnes abnobaes perdere raptus, fidelis axonaes." />
 
             <com.sinyuk.fanfou.ui.SquareImageView

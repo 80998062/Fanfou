@@ -23,7 +23,7 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/windowBackground"
+    android:background="?android:windowBackground"
     android:fitsSystemWindows="false"
     android:orientation="vertical">
 
@@ -109,7 +109,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:textColor="@color/textColorPrimary"
+                                android:textColor="?android:textColorPrimary"
                                 android:textSize="@dimen/text_14"
                                 android:textStyle="bold"
                                 android:transitionName="@string/transition_toolbar_title"
@@ -151,7 +151,7 @@
                                 android:scrollHorizontally="true"
                                 android:singleLine="true"
                                 android:textColor="?android:textColorPrimary"
-                                android:textColorHint="@color/textColorHint"
+                                android:textColorHint="?android:textColorHint"
                                 android:textSize="@dimen/text_14" />
                         </FrameLayout>
 
@@ -185,7 +185,7 @@
                             android:contentDescription="@string/action_close"
                             android:gravity="center"
                             android:text="@string/action_cancel"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="?android:colorAccent"
                             android:textSize="@dimen/text_14"
                             android:transitionName="@string/transition_toolbar_button_2" />
 

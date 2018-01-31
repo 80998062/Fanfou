@@ -37,9 +37,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/collapse_min_height"
-            app:contentScrim="@color/white"
+            app:contentScrim="?android:colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:statusBarScrim="@color/white"
+            app:statusBarScrim="?android:colorPrimaryDark"
             app:titleEnabled="false">
 
             <ImageView
@@ -78,8 +78,7 @@
                         android:layout_marginStart="@dimen/gap_16"
                         android:background="@drawable/action_button_scrim_oval"
                         android:padding="3dp"
-                        android:src="@drawable/ic_back"
-                        android:tint="@color/white" />
+                        android:src="@drawable/ic_back" />
 
                     <LinearLayout
                         android:id="@+id/titleLayout"
@@ -136,8 +135,7 @@
                         android:background="@drawable/action_button_scrim_oval"
                         android:contentDescription="@string/action_post_fanfou"
                         android:padding="4dp"
-                        android:src="@drawable/ic_rice"
-                        android:tint="@color/white" />
+                        android:src="@drawable/ic_rice" />
                 </LinearLayout>
 
 

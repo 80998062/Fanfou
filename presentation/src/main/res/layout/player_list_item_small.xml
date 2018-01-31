@@ -22,7 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/player_list_item_small_height"
-    android:background="@color/white"
+    android:background="?android:colorPrimary"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingLeft="@dimen/gap_16"
@@ -48,7 +48,7 @@
             android:id="@+id/screenName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColorPrimary"
+            android:textColor="?android:textColorPrimary"
             android:textSize="@dimen/text_12"
             tools:text="@string/name_avatar" />
 
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
-            android:textColor="@color/textColorSecondary"
+            android:textColor="?android:textColorSecondary"
             android:textSize="@dimen/text_12"
             tools:text="\@~Sinyuk" />
 

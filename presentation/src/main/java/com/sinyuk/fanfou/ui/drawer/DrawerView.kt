@@ -20,18 +20,47 @@
 
 package com.sinyuk.fanfou.ui.drawer
 
+import android.content.res.Configuration
 import android.os.Bundle
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
+import com.sinyuk.fanfou.currentNightMode
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.drawer_view.*
+import org.greenrobot.eventbus.EventBus
+import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2018/1/31.
+ *
  */
 class DrawerView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.drawer_view
 
+    @Inject
+    lateinit var toast: ToastUtils
+
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
+
+        nightModeButton.setOnClickListener {
+            when (currentNightMode(context!!.applicationContext)) {
+                Configuration.UI_MODE_NIGHT_NO -> {
+                    toast.toastShort("夜间模式关闭")
+                }
+                Configuration.UI_MODE_NIGHT_YES -> {
+                    toast.toastShort("夜间模式开启")
+                }
+                Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                    toast.toastShort("夜间模式不知道")
+                }
+            }
+        }
+    }
+
+
+    private fun toggleDrawer(open: Boolean) {
+        EventBus.getDefault().post(DrawerToggleEvent(open))
     }
 }

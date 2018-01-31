@@ -22,6 +22,7 @@ package com.sinyuk.fanfou
 
 import android.app.Activity
 import android.app.Application
+import android.support.v7.app.AppCompatDelegate
 import android.util.Log
 import com.facebook.stetho.Stetho
 import com.sinyuk.fanfou.di.AppInjector
@@ -46,6 +47,8 @@ class App : Application(), HasActivityInjector {
 
         initFragmentation()
         initStetho()
+
+        configureNightMode()
     }
 
 
@@ -60,5 +63,23 @@ class App : Application(), HasActivityInjector {
         Stetho.initialize(Stetho.newInitializerBuilder(applicationContext)
                 .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(applicationContext))
                 .build())
+    }
+
+    /**
+     * Setup night mode
+     */
+    private fun configureNightMode() {
+        // for test only
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+//
+//        if (sharedPreferences.getBoolean(NIGHT_MODE, false)) {
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+//        } else {
+//            if (sharedPreferences.getBoolean(NIGHT_MODE_AUTO, false)) {
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO)
+//            } else {
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+//            }
+//        }
     }
 }

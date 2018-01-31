@@ -39,13 +39,13 @@
         android:paddingEnd="@dimen/gap_16"
         android:paddingStart="@dimen/gap_16"
         android:text="@string/action_delete"
-        android:textColor="@color/white" />
+        android:textColor="?android:textColor" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="?android:colorPrimary"
         android:drawableEnd="@drawable/ic_left_top"
         android:drawablePadding="@dimen/gap_16"
         android:foreground="?android:selectableItemBackgroundBorderless"

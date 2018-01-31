@@ -32,6 +32,7 @@ import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.myutils.system.ToastUtils
 import com.yalantis.colormatchtabs.colormatchtabs.adapter.ColorTabAdapter
@@ -39,6 +40,8 @@ import com.yalantis.colormatchtabs.colormatchtabs.listeners.OnColorTabSelectedLi
 import com.yalantis.colormatchtabs.colormatchtabs.model.ColorTab
 import kotlinx.android.synthetic.main.home_view.*
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import javax.inject.Inject
 
 /**
@@ -117,6 +120,32 @@ class HomeView : AbstractFragment(), Injectable {
             override fun onUnselectedTab(tab: ColorTab?) {
             }
         })
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onDrawerToggle(event: DrawerToggleEvent) {
+        when (event.open) {
+            null -> {
+                if (drawerLayout.isDrawerOpen) {
+                    drawerLayout.closeDrawer()
+                } else {
+                    drawerLayout.openDrawer()
+                }
+            }
+            true -> drawerLayout.openDrawer()
+            false -> drawerLayout.closeDrawer()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
 
     }
 }

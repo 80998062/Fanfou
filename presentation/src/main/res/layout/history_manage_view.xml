@@ -22,7 +22,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/windowBackground">
+    android:background="?android:windowBackground">
 
     <FrameLayout
         android:id="@+id/historyViewContainer"
@@ -60,7 +60,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/label_search_history"
-                    android:textColor="@color/textColorPrimary"
+                    android:textColor="?android:textColorPrimary"
                     android:textSize="@dimen/text_14"
                     android:textStyle="bold" />
 
@@ -70,7 +70,7 @@
                     style="@style/action_textbutton"
                     android:contentDescription="@string/action_delete_all"
                     android:text="@string/action_clear"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="?android:colorAccent"
                     android:textSize="@dimen/text_14" />
 
             </LinearLayout>

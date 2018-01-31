@@ -47,7 +47,7 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/action_bar_height"
-            android:background="@color/white"
+            android:background="?android:colorPrimary"
             android:elevation="1dp"
             android:minHeight="@dimen/action_bar_height" />
     </LinearLayout>
