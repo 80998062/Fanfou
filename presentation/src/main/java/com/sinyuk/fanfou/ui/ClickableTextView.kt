@@ -20,40 +20,30 @@
 
 package com.sinyuk.fanfou.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.support.v7.widget.AppCompatTextView
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import android.view.View.OnTouchListener
 
-class ClickableTextView : AppCompatTextView, OnTouchListener {
+class ClickableTextView : AppCompatTextView {
     constructor(context: Context, attrs: AttributeSet,
-                defStyle: Int) : super(context, attrs, defStyle) {
-        setup()
-    }
+                defStyle: Int) : super(context, attrs, defStyle)
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        setup()
-    }
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context) : super(context) {
-        setup()
-    }
 
-    private fun setup() {
-        setOnTouchListener(this)
-    }
+    constructor(context: Context) : super(context)
 
-    override fun onTouch(v: View, event: MotionEvent): Boolean {
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (hasOnClickListeners()) {
-            when (event.action) {
+            when (event?.action) {
                 MotionEvent.ACTION_DOWN -> isSelected = true
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> isSelected = false
             }
         }
-
         // allow target view to handle click
-        return false
+        return super.onTouchEvent(event)
     }
 }

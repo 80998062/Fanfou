@@ -54,9 +54,9 @@
         android:paddingEnd="@dimen/gap_12"
         android:paddingStart="@dimen/gap_12"
         android:text="@string/action_reply"
-        android:textColor="?android:textColor"
+        android:textColor="@color/textColor"
         android:textSize="@dimen/text_12"
-        app:qmui_backgroundColor="#3FADEC"
+        app:qmui_backgroundColor="@color/colorAccent"
         app:qmui_borderWidth="0dp"
         app:qmui_isRadiusAdjustBounds="true"
         app:qmui_radius="12dp" />

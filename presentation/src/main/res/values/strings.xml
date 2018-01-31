@@ -73,4 +73,5 @@
     <string name="name_help">帮助</string>
     <string name="name_about">关于</string>
     <string name="name_night_mode">夜间模式</string>
+    <string name="name_night_mode_on">开启</string>
 </resources>

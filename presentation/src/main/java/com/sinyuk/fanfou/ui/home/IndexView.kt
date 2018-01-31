@@ -51,8 +51,8 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
 
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
         accountViewModel.user.observe(this@IndexView, Observer {
             when (it?.states) {
                 States.SUCCESS -> render(it.data)

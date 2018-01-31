@@ -22,22 +22,26 @@ package com.sinyuk.fanfou
 
 import android.app.Activity
 import android.app.Application
+import android.content.SharedPreferences
 import android.support.v7.app.AppCompatDelegate
 import android.util.Log
 import com.facebook.stetho.Stetho
 import com.sinyuk.fanfou.di.AppInjector
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import me.yokeyword.fragmentation.Fragmentation
 import javax.inject.Inject
+import javax.inject.Named
 
 
 /**
  * Created by sinyuk on 2017/11/28.
  */
 class App : Application(), HasActivityInjector {
-    @Inject lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
+    @Inject
+    lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
 
     override fun activityInjector(): AndroidInjector<Activity> = dispatchingActivityInjector
 
@@ -65,21 +69,21 @@ class App : Application(), HasActivityInjector {
                 .build())
     }
 
+    @field:[Named(TYPE_GLOBAL) Inject]
+    lateinit var sharedPreferences: SharedPreferences
+
     /**
      * Setup night mode
      */
     private fun configureNightMode() {
-        // for test only
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-//
-//        if (sharedPreferences.getBoolean(NIGHT_MODE, false)) {
-//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-//        } else {
-//            if (sharedPreferences.getBoolean(NIGHT_MODE_AUTO, false)) {
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO)
-//            } else {
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-//            }
-//        }
+        if (sharedPreferences.getBoolean(NIGHT_MODE_AUTO, false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO)
+        } else {
+            if (sharedPreferences.getBoolean(NIGHT_MODE, false)) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
     }
 }

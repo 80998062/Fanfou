@@ -93,7 +93,6 @@
             <com.sinyuk.fanfou.ui.ClickableTextView
                 android:id="@+id/friendButton"
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/gap_8"
                 android:text="@string/name_following"
@@ -179,7 +178,11 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/gap_16">
+        android:layout_marginBottom="@dimen/gap_16"
+        android:layout_marginTop="@dimen/gap_16"
+        android:orientation="vertical"
+        android:paddingEnd="6dp"
+        android:paddingStart="6dp">
 
         <ImageView
             android:id="@+id/nightModeButton"
@@ -187,12 +190,12 @@
             android:contentDescription="@string/name_night_mode"
             android:src="@drawable/ic_night" />
 
-
         <ImageView
             android:id="@+id/logoutButton"
             style="@style/action_button"
             android:layout_gravity="end"
             android:contentDescription="@string/action_logout"
             android:src="@drawable/ic_shutdown" />
+
     </FrameLayout>
 </LinearLayout>

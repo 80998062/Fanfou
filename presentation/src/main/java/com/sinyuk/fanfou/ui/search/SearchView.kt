@@ -34,9 +34,11 @@ import javax.inject.Inject
 class SearchView : AbstractFragment(), Injectable {
     override fun layoutId(): Int? = R.layout.public_view
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
     var currentFragment = 0
 
@@ -52,23 +54,31 @@ class SearchView : AbstractFragment(), Injectable {
         }
 
         loadMultipleRootFragment(R.id.searchView, 0, fragments[0], fragments[1])
-        currentFragment = 0
+        if (savedInstanceState != null) {
+            val current = savedInstanceState.getInt("currentFragment")
+            val q = savedInstanceState.getString("query", null)
+            when (current) {
+                0 -> showTrending()
+                1 -> showSuggestion()
+                2 -> showResult(q)
+            }
+        } else {
+            currentFragment = 0
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt("currentFragment", currentFragment)
+        outState.putString("query", query)
+
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        currentFragment = savedInstanceState?.getInt("currentFragment") ?: 0
-    }
-
-    fun showResult(query: String) {
+    private var query: String? = null
+    fun showResult(q: String) {
         if (currentFragment == 2) return
         if (findChildFragment(SearchResultView::class.java) == null) {
-            SearchResultView.newInstance(query).also {
+            SearchResultView.newInstance(q).also {
                 loadRootFragment(R.id.searchView, it)
                 showHideFragment(it, fragments[currentFragment])
                 fragments.add(it)
@@ -76,6 +86,7 @@ class SearchView : AbstractFragment(), Injectable {
         } else {
             showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
         }
+        query = q
         currentFragment = 2
     }
 

@@ -32,7 +32,7 @@
         android:layout_marginEnd="@dimen/gap_8"
         android:layout_marginStart="@dimen/gap_8"
         android:text="@string/name_search_history"
-        android:textColor="@color/textColorSecondary"
+        android:textColor="?android:textColorSecondary"
         android:textSize="@dimen/text_14"
         android:textStyle="bold" />
 

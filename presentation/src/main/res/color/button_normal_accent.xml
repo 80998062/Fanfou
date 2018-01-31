@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ /*
   ~  * Apache License
   ~  *
@@ -18,12 +19,8 @@
   ~  */
   -->
 
-<resources>
-    <color name="colorPrimaryDark">#243549</color>
-    <color name="colorPrimary">#243549</color>
-    <color name="itemBackground">#1C2935</color>
-    <color name="textColor">#C9CBCC</color>
-    <color name="textColorPrimary">#C9CBCC</color>
-    <color name="windowBackground">#1A2330</color>
-    <color name="divider_color">#1A2330</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/colorControlNormal" android:state_enabled="false" />
+    <item android:color="@color/colorControlActivated" android:state_enabled="true" />
+    <item android:color="@color/colorControlNormal" />
+</selector>

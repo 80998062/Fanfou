@@ -45,7 +45,7 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:colorPrimary"
+        android:background="?android:itemBackground"
         android:drawableEnd="@drawable/ic_left_top"
         android:drawablePadding="@dimen/gap_16"
         android:foreground="?android:selectableItemBackgroundBorderless"
@@ -54,7 +54,7 @@
         android:paddingEnd="@dimen/gap_16"
         android:paddingStart="@dimen/gap_16"
         android:paddingTop="@dimen/gap_8"
-        android:textColor="@color/textColorSecondary"
+        android:textColor="?android:textColorSecondary"
         tools:text="#圣诞假" />
 
 </com.daimajia.swipe.SwipeLayout>

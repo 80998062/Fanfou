@@ -20,16 +20,38 @@
 
 package com.sinyuk.fanfou.ui.drawer
 
+import android.arch.lifecycle.Observer
+import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatDelegate
+import android.view.View
+import com.bumptech.glide.request.RequestOptions
+import com.sinyuk.fanfou.NIGHT_MODE
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.currentNightMode
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.glide.GlideApp
+import com.sinyuk.fanfou.prefs.booleanLiveData
+import com.sinyuk.fanfou.ui.player.FollowingView
+import com.sinyuk.fanfou.ui.player.FriendsView
+import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.util.setUserId
+import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.drawer_view.*
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by sinyuk on 2018/1/31.
@@ -38,19 +60,88 @@ import javax.inject.Inject
 class DrawerView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.drawer_view
 
+    @field:[Named(TYPE_GLOBAL) Inject]
+    lateinit var sharedPreferences: SharedPreferences
+
     @Inject
     lateinit var toast: ToastUtils
+
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
+
+    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
+
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
 
+        accountViewModel.user.observe(this@DrawerView, Observer {
+            when (it?.states) {
+                States.SUCCESS -> renderPlayer(it.data)
+            }
+        })
+
+        setupNightButton()
+
+        mineButton.setOnClickListener {
+            closeDrawerAndPost(mineButton, { (activity as AbstractActivity).start(PlayerView.newInstance()) })
+        }
+
+    }
+
+
+    private fun renderPlayer(data: Player?) {
+        data?.let {
+            GlideApp.with(avatar).asBitmap().load(it.profileImageUrlLarge).apply(RequestOptions().centerCrop()).apply(RequestOptions.circleCropTransform()).into(avatar)
+            screenName.text = it.screenName
+            setUserId(userId, it.id)
+            if (it.friendsCount == 0) {
+                friendCount.text = 0.toString()
+            } else {
+                friendCount.text = it.friendsCount.toString()
+                friendButton.setOnClickListener {
+                    closeDrawerAndPost(friendButton, {
+                        (activity as AbstractActivity).start(FriendsView.newInstance(data.uniqueId))
+                    })
+                }
+            }
+
+            if (it.followersCount == 0) {
+                followerCount.text = 0.toString()
+            } else {
+                followerCount.text = it.followersCount.toString()
+                followerButton.setOnClickListener {
+                    closeDrawerAndPost(followerButton, {
+                        (activity as AbstractActivity).start(FollowingView.newInstance(data.uniqueId))
+                    })
+                }
+            }
+        }
+    }
+
+    private fun setupNightButton() {
+        sharedPreferences.booleanLiveData(NIGHT_MODE, false).observe(this@DrawerView, Observer {
+            if (it == true) {
+                nightModeButton.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
+            } else {
+                nightModeButton.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlNormal))
+            }
+        })
+
+
         nightModeButton.setOnClickListener {
-            when (currentNightMode(context!!.applicationContext)) {
+            when (currentNightMode(context!!)) {
                 Configuration.UI_MODE_NIGHT_NO -> {
-                    toast.toastShort("夜间模式关闭")
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    sharedPreferences.edit().putBoolean(NIGHT_MODE, true).apply()
+                    toast.toastShort("夜间模式开启")
+                    activity?.recreate()
                 }
                 Configuration.UI_MODE_NIGHT_YES -> {
-                    toast.toastShort("夜间模式开启")
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    sharedPreferences.edit().putBoolean(NIGHT_MODE, false).apply()
+                    toast.toastShort("夜间模式关闭")
+                    activity?.recreate()
                 }
                 Configuration.UI_MODE_NIGHT_UNDEFINED -> {
                     toast.toastShort("夜间模式不知道")
@@ -59,8 +150,12 @@ class DrawerView : AbstractFragment(), Injectable {
         }
     }
 
+    private fun closeDrawerAndPost(view: View, action: () -> Unit) {
+        toggleDrawer(false)
+        view.postDelayed(action, 500)
+    }
 
-    private fun toggleDrawer(open: Boolean) {
+    private fun toggleDrawer(open: Boolean? = null) {
         EventBus.getDefault().post(DrawerToggleEvent(open))
     }
 }

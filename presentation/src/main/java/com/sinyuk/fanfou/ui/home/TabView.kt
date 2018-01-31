@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
@@ -77,13 +78,19 @@ class TabView : AbstractFragment(), Injectable {
     lateinit var toast: ToastUtils
 
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this@TabView)
+    }
 
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.i(this@TabView.tag, "onViewCreated")
         renderUI()
-
-        EventBus.getDefault().register(this@TabView)
-
+        if (savedInstanceState == null) {
+            // TODO: viewModel是不是只要注册在这里
+        }
         accountViewModel.user.observe(this, Observer {
             when (it?.states) {
                 States.SUCCESS -> renderAccount(it.data)
@@ -91,7 +98,6 @@ class TabView : AbstractFragment(), Injectable {
             }
         })
     }
-
 
     private fun renderUI() {
         setupActionBar()
@@ -252,11 +258,7 @@ class TabView : AbstractFragment(), Injectable {
         fragments = if (findChildFragment(IndexView::class.java) == null) {
             mutableListOf(IndexView(), SearchView(), SignInView(), MessageView())
         } else {
-            mutableListOf(
-                    findChildFragment(IndexView::class.java),
-                    findChildFragment(SearchView::class.java),
-                    findChildFragment(SignInView::class.java),
-                    findChildFragment(MessageView::class.java))
+            mutableListOf(findChildFragment(IndexView::class.java), findChildFragment(SearchView::class.java), findChildFragment(SignInView::class.java), findChildFragment(MessageView::class.java))
         }
 
         viewPager.setPagingEnabled(false)

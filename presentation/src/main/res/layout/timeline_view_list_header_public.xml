@@ -57,7 +57,6 @@
         android:text="@string/action_switch_to_refresh"
         android:textColor="@color/textColor"
         android:textSize="@dimen/text_10"
-        app:qmui_backgroundColor="@color/colorAccent"
         app:qmui_radius="10dp" />
 
 </LinearLayout>

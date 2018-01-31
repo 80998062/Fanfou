@@ -22,18 +22,9 @@
 <resources>
     <color name="colorPrimaryDark">#ffffff</color>
     <color name="colorPrimary">#ffffff</color>
-    <color name="colorAccent">#3FADEC</color>
-    <color name="colorAccentLt">#25A0F2</color>
-
-    <color name="listItemBackground">#FFFFFF</color>
+    <color name="itemBackground">#FFFFFF</color>
     <color name="textColor">#18191B</color>
     <color name="textColorPrimary">#18191B</color>
-    <color name="textColorSecondary">#687783</color>
-    <color name="textColorHint">#CED9E0</color>
     <color name="windowBackground">#E3EDF2</color>
     <color name="divider_color">@color/windowBackground</color>
-    <color name="colorControlNormal">#647888</color>
-    <color name="colorControlActivated">@color/colorAccent</color>
-    <color name="colorControlDisable">#E6EBEF</color>
-    <color name="scrim">#6b4e4d4d</color>
 </resources>

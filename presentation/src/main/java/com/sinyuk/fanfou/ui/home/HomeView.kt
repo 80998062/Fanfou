@@ -56,28 +56,21 @@ class HomeView : AbstractFragment(), Injectable {
     @Inject
     lateinit var toast: ToastUtils
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.i(this@HomeView.tag, "onViewCreated")
         if (findChildFragment(TabView::class.java) == null) {
             loadRootFragment(R.id.tabViewContainer, TabView())
-        } else {
-            showHideFragment(findChildFragment(TabView::class.java))
-        }
-
-
-        if (findChildFragment(DrawerView::class.java) == null) {
             loadRootFragment(R.id.drawerViewContainer, DrawerView())
         } else {
+            showHideFragment(findChildFragment(TabView::class.java))
             showHideFragment(findChildFragment(DrawerView::class.java))
         }
 
         renderUI()
     }
 
-
     private fun renderUI() {
-
         drawerLayout.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
 
