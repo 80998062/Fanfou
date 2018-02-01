@@ -25,6 +25,8 @@ import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.USERS_ADMIN
+import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 
 
 /**
@@ -54,4 +56,7 @@ interface PlayerDao {
 
     @Query("SELECT * FROM players WHERE screenName LIKE '%' || :query || '%' ORDER BY mentionedAt DESC")
     fun filter(query: String): LiveData<MutableList<Player>>
+
+    @Query("SELECT * FROM players WHERE pathFlag & :path = :path ORDER BY updatedAt DESC")
+    fun admin(path: Int = convertPlayerPathToFlag(USERS_ADMIN)): LiveData<MutableList<Player>>
 }

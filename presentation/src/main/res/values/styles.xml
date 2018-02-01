@@ -85,5 +85,6 @@
         <item name="android:textSize">@dimen/text_16</item>
     </style>
 
+
     <dimen name="keyboard_panel_height">200dp</dimen>
 </resources>

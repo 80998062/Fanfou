@@ -59,7 +59,7 @@ class AccountViewModel @Inject constructor(private val repo: AccountRepository) 
     /**
      * 检查是否登录
      */
-    fun invalidteLogin() {
+    fun invalidateLogin() {
         val current = Authorization(repo.accessToken(), repo.accessSecret())
         if (!Objects.equals(current, login.value)) {
             login.postValue(current)
@@ -68,4 +68,6 @@ class AccountViewModel @Inject constructor(private val repo: AccountRepository) 
 
     fun sign(account: String, password: String) = repo.sign(account, password)
 
+
+    fun admins() = repo.admins()
 }

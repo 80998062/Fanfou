@@ -67,17 +67,23 @@ class AccountRepository
     }
 
     /**
+     * 返回所有登录过的用户
+     */
+    fun admins() = db.playerDao().admin()
+
+
+    /**
      * load account
+     *
      */
     fun verifyCredentials(forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
         override fun onFetchFailed() {}
 
         override fun saveCallResult(item: Player?) {
             item?.let {
-                prefs.edit().apply {
-                    putString(UNIQUE_ID, it.uniqueId)
-                }.apply()
+                prefs.edit().apply { putString(UNIQUE_ID, it.uniqueId) }.apply()
                 it.authorization = Authorization(accessToken(), accessSecret())
+                it.addPathFlag(USERS_ADMIN)
                 db.playerDao().insert(it)
             }
         }

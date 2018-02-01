@@ -61,17 +61,15 @@ class SignInView : AbstractFragment(), Injectable {
     }
 
     private fun onLogin() {
-        accountViewModel.sign(
-                "sinyuk.7@qq.com"/*accountEt.text.toString()*/,
-                "rabbit7run" /*passwordEt.text.toString()*/)
+        accountViewModel.sign(accountEt.text.toString(), passwordEt.text.toString())
                 .observe(this@SignInView, Observer<Resource<Authorization>> {
                     when (it?.states) {
                         States.ERROR -> {
-                            accountViewModel.invalidteLogin()
+                            accountViewModel.invalidateLogin()
                             loginButton.isEnabled = true
                         }
                         States.SUCCESS -> {
-                            accountViewModel.invalidteLogin()
+                            accountViewModel.invalidateLogin()
                             startWithPop(HomeView())
                         }
                         else -> loginButton.isEnabled = false

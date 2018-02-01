@@ -30,16 +30,27 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/gap_16"
         android:layout_marginTop="@dimen/status_bar_height"
-        android:padding="@dimen/gap_16">
+        android:paddingEnd="6dp"
+        android:paddingStart="@dimen/gap_16"
+        android:paddingTop="24dp">
+
+        <ImageView
+            android:id="@+id/accountButton"
+            style="@style/action_button"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/label_account_manage"
+            android:src="@drawable/ic_more" />
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/avatar"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/ic_avatar_placeholder"
+            android:background="@drawable/ic_avatar_bg"
             android:scaleType="centerCrop"
-            app:riv_border_width="1dp"
+            app:riv_border_color="@android:color/transparent"
+            app:riv_border_width="@dimen/divider_size"
             app:riv_corner_radius="24dp"
             tools:src="@mipmap/ic_launcher_round" />
 

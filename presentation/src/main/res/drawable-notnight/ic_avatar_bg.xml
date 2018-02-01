@@ -17,19 +17,8 @@
   ~  * limitations under the License.
   ~  */
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:windowBackground"
-    android:orientation="vertical">
 
-    <include
-        android:id="@+id/listHeader"
-        layout="@layout/account_selectable_list_header" />
-
-    <FrameLayout
-        android:id="@+id/accountListContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#bababa" />
+</shape>

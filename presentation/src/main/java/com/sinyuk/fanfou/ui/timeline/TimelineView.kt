@@ -158,8 +158,6 @@ class TimelineView : AbstractFragment(), Injectable {
 
         recyclerView.adapter = adapter
 
-
-
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
     }

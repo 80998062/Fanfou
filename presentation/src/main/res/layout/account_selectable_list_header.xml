@@ -20,9 +20,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/gap_8"
-    android:paddingRight="@dimen/gap_8">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/title"
@@ -33,6 +31,14 @@
         android:text="@string/label_account"
         android:textColor="?android:textColorPrimary"
         android:textSize="@dimen/text_14" />
+
+
+    <TextView
+        android:id="@+id/doneButton"
+        style="@style/action_textbutton"
+        android:layout_gravity="end|center_vertical"
+        android:text="@string/action_done"
+        android:textColor="?android:colorAccent" />
 
     <View
         android:layout_width="match_parent"

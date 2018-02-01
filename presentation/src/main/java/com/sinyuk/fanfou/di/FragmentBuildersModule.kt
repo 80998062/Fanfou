@@ -20,6 +20,8 @@
 
 package com.sinyuk.fanfou.di
 
+import com.sinyuk.fanfou.ui.account.AccountListView
+import com.sinyuk.fanfou.ui.account.AccountManageView
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.fanfou.ui.editor.EditorView
@@ -128,5 +130,13 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun drawerView(): DrawerView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun accountListView(): AccountListView
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun accountManageView(): AccountManageView
 
 }

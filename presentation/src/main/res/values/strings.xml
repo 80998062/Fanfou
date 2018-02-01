@@ -8,7 +8,7 @@
     <string name="label_account">账号</string>
     <string name="action_logout">登出</string>
     <string name="name_new_account">新账号</string>
-    <string name="hint_add_new_account_emoji">( •̀ .̫ •́ )✧</string>
+    <string name="hint_add_new_account_emoji">\@ฅ•ω•ฅ</string>
     <string name="action_add">添加</string>
     <string name="status_fetch_succeed_format">%d条新状态</string>
     <string name="status_fetch_no_new_data">还没有新的状态</string>
@@ -74,4 +74,10 @@
     <string name="name_about">关于</string>
     <string name="name_night_mode">夜间模式</string>
     <string name="name_night_mode_on">开启</string>
+    <string name="label_account_manage">账号管理</string>
+    <string name="action_done">完成</string>
+    <string name="hint_confirm_delete_account">确认删除？</string>
+    <string name="action_yes">Yes！</string>
+    <string name="name_register">注册新账号</string>
+    <string name="hint_add_new_account">新の账号</string>
 </resources>

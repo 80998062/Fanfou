@@ -52,5 +52,6 @@ const val PLAYER_FRIEND_FLAG = 0x00000100
 fun convertPlayerPathToFlag(path: String): Int = when (path) {
     USERS_FRIENDS -> PLAYER_FRIEND_FLAG
     USERS_FOLLOWERS -> PLAYER_FOLLOWER_FLAG
+    USERS_ADMIN -> PLAYER_USER_FLAG
     else -> PLAYER_NO_FLAG
 }

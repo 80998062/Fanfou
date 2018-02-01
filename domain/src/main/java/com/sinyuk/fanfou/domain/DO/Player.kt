@@ -65,8 +65,8 @@ data class Player @JvmOverloads constructor(
         @SerializedName("profile_background_image_url") var profileBackgroundImageUrl: String? = "",
         @Embedded(prefix = "access") var authorization: Authorization? = null,
         var pathFlag: Int = 0,
-        var mentionedAt: Date? = null
-
+        var mentionedAt: Date? = null,
+        var updatedAt: Date? = null
 ) : Parcelable, Mentionable {
     override fun getSuggestibleId() = uniqueId.hashCode()
 
