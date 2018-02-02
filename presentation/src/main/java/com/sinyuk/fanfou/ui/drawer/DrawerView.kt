@@ -36,7 +36,6 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.currentNightMode
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.util.booleanLiveData
 import com.sinyuk.fanfou.glide.GlideApp
@@ -76,10 +75,8 @@ class DrawerView : AbstractFragment(), Injectable {
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
 
-        accountViewModel.user.observe(this@DrawerView, Observer {
-            when (it?.states) {
-                States.SUCCESS -> renderPlayer(it.data)
-            }
+        accountViewModel.profile.observe(this@DrawerView, Observer {
+            it?.observe(this@DrawerView, Observer { renderPlayer(it) })
         })
 
         setupNightButton()

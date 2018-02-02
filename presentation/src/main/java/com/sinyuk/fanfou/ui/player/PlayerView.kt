@@ -31,7 +31,6 @@ import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
@@ -88,9 +87,18 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         super.onEnterAnimationEnd(savedInstanceState)
 
         if (isSelf()) {
-            accountViewModel.user.observe(this@PlayerView, Observer { subscribe(it) })
+            accountViewModel.profile.observe(this@PlayerView, Observer {
+                it?.observe(this@PlayerView, Observer { render(it) })
+            })
         } else {
-            playerViewModel.profile(uniqueId!!).observe(this@PlayerView, Observer { subscribe(it) })
+            playerViewModel.profile(uniqueId!!).observe(this@PlayerView, Observer {
+                when (it?.states) {
+                    States.SUCCESS -> render(it.data)
+                    States.ERROR -> it.message?.let { toast.toastShort(it) }
+                    else -> {
+                    }
+                }
+            })
         }
 
         appBarLayout.addOnOffsetChangedListener { v, verticalOffset ->
@@ -118,16 +126,6 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
 
     private fun isSelf() = uniqueId == null || uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
 
-    private fun subscribe(resource: Resource<Player>?) {
-        resource?.let {
-            when (it.states) {
-                States.SUCCESS -> render(it.data)
-                States.ERROR -> it.message?.let { toast.toastShort(it) }
-                else -> {
-                }
-            }
-        }
-    }
 
     private fun render(player: Player?) {
         player?.let {

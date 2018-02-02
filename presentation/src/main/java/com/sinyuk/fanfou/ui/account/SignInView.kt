@@ -61,18 +61,28 @@ class SignInView : AbstractFragment(), Injectable {
     }
 
     private fun onLogin() {
-        accountViewModel.sign(accountEt.text.toString(), passwordEt.text.toString())
+        accountViewModel.authorization(accountEt.text.toString(), passwordEt.text.toString())
                 .observe(this@SignInView, Observer<Resource<Authorization>> {
                     when (it?.states) {
                         States.ERROR -> {
-                            accountViewModel.invalidateLogin()
-                            loginButton.isEnabled = true
+                            it.message?.let { toast.toastShort(it) }
                         }
                         States.SUCCESS -> {
-                            accountViewModel.invalidateLogin()
-                            startWithPop(HomeView())
+                            if (it.data == null) {
+
+                            } else {
+                                accountViewModel.verifyCredentials(it.data!!).observe(this@SignInView, Observer {
+                                    when (it?.states) {
+                                        States.SUCCESS -> startWithPop(HomeView())
+                                        States.ERROR -> {
+                                            it.message?.let { toast.toastShort(it) }
+                                            loginButton.isEnabled = true
+                                        }
+                                    }
+                                })
+                            }
                         }
-                        else -> loginButton.isEnabled = false
+                        States.LOADING -> loginButton.isEnabled = false
                     }
                 })
     }

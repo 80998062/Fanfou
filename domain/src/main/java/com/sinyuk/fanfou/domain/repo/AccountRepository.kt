@@ -29,7 +29,6 @@ import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Authorization
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Resource
-import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
@@ -52,23 +51,43 @@ class AccountRepository
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
         @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
-        @Named(TYPE_GLOBAL) val prefs: SharedPreferences) : AbstractRepository(application, url, interceptor) {
+        @Named(TYPE_GLOBAL) private val sharedPreferences: SharedPreferences) : AbstractRepository(application, url, interceptor) {
 
 
-    private fun uniqueId(): String? = prefs.getString(UNIQUE_ID, null)
+    fun accessToken(): String? = sharedPreferences.getString(ACCESS_TOKEN, null)
 
-    fun accessToken(): String? = prefs.getString(ACCESS_TOKEN, null)
-
-    fun accessSecret(): String? = prefs.getString(ACCESS_SECRET, null)
+    fun accessSecret(): String? = sharedPreferences.getString(ACCESS_SECRET, null)
 
     /**
-     * sigin in
+     * authorization
      */
-    fun sign(account: String, password: String): MutableLiveData<Resource<Authorization>> {
-        val task = SignInTask(account, password, okHttpClient, prefs)
+    fun authorization(account: String, password: String): MutableLiveData<Resource<Authorization>> {
+        val task = SignInTask(account, password, okHttpClient, sharedPreferences)
         appExecutors.diskIO().execute(task)
         return task.liveData
     }
+
+    /**
+     * 验证Token
+     *
+     */
+    fun verifyCredentials(authorization: Authorization): LiveData<Resource<Player>> {
+        val liveData = MutableLiveData<Resource<Player>>()
+        liveData.postValue(Resource.loading(null))
+        setTokenAndSecret(authorization.token, authorization.secret)
+        appExecutors.networkIO().execute {
+            val response = restAPI.fetch_profile().execute()
+            if (response.isSuccessful) {
+                savePlayerInDb(response.body(), authorization)
+                liveData.postValue(Resource.success(response.body()))
+            } else {
+                setTokenAndSecret(null, null)
+                liveData.postValue(Resource.error("error: ${response.message()}", null))
+            }
+        }
+        return liveData
+    }
+
 
     /**
      * 返回所有登录过的用户
@@ -76,78 +95,53 @@ class AccountRepository
     fun admins() = db.playerDao().admin()
 
 
-    fun clearAllStatuses() {
-
-    }
-
     fun logout() {
 
     }
 
-    fun userLive(): LiveData<Player?> = map(prefs.stringLiveData(UNIQUE_ID, ""), {
+    fun userLive(): LiveData<LiveData<Player?>> = map(sharedPreferences.stringLiveData(UNIQUE_ID, ""), {
         if (it.isBlank()) {
-            null
+            TODO()
         } else {
-            db.playerDao().query(uniqueId())
+            db.playerDao().queryAsLive(it)
         }
     })
 
-//    fun switchTo(uniqueId: String): LiveData<Resource<Player>> {
-//        if (db.playerDao().query(uniqueId) != null) {
-//            val player = db.playerDao().query(uniqueId)!!
-//            val oldToken = accessToken()
-//            val oldSecret = accessSecret()
-//            prefs.edit().putString(ACCESS_TOKEN, player.authorization?.token).apply()
-//            prefs.edit().putString(ACCESS_SECRET, player.authorization?.secret).apply()
-//            object : NetworkBoundResource<Player, Player>(appExecutors) {
-//                override fun onFetchFailed() {
-//                    prefs.edit().putString(ACCESS_TOKEN, oldToken).apply()
-//                    prefs.edit().putString(ACCESS_SECRET, oldSecret).apply()
-//                }
-//
-//                override fun saveCallResult(item: Player?) {
-//                    item?.let {
-//                        prefs.edit().apply { putString(UNIQUE_ID, it.uniqueId) }.apply()
-//                        it.updatedAt = Date(System.currentTimeMillis())
-//                        db.playerDao().insert(it)
-//                    }
-//                }
-//
-//                override fun shouldFetch(data: Player?) = true
-//
-//                override fun loadFromDb(): LiveData<Player?> = AbsentLiveData.create()
-//
-//                override fun createCall(): LiveData<ApiResponse<Player>> = restAPI.verify_credentials()
-//
-//            }.asLiveData()
-//        } else {
-//            Resource.error()
-//        }
-//    }
+    fun signIn(uniqueId: String): LiveData<Resource<Player>> {
+        val liveData = MutableLiveData<Resource<Player>>()
+        liveData.postValue(Resource.loading(null))
+        val oldToken = accessToken()
+        val oldSecret = accessSecret()
+        if (db.playerDao().query(uniqueId) != null) {
+            val player = db.playerDao().query(uniqueId)!!
+            setTokenAndSecret(player.authorization?.token, player.authorization?.secret)
 
-    /**
-     * load account
-     *
-     */
-    fun verifyCredentials(forcedUpdate: Boolean = false) = object : NetworkBoundResource<Player, Player>(appExecutors) {
-        override fun onFetchFailed() {}
-
-        override fun saveCallResult(item: Player?) {
-            savePlayerInDb(item)
+            appExecutors.networkIO().execute {
+                val response = restAPI.fetch_profile().execute()
+                if (response.isSuccessful) {
+                    savePlayerInDb(response.body(), player.authorization)
+                    liveData.postValue(Resource.success(response.body()))
+                } else {
+                    setTokenAndSecret(oldToken, oldSecret)
+                    liveData.postValue(Resource.error("error: ${response.message()}", null))
+                }
+            }
+        } else {
+            setTokenAndSecret(oldToken, oldSecret)
+            liveData.postValue(Resource.error("error: user: $uniqueId is not recorded", null))
         }
+        return liveData
+    }
 
-        override fun shouldFetch(data: Player?): Boolean = forcedUpdate || data == null
+    private fun setTokenAndSecret(token: String?, secret: String?) {
+        sharedPreferences.edit().putString(ACCESS_TOKEN, token).putString(ACCESS_SECRET, secret).apply()
+    }
 
-        override fun loadFromDb(): LiveData<Player?> = db.playerDao().queryAsLive(uniqueId())
 
-        override fun createCall(): LiveData<ApiResponse<Player>> = restAPI.verify_credentials()
-
-    }.asLiveData()
-
-    private fun savePlayerInDb(item: Player?) {
+    private fun savePlayerInDb(item: Player?, authorization: Authorization? = null) {
         item?.let {
-            prefs.edit().apply { putString(UNIQUE_ID, it.uniqueId) }.apply()
-            it.authorization = Authorization(accessToken(), accessSecret())
+            sharedPreferences.edit().apply { putString(UNIQUE_ID, it.uniqueId) }.apply()
+            it.authorization = authorization ?: Authorization(accessToken(), accessSecret())
             it.addPathFlag(USERS_ADMIN)
             it.updatedAt = Date(System.currentTimeMillis())
             db.playerDao().insert(it)

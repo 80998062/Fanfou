@@ -26,7 +26,6 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
@@ -53,10 +52,8 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        accountViewModel.user.observe(this@IndexView, Observer {
-            when (it?.states) {
-                States.SUCCESS -> render(it.data)
-            }
+        accountViewModel.profile.observe(this@IndexView, Observer {
+            it?.observe(this@IndexView, Observer { render(it) })
         })
     }
 

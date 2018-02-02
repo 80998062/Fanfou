@@ -20,17 +20,9 @@
 
 package com.sinyuk.fanfou.viewmodel
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
-import android.support.annotation.VisibleForTesting
 import com.sinyuk.fanfou.domain.DO.Authorization
-import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.repo.AccountRepository
-import com.sinyuk.fanfou.domain.util.AbsentLiveData
-import com.sinyuk.fanfou.util.Objects
 import javax.inject.Inject
 
 
@@ -40,34 +32,12 @@ import javax.inject.Inject
  */
 class AccountViewModel @Inject constructor(private val repo: AccountRepository) : ViewModel() {
 
-    @VisibleForTesting
-    private val login = MutableLiveData<Authorization>()
 
-    init {
-        login.value = Authorization(repo.accessToken(), repo.accessSecret())
-    }
+    val profile = repo.userLive()
 
-    val user: LiveData<Resource<Player>> = Transformations.switchMap(login, {
-        if (it?.secret == null) {
-            AbsentLiveData.create()
-        } else {
-            repo.verifyCredentials()
-        }
-    })
+    fun authorization(account: String, password: String) = repo.authorization(account, password)
 
-
-    /**
-     * 检查是否登录
-     */
-    fun invalidateLogin() {
-        val current = Authorization(repo.accessToken(), repo.accessSecret())
-        if (!Objects.equals(current, login.value)) {
-            login.postValue(current)
-        }
-    }
-
-    fun sign(account: String, password: String) = repo.sign(account, password)
-
+    fun verifyCredentials(authorization: Authorization) = repo.verifyCredentials(authorization)
 
     fun admins() = repo.admins()
 }

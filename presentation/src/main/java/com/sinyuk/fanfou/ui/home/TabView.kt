@@ -43,7 +43,6 @@ import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.StatusCreation
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
@@ -91,12 +90,7 @@ class TabView : AbstractFragment(), Injectable {
         if (savedInstanceState == null) {
             // TODO: viewModel是不是只要注册在这里
         }
-        accountViewModel.user.observe(this, Observer {
-            when (it?.states) {
-                States.SUCCESS -> renderAccount(it.data)
-                else -> renderAccount(null)
-            }
-        })
+        accountViewModel.profile.observe(this, Observer { it?.observe(this@TabView, Observer { renderAccount(it) }) })
     }
 
     private fun renderUI() {
