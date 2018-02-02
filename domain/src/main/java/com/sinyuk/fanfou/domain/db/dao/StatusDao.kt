@@ -20,7 +20,6 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
-import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.DO.Status
 
@@ -43,27 +42,27 @@ interface StatusDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(status: Status): Int
 
-    @Query("SELECT * FROM statuses WHERE id = :id LIMIT 1")
-    fun query(id: String): Status?
+    @Query("SELECT * FROM statuses WHERE id = :id AND uid = :uniqueId LIMIT 1")
+    fun query(id: String, uniqueId: String): Status?
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path ORDER BY createdAt DESC LIMIT 1")
-    fun first(path: Int): Status?
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path  AND uid = :uniqueId ORDER BY createdAt DESC LIMIT 1")
+    fun first(path: Int, uniqueId: String): Status?
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path ORDER BY createdAt DESC")
-    fun haha(path: Int): DataSource.Factory<Int, Status>
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path ORDER BY createdAt DESC LIMIT :limit")
-    fun loadInitial(path: Int, limit: Int): MutableList<Status>
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND uid = :uniqueId ORDER BY createdAt DESC LIMIT :limit")
+    fun loadInitial(uniqueId: String, path: Int, limit: Int): MutableList<Status>
 
 
     @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
             " createdAt < (SELECT createdAt FROM statuses WHERE id = :id)" +
+            " AND uid = :uniqueId" +
             " ORDER BY createdAt DESC LIMIT :limit")
-    fun loadAfter(path: Int, id: String, limit: Int): MutableList<Status>
+    fun loadAfter(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
 
 
     @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
             " createdAt > (SELECT createdAt FROM statuses WHERE id = :id)" +
+            " AND uid = :uniqueId" +
             " ORDER BY createdAt DESC LIMIT :limit")
-    fun loadBefore(path: Int, id: String, limit: Int): MutableList<Status>
+    fun loadBefore(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
 }

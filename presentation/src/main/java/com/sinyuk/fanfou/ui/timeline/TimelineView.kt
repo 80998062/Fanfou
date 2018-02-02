@@ -40,7 +40,6 @@ import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
-import com.sinyuk.fanfou.util.Objects
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
@@ -96,9 +95,7 @@ class TimelineView : AbstractFragment(), Injectable {
             timelinePath = it.getString("path")
             id = it.getString("id")
             query = it.getString("query")
-        }.run {
-                    timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query))
-                }
+        }.run { timelineViewModel.params = TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query) }
 
         setupRecyclerView()
         setupSwipeRefresh()
@@ -118,13 +115,7 @@ class TimelineView : AbstractFragment(), Injectable {
     }
 
     fun search(q: String) {
-        if (Objects.equals(q, query)) {
-            // TODO
-        } else {
-            query = q
-            timelineViewModel.setParams(TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query))
-            timelineViewModel.refresh()
-        }
+
     }
 
     fun refresh() {

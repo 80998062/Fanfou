@@ -42,11 +42,11 @@ import retrofit2.Response
  */
 class StatusBoundaryCallback(
         private val webservice: RestAPI,
-        private val handleResponse: (String, String?, MutableList<Status>?) -> Int,
+        private val handleResponse: (String, String, MutableList<Status>?) -> Int,
         private val path: String,
-        private val uniqueId: String?,
         private val appExecutors: AppExecutors,
-        private val networkPageSize: Int)
+        private val networkPageSize: Int,
+        private val uniqueId: String)
     : PagedList.BoundaryCallback<Status>() {
 
     companion object {
@@ -65,7 +65,7 @@ class StatusBoundaryCallback(
         if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded")
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
             if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded: true")
-            webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId).enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path(path = path, count = networkPageSize).enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -77,7 +77,7 @@ class StatusBoundaryCallback(
         if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: " + itemAtEnd.id)
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
             if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: true")
-            webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId).enqueue(createWebserviceCallback(it))
+            webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id).enqueue(createWebserviceCallback(it))
         }
     }
 

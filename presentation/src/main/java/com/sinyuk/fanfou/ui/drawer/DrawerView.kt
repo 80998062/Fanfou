@@ -38,8 +38,8 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.util.booleanLiveData
 import com.sinyuk.fanfou.glide.GlideApp
-import com.sinyuk.fanfou.prefs.booleanLiveData
 import com.sinyuk.fanfou.ui.account.AccountManageView
 import com.sinyuk.fanfou.ui.player.FollowingView
 import com.sinyuk.fanfou.ui.player.FriendsView

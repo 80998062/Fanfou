@@ -39,8 +39,8 @@ import java.io.IOException
 class StatusFetchTopTask(private val restAPI: RestAPI,
                          private val db: LocalDatabase,
                          private val path: String,
-                         private val uniqueId: String?,
-                         private val pageSize: Int) : Runnable {
+                         private val pageSize: Int,
+                         private val uniqueId: String) : Runnable {
 
     val networkState = MutableLiveData<NetworkState>()
 
@@ -49,11 +49,11 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
     }
 
     override fun run() {
-        val first = db.statusDao().first(convertPathToFlag(path))?.id
+        val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
         when (first) {
             null -> networkState.postValue(NetworkState.LOADED)
             else -> try {
-                val response = restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId).execute()
+                val response = restAPI.fetch_from_path(path = path, count = pageSize, since = first).execute()
                 val apiResponse = ApiResponse(response)
                 if (apiResponse.isSuccessful()) {
                     val data = apiResponse.body
@@ -77,8 +77,9 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
     private fun insertResultIntoDb(body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
         for (status in body) {
             status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-            db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
+            db.statusDao().query(status.id, uniqueId)?.let { status.addPath(it.pathFlag) }
             status.addPathFlag(path)
+            status.uid = uniqueId
         }
         db.statusDao().inserts(body).size
     } else {

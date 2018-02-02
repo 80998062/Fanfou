@@ -46,6 +46,8 @@ interface RestAPI {
     @GET("account/verify_credentials.json?format=html")
     fun verify_credentials(): LiveData<ApiResponse<Player>>
 
+    @GET("account/verify_credentials.json?format=html")
+    fun fetch_profile(): Call<Player>
 
     @GET("statuses/{path}.json?format=html")
     fun fetch_from_path(@Path("path") path: String,
@@ -60,7 +62,6 @@ interface RestAPI {
     fun fetch_favorites(@Query("id") id: String? = null,
                         @Query("count") count: Int,
                         @Query("page") page: Int): Call<MutableList<Status>>
-
 
 
 //    @GET("/search/public_timeline.json?format=html")

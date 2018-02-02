@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.prefs
+package com.sinyuk.fanfou.domain.util
 
 import android.arch.lifecycle.LiveData
 import android.content.SharedPreferences

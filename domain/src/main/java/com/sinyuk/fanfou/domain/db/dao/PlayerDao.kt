@@ -40,7 +40,10 @@ interface PlayerDao {
     fun delete(player: Player): Int
 
     @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
-    fun query(uniqueId: String?): LiveData<Player?>
+    fun queryAsLive(uniqueId: String?): LiveData<Player?>
+
+    @Query("SELECT * FROM players WHERE uniqueId = :uniqueId")
+    fun query(uniqueId: String?): Player?
 
     @Insert(onConflict = REPLACE)
     fun insert(player: Player?): Long?

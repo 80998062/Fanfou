@@ -29,11 +29,11 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSourceFactory(private val dao: StatusDao, private val path: Int) : DataSource.Factory<String, Status> {
+class StatusDataSourceFactory(private val dao: StatusDao, private val path: Int,private val uniqueId:String) : DataSource.Factory<String, Status> {
     val sourceLiveData = MutableLiveData<StatusDataSource>()
 
     override fun create(): DataSource<String, Status> {
-        val source = StatusDataSource(dao, path)
+        val source = StatusDataSource(dao, path,uniqueId)
         sourceLiveData.postValue(source)
         return source
     }

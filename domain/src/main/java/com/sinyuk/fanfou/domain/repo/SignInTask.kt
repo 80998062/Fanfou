@@ -42,9 +42,9 @@ import javax.inject.Named
  *
  */
 class SignInTask constructor(private val account: String,
-            private val password: String,
-            private val client: OkHttpClient,
-            @Named(TYPE_GLOBAL) private val preferences: SharedPreferences) : Runnable {
+                             private val password: String,
+                             private val client: OkHttpClient,
+                             @Named(TYPE_GLOBAL) private val preferences: SharedPreferences) : Runnable {
 
     val liveData: MutableLiveData<Resource<Authorization>> = MutableLiveData()
 
@@ -64,9 +64,8 @@ class SignInTask constructor(private val account: String,
                 preferences.edit().apply {
                     putString(ACCESS_SECRET, secret)
                     putString(ACCESS_TOKEN, token)
-                }.run {
-                    apply()
-                }
+                }.apply()
+
                 liveData.postValue(Resource.success(Authorization(token, secret)))
             } else {
                 liveData.postValue(Resource.error(response.message(), null))

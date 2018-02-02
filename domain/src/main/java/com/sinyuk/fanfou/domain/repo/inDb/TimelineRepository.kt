@@ -27,19 +27,18 @@ import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.arch.persistence.room.InvalidationTracker
+import android.content.SharedPreferences
 import android.support.annotation.WorkerThread
 import android.util.Log
-import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.DATABASE_IN_DISK
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
-import com.sinyuk.fanfou.domain.convertPathToFlag
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
+import com.sinyuk.fanfou.domain.util.stringLiveData
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
@@ -55,37 +54,42 @@ class TimelineRepository @Inject constructor(
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
+        @Named(TYPE_GLOBAL) sharedPreferences: SharedPreferences,
         @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
     companion object {
         const val TAG = "TimelineRepository"
     }
 
+    val accountLiveData = sharedPreferences.stringLiveData(UNIQUE_ID, "")
+
     /**
      * 加载保存的所有状态,并自动请求新的旧状态
+     *
+     * <b>只能用来获取当前登录用户的TL,收藏,发送的消息</b>
+     *
      * @param pageSize 一次请求的条数
      */
-    fun statuses(path: String, uniqueId: String? = null, pageSize: Int): Listing<Status> {
+     fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
 
         // create a data source factory from Room
-        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path))
+        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path), uniqueId)
 
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
         val boundaryCallback = StatusBoundaryCallback(webservice = restAPI, path = path, uniqueId = uniqueId, handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors, networkPageSize = pageSize)
 
-        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize)
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize)
 
-        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setInitialLoadKey(null)
-                .setBackgroundThreadExecutor(appExecutors.diskIO())
+        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setBackgroundThreadExecutor(appExecutors.diskIO())
 
 
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val refreshTrigger = MutableLiveData<Unit>()
-        val refreshState = Transformations.switchMap(refreshTrigger, { refresh(path, uniqueId, pageSize) })
+        val refreshState = Transformations.switchMap(refreshTrigger, { refresh(path, pageSize, uniqueId) })
 
         val pagedList = builder.build()
 
@@ -107,9 +111,9 @@ class TimelineRepository @Inject constructor(
         )
     }
 
-    private fun refresh(path: String, uniqueId: String?, pageSize: Int): LiveData<NetworkState> {
+    private fun refresh(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
         isInvalid.set(true)
-        val task = StatusFetchTopTask(restAPI = restAPI, path = path, uniqueId = uniqueId, pageSize = pageSize, db = db)
+        val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
         appExecutors.networkIO().execute(task)
         return task.networkState
     }
@@ -117,15 +121,16 @@ class TimelineRepository @Inject constructor(
     private val isInvalid = AtomicBoolean(false)
 
     @WorkerThread
-    private fun insertResultIntoDb(path: String, uniqueId: String?, body: MutableList<Status>?): Int {
+    private fun insertResultIntoDb(path: String, uniqueId: String, body: MutableList<Status>?): Int {
         if (body?.isNotEmpty() == true) {
             val count: Int
             try {
                 db.beginTransaction()
                 for (status in body) {
-                    status.user?.let { status.playerExtracts = PlayerExtracts(it) }
-                    db.statusDao().query(status.id)?.let { status.addPath(it.pathFlag) }
+                    db.statusDao().query(status.id, uniqueId)?.let { status.addPath(it.pathFlag) }
                     status.addPathFlag(path)
+                    status.user?.let { status.playerExtracts = PlayerExtracts(it) }
+                    status.uid = uniqueId
                 }
                 count = db.statusDao().inserts(body).size
                 db.setTransactionSuccessful()

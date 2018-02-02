@@ -30,7 +30,7 @@ import com.sinyuk.fanfou.domain.db.dao.StatusDao
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSource(private val dao: StatusDao, private val path: Int) : PageKeyedDataSource<String, Status>() {
+class StatusDataSource(private val dao: StatusDao, private val path: Int, private val uniqueId: String) : PageKeyedDataSource<String, Status>() {
 
     init {
 //        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
@@ -41,7 +41,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int) : Page
     }
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Status>) {
-        val data = dao.loadInitial(path, params.requestedLoadSize)
+        val data = dao.loadInitial(uniqueId, path, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadInitial: " + data.size)
         if (data.isEmpty()) {
             callback.onResult(data, null, null)
@@ -51,7 +51,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int) : Page
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
-        val data = dao.loadAfter(path, params.key, params.requestedLoadSize)
+        val data = dao.loadAfter(uniqueId, path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + params.key)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + data.size)
         if (data.isEmpty()) {
@@ -62,7 +62,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int) : Page
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
-        val data = dao.loadBefore(path, params.key, params.requestedLoadSize)
+        val data = dao.loadBefore(uniqueId, path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + params.key)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + data.size)
         if (data.isEmpty()) {

@@ -63,7 +63,7 @@ class PlayerRepository @Inject constructor(
         override fun shouldFetch(data: Player?) = isOnline(application) && (forcedUpdate || data == null)
 
 
-        override fun loadFromDb() = disk.playerDao().query(uniqueId)
+        override fun loadFromDb() = disk.playerDao().queryAsLive(uniqueId)
 
 
         override fun createCall() = restAPI.show_user(uniqueId)

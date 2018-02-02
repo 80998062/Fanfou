@@ -35,10 +35,12 @@ import java.util.*
  */
 
 @Entity(tableName = "statuses",
-        indices = arrayOf(Index("id", "createdAt")))
+        primaryKeys = ["id", "uid"],
+        indices = [(Index("pathFlag"))])
 @TypeConverters(DateConverter::class)
 data class Status constructor(
-        @PrimaryKey @NonNull @SerializedName("id") var id: String = "",
+        @NonNull @SerializedName("id") var id: String = "",
+        @NonNull var uid: String = "",
         @SerializedName("text") var text: String? = null,
         @SerializedName("source") var source: String? = null,
         @SerializedName("location") var location: String? = null,
@@ -62,7 +64,18 @@ data class Status constructor(
         addPath(convertPathToFlag(path))
     }
 
+    override fun equals(other: Any?) = if (other is Status) {
+        id == other.id && favorited == other.favorited
+    } else {
+        false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     constructor(source: Parcel) : this(
+            source.readString(),
             source.readString(),
             source.readString(),
             source.readString(),
@@ -80,6 +93,7 @@ data class Status constructor(
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeString(id)
+        writeString(uid)
         writeString(text)
         writeString(source)
         writeString(location)
@@ -91,13 +105,6 @@ data class Status constructor(
         writeInt((if (favorited) 1 else 0))
         writeInt(pathFlag)
     }
-
-    override fun equals(other: Any?) = if (other is Status) {
-        id == other.id && favorited == other.favorited
-    } else {
-        false
-    }
-
 
     companion object {
         @JvmField
