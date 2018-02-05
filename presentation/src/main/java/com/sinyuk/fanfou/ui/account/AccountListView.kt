@@ -31,7 +31,6 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
-import com.sinyuk.fanfou.domain.util.stringLiveData
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -43,6 +42,7 @@ import javax.inject.Named
 
 /**
  * Created by sinyuk on 2018/1/31.
+ *
  */
 class AccountListView : AbstractFragment(), Injectable {
 
@@ -63,7 +63,6 @@ class AccountListView : AbstractFragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         setupList()
 
         accountViewModel.admins().observe(this@AccountListView, Observer {
@@ -75,6 +74,12 @@ class AccountListView : AbstractFragment(), Injectable {
     lateinit var sharedPreferences: SharedPreferences
 
     lateinit var adapter: AccountAdapter
+
+    /**
+     * Current selected account
+     */
+    fun onDone() = adapter.data[adapter.checked].uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
+
 
     private fun setupList() {
         LinearLayoutManager(context).apply {
@@ -98,22 +103,20 @@ class AccountListView : AbstractFragment(), Injectable {
             when (view.id) {
                 R.id.deleteButton -> {
                     adapter.collapse(position)
+                    adapter.getItem(position)?.uniqueId?.let { accountViewModel.delete(it) }
                 }
             }
         }
 
-
-        sharedPreferences.stringLiveData(UNIQUE_ID, "").observe(this@AccountListView, Observer {
-            if (it?.isNotEmpty() == true) {
-                if (adapter.uniqueId !== it) {
-                    adapter.uniqueId = it
-                    adapter.notifyDataSetChanged()
-                }
-            } else {
-
-            }
-        })
     }
+
+
+    /**
+     * 切换账户
+     *
+     * Since onDone():Boolean has checked whether current logged account has changed
+     */
+    fun onSwitch() = accountViewModel.switch(adapter.getItem(adapter.checked)!!.uniqueId)
 
     /**
      *
@@ -123,5 +126,5 @@ class AccountListView : AbstractFragment(), Injectable {
         fun onSignIn()
     }
 
-    val listener: OnAccountListListener? = null
+    var listener: OnAccountListListener? = null
 }

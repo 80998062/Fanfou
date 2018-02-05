@@ -120,9 +120,9 @@ class TabView : AbstractFragment(), Injectable {
     private fun setupKeyboard() {
         KeyboardUtil.attach(activity, panelRoot) {
             if (it) {
-                if (currentFragment == 1) searchEt.requestFocus()
+                if (currentFragment == 1) searchEt?.requestFocus()
             } else {
-                searchEt.clearFocus()
+                searchEt?.clearFocus()
             }
         }
 

@@ -46,7 +46,6 @@ class AccountViewHolder constructor(private val view: View, private val uniqueId
         view.screenName.text = player?.screenName
         setUserId(view.userId, player?.id)
         view.checkbox.setChecked(uniqueId == player?.uniqueId, false)
-        view.swipeLayout.isSwipeEnabled = (uniqueId != player?.uniqueId) // 无法删除当前登录的账号
         view.swipeLayout.addSwipeListener(object : SimpleSwipeListener() {
             override fun onOpen(layout: SwipeLayout?) {
                 YoYo.with(Techniques.Tada).duration(500).delay(200).playOn(view.deleteIcon)

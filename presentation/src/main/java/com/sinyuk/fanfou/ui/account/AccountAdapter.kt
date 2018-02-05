@@ -84,20 +84,27 @@ class AccountAdapter(var uniqueId: String) : QuickAdapter<Player, AccountViewHol
 
     override fun onCreateDefViewHolder(parent: ViewGroup?, viewType: Int) = AccountViewHolder.create(parent!!, uniqueId)
 
-    private var lastCheckedPosition = RecyclerView.NO_POSITION
+    var checked = RecyclerView.NO_POSITION
 
     override fun convert(helper: AccountViewHolder, item: Player) {
         helper.bind(item)
         helper.addOnClickListener(R.id.deleteButton)
-        if (item.uniqueId == uniqueId) lastCheckedPosition = helper.adapterPosition
+        if (item.uniqueId == uniqueId) {
+            checked = helper.adapterPosition
+            helper.itemView.swipeLayout.isSwipeEnabled = true
+        } else {
+            helper.itemView.swipeLayout.isSwipeEnabled = false
+        }
+
         helper.itemView.checkbox.setOnClickListener { v ->
             v as SmoothCheckBox
             if (!v.isChecked) {
                 v.setChecked(true, true)
                 uniqueId = item.uniqueId
-                val temp = lastCheckedPosition
-                lastCheckedPosition = helper.adapterPosition
-                if (temp != RecyclerView.NO_POSITION) notifyItemChanged(temp)
+                collapse(helper.adapterPosition, false)
+                helper.itemView.swipeLayout.isSwipeEnabled = false
+                if (checked != RecyclerView.NO_POSITION) notifyItemChanged(checked)
+                checked = helper.adapterPosition
             }
         }
     }

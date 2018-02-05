@@ -148,5 +148,9 @@ class AccountRepository
         }
     }
 
+    fun delete(uniqueId: String) {
+        appExecutors.diskIO().execute { db.playerDao().delete(Player(uniqueId = uniqueId)) }
+    }
+
 
 }

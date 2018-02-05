@@ -40,4 +40,8 @@ class AccountViewModel @Inject constructor(private val repo: AccountRepository) 
     fun verifyCredentials(authorization: Authorization) = repo.verifyCredentials(authorization)
 
     fun admins() = repo.admins()
+
+    fun delete(id: String) = repo.delete(uniqueId = id)
+
+    fun switch(newId: String) = repo.signIn(newId)
 }

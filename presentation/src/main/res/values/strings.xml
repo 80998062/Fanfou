@@ -3,6 +3,7 @@
     <string name="label_splash">闪屏</string>
     <string name="label_home">主页</string>
     <string name="label_sign">注册/登入</string>
+    <string name="label_sign_in">登入</string>
     <string name="action_close">关闭</string>
     <string name="action_switch">切换</string>
     <string name="label_account">账号</string>
@@ -80,4 +81,5 @@
     <string name="action_yes">Yes！</string>
     <string name="name_register">注册新账号</string>
     <string name="hint_add_new_account">新の账号</string>
+    <string name="hint_switch_account_ing">切换账户中…</string>
 </resources>
