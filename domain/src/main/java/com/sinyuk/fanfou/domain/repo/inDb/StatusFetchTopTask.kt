@@ -22,9 +22,12 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.WorkerThread
+import android.util.Log
+import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.convertPathToFlag
@@ -41,7 +44,11 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
                          private val path: String,
                          private val pageSize: Int,
                          private val uniqueId: String,
-                         private val since: String? = null) : Runnable {
+                         private val since: Boolean = false) : Runnable {
+
+    companion object {
+        const val TAG = "StatusFetchTopTask"
+    }
 
     val networkState = MutableLiveData<NetworkState>()
 
@@ -50,7 +57,10 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
     }
 
     override fun run() {
-        if (since == null) {
+        val first = if (since) {
+            db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
+        } else {
+            if (BuildConfig.DEBUG) Log.w(TAG, "Delete all statues in $path")
             try {
                 db.beginTransaction()
                 db.statusDao().deleteAll(convertPathToFlag(path), uniqueId)
@@ -58,13 +68,19 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
             } finally {
                 db.endTransaction()
             }
+            null
         }
         try {
-            val response = restAPI.fetch_from_path(path = path, count = pageSize, since = since, id = uniqueId).execute()
+            val response = if (path == TIMELINE_HOME) {
+                restAPI.fetch_from_path(path = path, count = pageSize, since = first)
+            } else {
+                restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId)
+            }.execute()
+
             val apiResponse = ApiResponse(response)
             if (apiResponse.isSuccessful()) {
                 val data = apiResponse.body
-                if (insertResultIntoDb(data) == pageSize) {
+                if (insertResultIntoDb(data) > 0) {
                     networkState.postValue(NetworkState.LOADED)
                 } else {
                     networkState.postValue(NetworkState.REACH_TOP)

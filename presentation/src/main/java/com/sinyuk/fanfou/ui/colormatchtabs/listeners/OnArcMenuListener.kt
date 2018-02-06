@@ -18,21 +18,13 @@
  *
  */
 
-package com.sinyuk.fanfou.di
-
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+package com.sinyuk.fanfou.ui.colormatchtabs.listeners
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 25.05.17.
  */
-@Module
-abstract class ActivityBuildersModule {
+interface OnArcMenuListener {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    fun onClick(position: Int)
 
 }

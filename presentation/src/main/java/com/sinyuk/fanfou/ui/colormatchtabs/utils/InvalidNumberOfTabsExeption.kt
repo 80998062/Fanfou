@@ -18,21 +18,12 @@
  *
  */
 
-package com.sinyuk.fanfou.di
-
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+package com.sinyuk.fanfou.ui.colormatchtabs.utils
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 24.05.17.
+ *
  */
-@Module
-abstract class ActivityBuildersModule {
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
-
+class InvalidNumberOfTabsExeption : Exception() {
+    override val message: String? = "Your should add more than three and less then six tabs to use ArcMenu"
 }

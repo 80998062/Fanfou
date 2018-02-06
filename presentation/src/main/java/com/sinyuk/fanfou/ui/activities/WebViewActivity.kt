@@ -18,21 +18,25 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.ui.activities
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.content.Context
+import com.sinyuk.fanfou.base.AbstractActivity
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2018/2/6.
  */
-@Module
-abstract class ActivityBuildersModule {
+class WebViewActivity : AbstractActivity() {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    companion object {
+        const val EXTRA_URL = "extra_url"
+
+        fun start(context: Context, url: String) {
+
+        }
+    }
+
+    override fun layoutId(): Int? = null
+
 
 }

@@ -29,7 +29,7 @@ import com.daimajia.swipe.interfaces.SwipeAdapterInterface
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.SmoothCheckBox
+import com.sinyuk.fanfou.ui.SmoothCheckBox
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.util.QuickAdapter
 import kotlinx.android.synthetic.main.account_list_item.view.*

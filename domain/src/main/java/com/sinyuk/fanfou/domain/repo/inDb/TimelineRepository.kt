@@ -112,17 +112,16 @@ class TimelineRepository @Inject constructor(
     }
 
     private fun refresh(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
-        isInvalid.set(true)
         val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
         appExecutors.networkIO().execute(task)
+        isInvalid.set(true)
         return task.networkState
     }
 
     fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
-        val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
-        isInvalid.set(true)
-        val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId, since = first)
+        val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId, since = true)
         appExecutors.networkIO().execute(task)
+        isInvalid.set(true)
         return task.networkState
     }
 

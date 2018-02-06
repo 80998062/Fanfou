@@ -24,4 +24,4 @@ package com.sinyuk.fanfou.ui.home
  * Created by sinyuk on 2018/1/11.
  *
  */
-data class TabEvent @JvmOverloads constructor(var index:Int = 0)
+data class TabEvent @JvmOverloads constructor(var index: Int = 0, var again: Boolean = false)

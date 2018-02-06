@@ -18,21 +18,19 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.ui.colormatchtabs.utils
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.support.annotation.ColorRes
+import android.support.annotation.DimenRes
+import android.support.v4.content.ContextCompat
+import android.view.View
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 15.05.17.
+ *
  */
-@Module
-abstract class ActivityBuildersModule {
+fun View.getDimenToFloat(@DimenRes res: Int) = context.resources.getDimensionPixelOffset(res).toFloat()
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+fun View.getDimen(@DimenRes res: Int) = context.resources.getDimensionPixelOffset(res)
 
-}
+fun View.getColor(@ColorRes res: Int) = ContextCompat.getColor(context, res)

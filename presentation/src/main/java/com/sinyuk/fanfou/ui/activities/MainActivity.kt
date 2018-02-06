@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.ui
+package com.sinyuk.fanfou.ui.activities
 
 import android.arch.lifecycle.ViewModelProvider
 import android.content.SharedPreferences

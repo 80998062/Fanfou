@@ -18,21 +18,10 @@
  *
  */
 
-package com.sinyuk.fanfou.di
-
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+package com.sinyuk.fanfou.ui.home
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by sinyuk on 2018/2/6.
+ *
  */
-@Module
-abstract class ActivityBuildersModule {
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
-
-}
+data class TabDoubleClickEvent @JvmOverloads constructor(var index: Int = 0)

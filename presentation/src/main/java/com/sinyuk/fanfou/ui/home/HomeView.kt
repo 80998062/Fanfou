@@ -32,12 +32,12 @@ import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.colormatchtabs.adapter.ColorTabAdapter
+import com.sinyuk.fanfou.ui.colormatchtabs.listeners.OnColorTabSelectedListener
+import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
 import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.myutils.system.ToastUtils
-import com.yalantis.colormatchtabs.colormatchtabs.adapter.ColorTabAdapter
-import com.yalantis.colormatchtabs.colormatchtabs.listeners.OnColorTabSelectedListener
-import com.yalantis.colormatchtabs.colormatchtabs.model.ColorTab
 import kotlinx.android.synthetic.main.home_view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -105,6 +105,16 @@ class HomeView : AbstractFragment(), Injectable {
         }
 
         tabLayout.addOnColorTabSelectedListener(object : OnColorTabSelectedListener {
+            override fun onReSelectedTab(tab: ColorTab?) {
+                if (BuildConfig.DEBUG) Log.i("onReSelectedTab", "position: " + tab?.position)
+                EventBus.getDefault().post(TabEvent(index = tab?.position ?: 0, again = true))
+            }
+
+            override fun onDoubleClick(tab: ColorTab?) {
+                if (BuildConfig.DEBUG) Log.i("onDoubleClick", "position: " + tab?.position)
+                EventBus.getDefault().post(TabDoubleClickEvent(index = tab?.position ?: 0))
+            }
+
             override fun onSelectedTab(tab: ColorTab?) {
                 if (BuildConfig.DEBUG) Log.i("onSelectedTab", "position: " + tab?.position)
                 EventBus.getDefault().post(TabEvent(index = tab?.position ?: 0))
@@ -116,6 +126,7 @@ class HomeView : AbstractFragment(), Injectable {
 
     }
 
+    @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onDrawerToggle(event: DrawerToggleEvent) {
         when (event.open) {

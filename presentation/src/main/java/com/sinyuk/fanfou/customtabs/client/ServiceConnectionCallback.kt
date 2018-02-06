@@ -18,21 +18,22 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.customtabs.client
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.support.customtabs.CustomTabsClient
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Callback for events when connecting and disconnecting from Custom Tabs Service.
  */
-@Module
-abstract class ActivityBuildersModule {
+interface ServiceConnectionCallback {
+    /**
+     * Called when the service is connected.
+     * @param client a CustomTabsClient
+     */
+    fun onServiceConnected(client: CustomTabsClient)
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
-
+    /**
+     * Called when the service is disconnected.
+     */
+    fun onServiceDisconnected()
 }

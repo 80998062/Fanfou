@@ -90,7 +90,7 @@
 
         </LinearLayout>
 
-        <com.sinyuk.fanfou.SmoothCheckBox
+        <com.sinyuk.fanfou.ui.SmoothCheckBox
             android:id="@+id/checkbox"
             android:layout_width="18dp"
             android:layout_height="18dp"

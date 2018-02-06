@@ -33,18 +33,19 @@ import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.TYPE_GLOBAL
-import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.ui.MarginDecoration
+import com.sinyuk.fanfou.ui.home.TabDoubleClickEvent
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.timeline_view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -175,6 +176,47 @@ class TimelineView : AbstractFragment(), Injectable {
             // never happen
         } else {
             adapter.setNetworkState(it)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
+    }
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onTabEvent(event: TabDoubleClickEvent) {
+        when (event.index) {
+            0 -> {
+                if (timelinePath == TIMELINE_HOME) {
+                    recyclerView.smoothScrollToPosition(0)
+                    val id = sharedPreferences.getString(UNIQUE_ID, null)
+                    timelineViewModel.fetchTop(TimelineViewModel.TimelinePath(path = TIMELINE_HOME, id = id)).observe(this@TimelineView, Observer {
+                        @Suppress("NON_EXHAUSTIVE_WHEN")
+                        when (it?.status) {
+                            com.sinyuk.fanfou.domain.Status.SUCCESS -> {
+                                toast.toastShort("有新的状态")
+                            }
+                            com.sinyuk.fanfou.domain.Status.REACH_TOP -> {
+                                toast.toastShort("没有新的状态")
+                            }
+                            com.sinyuk.fanfou.domain.Status.FAILED -> {
+                                it.msg?.let { toast.toastShort(it) }
+                            }
+                        }
+                    })
+                }
+            }
+            1 -> {
+
+            }
+
         }
     }
 

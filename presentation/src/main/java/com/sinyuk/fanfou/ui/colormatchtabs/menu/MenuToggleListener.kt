@@ -18,21 +18,15 @@
  *
  */
 
-package com.sinyuk.fanfou.di
-
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+package com.sinyuk.fanfou.ui.colormatchtabs.menu
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 23.05.17.
  */
-@Module
-abstract class ActivityBuildersModule {
+interface MenuToggleListener {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    fun onOpenMenu()
+
+    fun onCloseMenu()
 
 }

@@ -18,21 +18,9 @@
  *
  */
 
-package com.sinyuk.fanfou.di
-
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+package com.sinyuk.fanfou.ui.colormatchtabs.model
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 25.05.17.
  */
-@Module
-abstract class ActivityBuildersModule {
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
-
-}
+class CircleSubMenu(val x: Float, val y: Float, val radius: Float)

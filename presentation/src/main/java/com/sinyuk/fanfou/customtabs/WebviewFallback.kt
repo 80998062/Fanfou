@@ -18,21 +18,18 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.customtabs
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.app.Activity
+import android.net.Uri
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * A Fallback that opens a Webview when Custom Tabs is not available
  */
-@Module
-abstract class ActivityBuildersModule {
-
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
-
+open class WebviewFallback : CustomTabActivityHelper.CustomTabFallback {
+    override fun openUri(activity: Activity, uri: Uri) {
+        //        Intent intent = new Intent(activity, WebviewActivity.class);
+        //        intent.putExtra(WebviewActivity.EXTRA_URL, uri.toString());
+        //        activity.startActivity(intent);
+    }
 }

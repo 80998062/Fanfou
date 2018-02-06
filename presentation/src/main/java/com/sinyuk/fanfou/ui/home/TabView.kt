@@ -262,15 +262,23 @@ class TabView : AbstractFragment(), Injectable {
 
             override fun getCount() = fragments.size
         }
-        onPageSwitched(TabEvent(index = 0))
+        onPageSwitched(0)
     }
 
 
     private var currentFragment: Int? = null
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPageSwitched(event: TabEvent) {
+    fun onTabEvent(event: TabEvent) {
         val to = event.index
+        if (event.again) {
+
+        } else {
+            onPageSwitched(to)
+        }
+    }
+
+    private fun onPageSwitched(to: Int) {
         if (to == currentFragment) return
         when (to) {
             0 -> actionButtonSwitcher.displayedChildId = R.id.postFanfouButton

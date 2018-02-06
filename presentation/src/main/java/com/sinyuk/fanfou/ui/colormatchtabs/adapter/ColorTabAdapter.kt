@@ -18,21 +18,27 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.ui.colormatchtabs.adapter
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.graphics.drawable.Drawable
+import com.sinyuk.fanfou.ui.colormatchtabs.colortabs.ColorMatchTabLayout
+import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Created by anna on 24.05.17.
+ * 
  */
-@Module
-abstract class ActivityBuildersModule {
+class ColorTabAdapter {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    companion object {
+        @JvmStatic
+        fun createColorTab(tabLayout: ColorMatchTabLayout, text: String, color: Int, icon: Drawable): ColorTab {
+            val colorTab = tabLayout.newTab()
+            colorTab.text = text
+            colorTab.selectedColor = color
+            colorTab.icon = icon
+            return colorTab
+        }
+    }
 
 }

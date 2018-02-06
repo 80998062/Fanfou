@@ -18,21 +18,23 @@
  *
  */
 
-package com.sinyuk.fanfou.di
+package com.sinyuk.fanfou.customtabs.client
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-
+import android.app.Service
+import android.content.Intent
+import android.os.Binder
+import android.os.IBinder
 
 /**
- * Created by sinyuk on 2017/11/28.
+ * Empty service used by the custom tab to bind to, raising the application's importance.
  */
-@Module
-abstract class ActivityBuildersModule {
+class KeepAliveService : Service() {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    override fun onBind(intent: Intent): IBinder? {
+        return sBinder
+    }
 
+    companion object {
+        private val sBinder = Binder()
+    }
 }
