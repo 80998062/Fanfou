@@ -74,7 +74,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="已经没有了"
             android:textColor="@color/colorAccent" />
     </FrameLayout>
 

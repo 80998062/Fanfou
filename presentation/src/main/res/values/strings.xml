@@ -78,8 +78,14 @@
     <string name="label_account_manage">账号管理</string>
     <string name="action_done">完成</string>
     <string name="hint_confirm_delete_account">确认删除？</string>
-    <string name="action_yes">Yes！</string>
+    <string name="action_yes">是的</string>
     <string name="name_register">注册新账号</string>
     <string name="hint_add_new_account">新の账号</string>
     <string name="hint_switch_account_ing">切换账户中…</string>
+    <string name="hint_need_sign_in_again">需要重新登录</string>
+    <string name="hint_switch_account_before_delete">请先点击完成切换当前账号</string>
+    <string name="hint_no_more_home">我是有底线的人</string>
+    <string name="hint_no_more_context"/>
+    <string name="hint_no_more_user"></string>
+
 </resources>

@@ -45,15 +45,11 @@ class AccountViewHolder constructor(private val view: View, private val uniqueId
         GlideApp.with(view.avatar).asBitmap().load(player?.profileImageUrl).apply(RequestOptions.circleCropTransform()).into(view.avatar)
         view.screenName.text = player?.screenName
         setUserId(view.userId, player?.id)
-        view.checkbox.setChecked(uniqueId == player?.uniqueId, false)
         view.swipeLayout.addSwipeListener(object : SimpleSwipeListener() {
             override fun onOpen(layout: SwipeLayout?) {
                 YoYo.with(Techniques.Tada).duration(500).delay(200).playOn(view.deleteIcon)
             }
         })
-        view.deleteButton.setOnClickListener {
-
-        }
     }
 
     companion object {

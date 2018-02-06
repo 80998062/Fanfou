@@ -57,7 +57,8 @@ class PlayerListView : AbstractFragment(), Injectable {
 
     override fun layoutId() = R.layout.player_list_view
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
     private val playerViewModel by lazy { obtainViewModel(factory, PlayerViewModel::class.java) }
 
@@ -91,9 +92,9 @@ class PlayerListView : AbstractFragment(), Injectable {
         }
 
         adapter = if (cached) {
-            PlayerPagedListAdapter(this@PlayerListView, {})
+            PlayerPagedListAdapter(this@PlayerListView, {},path)
         } else {
-            PlayerPagedListAdapter(this@PlayerListView, { playerViewModel.retry() })
+            PlayerPagedListAdapter(this@PlayerListView, { playerViewModel.retry() }, path)
         }
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.player_list_item_avatar_size)

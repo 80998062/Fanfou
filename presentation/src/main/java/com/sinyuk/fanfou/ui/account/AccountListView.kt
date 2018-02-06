@@ -22,15 +22,20 @@ package com.sinyuk.fanfou.ui.account
 
 import android.arch.lifecycle.Observer
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.UNIQUE_ID
+import com.sinyuk.fanfou.domain.util.stringLiveData
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -75,12 +80,6 @@ class AccountListView : AbstractFragment(), Injectable {
 
     lateinit var adapter: AccountAdapter
 
-    /**
-     * Current selected account
-     */
-    fun onDone() = adapter.data[adapter.checked].uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
-
-
     private fun setupList() {
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
@@ -103,11 +102,36 @@ class AccountListView : AbstractFragment(), Injectable {
             when (view.id) {
                 R.id.deleteButton -> {
                     adapter.collapse(position)
-                    adapter.getItem(position)?.uniqueId?.let { accountViewModel.delete(it) }
+                    adapter.getItem(position)?.let { tryToLoginSiblingAccountAndDelete(it) }
                 }
             }
         }
 
+        adapter.listener = listener
+
+        sharedPreferences.stringLiveData(UNIQUE_ID, "")
+                .observe(this@AccountListView, Observer {
+                    if (it?.isNotBlank() == true) adapter.uniqueId = it
+                })
+    }
+
+    private var snackbar: Snackbar? = null
+
+    /**
+     * 删除的如果是当前登录的用户
+     */
+    private fun tryToLoginSiblingAccountAndDelete(it: Player) {
+
+        if (it.uniqueId == sharedPreferences.getString(UNIQUE_ID, null)) {
+            if (snackbar == null) {
+                snackbar = Snackbar.make(view!!, R.string.hint_switch_account_before_delete, 1000)
+                        .setAction(R.string.action_confirm, {})
+                        .setActionTextColor(ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent)))
+            }
+            if (snackbar?.isShownOrQueued != true) snackbar?.show()
+        } else {
+            accountViewModel.delete(it.uniqueId)
+        }
     }
 
 
@@ -124,7 +148,9 @@ class AccountListView : AbstractFragment(), Injectable {
     interface OnAccountListListener {
         fun onSignUp()
         fun onSignIn()
+        fun onSwitch(uniqueId: String)
     }
 
     var listener: OnAccountListListener? = null
+
 }

@@ -24,12 +24,10 @@ import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
-import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
-import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.NetworkState
@@ -42,25 +40,10 @@ import java.util.*
  * Created by sinyuk on 2018/1/15.
  *
  */
-class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -> Unit) : PagedListAdapter<Player, RecyclerView.ViewHolder>(PlayerPagedListAdapter.COMPARATOR) {
+class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -> Unit, private val path: String) : PagedListAdapter<Player, RecyclerView.ViewHolder>(PlayerPagedListAdapter.COMPARATOR) {
 
-    val HEADER_VIEW_TYPE = Int.MAX_VALUE
 
-    private var headerView: View? = null
-
-    fun addHeaderView(view: View) {
-        if (headerView != null) {
-            headerView = view
-            notifyItemChanged(0)
-        } else {
-            headerView = view
-            notifyItemRangeInserted(0, 1)
-        }
-    }
-
-    override fun getItemViewType(position: Int) = if (position == 0 && headerView != null) {
-        HEADER_VIEW_TYPE
-    } else if (hasExtraRow() && position == itemCount - 1) {
+    override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
         R.layout.network_state_item
     } else {
         R.layout.player_list_item
@@ -111,8 +94,7 @@ class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.player_list_item -> PlayerItemViewHolder.create(parent, glide)
-        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
-        HEADER_VIEW_TYPE -> BaseViewHolder(headerView)
+        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 

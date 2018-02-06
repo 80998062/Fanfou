@@ -40,7 +40,8 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
                          private val db: LocalDatabase,
                          private val path: String,
                          private val pageSize: Int,
-                         private val uniqueId: String) : Runnable {
+                         private val uniqueId: String,
+                         private val since: String? = null) : Runnable {
 
     val networkState = MutableLiveData<NetworkState>()
 
@@ -49,26 +50,31 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
     }
 
     override fun run() {
-        val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
-        when (first) {
-            null -> networkState.postValue(NetworkState.LOADED)
-            else -> try {
-                val response = restAPI.fetch_from_path(path = path, count = pageSize, since = first).execute()
-                val apiResponse = ApiResponse(response)
-                if (apiResponse.isSuccessful()) {
-                    val data = apiResponse.body
-                    if (insertResultIntoDb(data) == pageSize) {
-                        networkState.postValue(NetworkState.LOADED)
-                    } else {
-                        networkState.postValue(NetworkState.REACH_TOP)
-                    }
-                } else {
-                    networkState.postValue(NetworkState.error("error code: ${response.code()}"))
-                }
-            } catch (e: IOException) {
-                val error = NetworkState.error(e.message ?: "unknown error")
-                networkState.postValue(error)
+        if (since == null) {
+            try {
+                db.beginTransaction()
+                db.statusDao().deleteAll(convertPathToFlag(path), uniqueId)
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
             }
+        }
+        try {
+            val response = restAPI.fetch_from_path(path = path, count = pageSize, since = since, id = uniqueId).execute()
+            val apiResponse = ApiResponse(response)
+            if (apiResponse.isSuccessful()) {
+                val data = apiResponse.body
+                if (insertResultIntoDb(data) == pageSize) {
+                    networkState.postValue(NetworkState.LOADED)
+                } else {
+                    networkState.postValue(NetworkState.REACH_TOP)
+                }
+            } else {
+                networkState.postValue(NetworkState.error("error code: ${response.code()}"))
+            }
+        } catch (e: IOException) {
+            val error = NetworkState.error(e.message ?: "unknown error")
+            networkState.postValue(error)
         }
     }
 

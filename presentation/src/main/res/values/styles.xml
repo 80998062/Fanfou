@@ -46,8 +46,10 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/action_button_size</item>
         <item name="android:padding">4dp</item>
+        <item name="android:layout_gravity">end|center_vertical</item>
         <item name="android:gravity">center</item>
-        <item name="android:layout_margin">6dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_marginStart">12dp</item>
         <item name="android:textSize">@dimen/text_14</item>
     </style>
 

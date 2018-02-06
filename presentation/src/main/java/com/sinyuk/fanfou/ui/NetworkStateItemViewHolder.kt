@@ -30,6 +30,7 @@ import android.widget.TextView
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.Status
+import com.sinyuk.fanfou.domain.TIMELINE_CONTEXT
 
 /**
  * Created by sinyuk on 2017/12/18.
@@ -40,7 +41,8 @@ import com.sinyuk.fanfou.domain.Status
 
  */
 class NetworkStateItemViewHolder(view: View,
-                                 private val retryCallback: () -> Unit)
+                                 private val retryCallback: () -> Unit,
+                                 private val path: String)
     : RecyclerView.ViewHolder(view) {
     private val viewAnimator = view.findViewById<BetterViewAnimator>(R.id.viewAnimator)
 
@@ -63,15 +65,22 @@ class NetworkStateItemViewHolder(view: View,
             Status.SUCCESS, Status.REACH_TOP -> TODO()
         }
 
+        when (path) {
+            TIMELINE_CONTEXT -> R.string.hint_no_more_context
+            else -> R.string.hint_no_more_home
+        }.apply {
+            finishedMsg.setText(this)
+        }
+
         progressBar.isIndeterminate = networkState?.status == Status.RUNNING
         errorMsg.text = networkState?.msg
     }
 
     companion object {
-        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemViewHolder {
+        fun create(parent: ViewGroup, retryCallback: () -> Unit, path: String): NetworkStateItemViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.network_state_item, parent, false)
-            return NetworkStateItemViewHolder(view, retryCallback)
+            return NetworkStateItemViewHolder(view, retryCallback, path)
         }
     }
 }

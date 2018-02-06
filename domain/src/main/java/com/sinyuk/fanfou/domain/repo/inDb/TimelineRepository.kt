@@ -70,7 +70,7 @@ class TimelineRepository @Inject constructor(
      *
      * @param pageSize 一次请求的条数
      */
-     fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
+    fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
 
         // create a data source factory from Room
         val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path), uniqueId)
@@ -114,6 +114,14 @@ class TimelineRepository @Inject constructor(
     private fun refresh(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
         isInvalid.set(true)
         val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
+        appExecutors.networkIO().execute(task)
+        return task.networkState
+    }
+
+    fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
+        val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
+        isInvalid.set(true)
+        val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId, since = first)
         appExecutors.networkIO().execute(task)
         return task.networkState
     }

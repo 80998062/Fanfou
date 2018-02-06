@@ -44,6 +44,16 @@ fun convertPathToFlag(path: String): Int = when (path) {
 }
 
 
+fun convertFlagToPath(flag: Int): String = when (flag) {
+    STATUS_PUBLIC_FLAG -> TIMELINE_HOME
+    STATUS_MENTION_FLAG -> TIMELINE_MENTIONS
+    STATUS_POST_FLAG -> TIMELINE_USER
+    STATUS_REPLIED_FLAG -> TIMELINE_REPLIES
+    STATUS_CONTEXT_FLAG -> TIMELINE_CONTEXT
+    STATUS_FAVOR_FLAG -> TIMELINE_FAVORITES
+    else -> TODO()
+}
+
 const val PLAYER_NO_FLAG = 0x00000000
 const val PLAYER_USER_FLAG = 0x00000001
 const val PLAYER_FOLLOWER_FLAG = 0x00000010

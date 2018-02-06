@@ -112,23 +112,25 @@ class AccountRepository
         liveData.postValue(Resource.loading(null))
         val oldToken = accessToken()
         val oldSecret = accessSecret()
-        if (db.playerDao().query(uniqueId) != null) {
-            val player = db.playerDao().query(uniqueId)!!
-            setTokenAndSecret(player.authorization?.token, player.authorization?.secret)
+        appExecutors.diskIO().execute {
+            if (db.playerDao().query(uniqueId) != null) {
+                val player = db.playerDao().query(uniqueId)!!
+                setTokenAndSecret(player.authorization?.token, player.authorization?.secret)
 
-            appExecutors.networkIO().execute {
-                val response = restAPI.fetch_profile().execute()
-                if (response.isSuccessful) {
-                    savePlayerInDb(response.body(), player.authorization)
-                    liveData.postValue(Resource.success(response.body()))
-                } else {
-                    setTokenAndSecret(oldToken, oldSecret)
-                    liveData.postValue(Resource.error("error: ${response.message()}", null))
+                appExecutors.networkIO().execute {
+                    val response = restAPI.fetch_profile().execute()
+                    if (response.isSuccessful) {
+                        savePlayerInDb(response.body(), player.authorization)
+                        liveData.postValue(Resource.success(response.body()))
+                    } else {
+                        setTokenAndSecret(oldToken, oldSecret)
+                        liveData.postValue(Resource.error("error: ${response.message()}", null))
+                    }
                 }
+            } else {
+                setTokenAndSecret(oldToken, oldSecret)
+                liveData.postValue(Resource.error("error: user: $uniqueId is not recorded", null))
             }
-        } else {
-            setTokenAndSecret(oldToken, oldSecret)
-            liveData.postValue(Resource.error("error: user: $uniqueId is not recorded", null))
         }
         return liveData
     }

@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.ui.account
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.ViewGroup
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
@@ -87,25 +88,30 @@ class AccountAdapter(var uniqueId: String) : QuickAdapter<Player, AccountViewHol
     var checked = RecyclerView.NO_POSITION
 
     override fun convert(helper: AccountViewHolder, item: Player) {
-        helper.bind(item)
         helper.addOnClickListener(R.id.deleteButton)
         if (item.uniqueId == uniqueId) {
             checked = helper.adapterPosition
-            helper.itemView.swipeLayout.isSwipeEnabled = true
-        } else {
             helper.itemView.swipeLayout.isSwipeEnabled = false
+        } else {
+            helper.itemView.swipeLayout.isSwipeEnabled = true
         }
+
+        helper.itemView.checkbox.setChecked(uniqueId == item.uniqueId, false)
 
         helper.itemView.checkbox.setOnClickListener { v ->
             v as SmoothCheckBox
             if (!v.isChecked) {
                 v.setChecked(true, true)
                 uniqueId = item.uniqueId
-                collapse(helper.adapterPosition, false)
                 helper.itemView.swipeLayout.isSwipeEnabled = false
+                Log.i("onSwitch", "from $checked to ${helper.adapterPosition}")
                 if (checked != RecyclerView.NO_POSITION) notifyItemChanged(checked)
                 checked = helper.adapterPosition
+                listener?.onSwitch(item.uniqueId)
             }
         }
+        helper.bind(item)
     }
+
+    var listener: AccountListView.OnAccountListListener? = null
 }

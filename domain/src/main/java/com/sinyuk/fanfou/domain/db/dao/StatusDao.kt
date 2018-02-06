@@ -65,4 +65,8 @@ interface StatusDao {
             " AND uid = :uniqueId" +
             " ORDER BY createdAt DESC LIMIT :limit")
     fun loadBefore(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
+
+    @Query("DELETE FROM statuses WHERE pathFlag & :path = :path" +
+            " AND uid = :uniqueId")
+    fun deleteAll(path: Int, uniqueId: String)
 }

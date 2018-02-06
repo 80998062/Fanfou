@@ -45,22 +45,19 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
 
 
     private val repoResult: LiveData<Listing<Status>> = map(disk.accountLiveData, {
-        if (it.isBlank()) {
-            TODO()
-        } else {
-            when (params.path) {
-                SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = params.path, query = params.query, pageSize = PAGE_SIZE, uniqueId = params.id)
-                TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
-                TIMELINE_USER -> {
-                    if (params.id == null) {
-                        disk.statuses(path = params.path, pageSize = PAGE_SIZE, uniqueId = it)
-                    } else {
-                        tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
-                    }
+        if (it.isBlank()) TODO()
+        when (params.path) {
+            SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = params.path, query = params.query, pageSize = PAGE_SIZE, uniqueId = params.id)
+            TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
+            TIMELINE_USER -> {
+                if (params.id == null) {
+                    disk.statuses(path = params.path, pageSize = PAGE_SIZE, uniqueId = it)
+                } else {
+                    tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
                 }
-                TIMELINE_HOME -> disk.statuses(path = params.path, pageSize = PAGE_SIZE,uniqueId = it)
-                else -> TODO()
             }
+            TIMELINE_HOME -> disk.statuses(path = params.path, pageSize = PAGE_SIZE, uniqueId = it)
+            else -> TODO()
         }
     })
 

@@ -63,8 +63,8 @@
                     <ImageView
                         android:id="@+id/cancelButton"
                         style="@style/action_button"
-                        android:src="@drawable/ic_close_ac"
-                        android:contentDescription="@string/action_cancel" />
+                        android:contentDescription="@string/action_cancel"
+                        android:src="@drawable/ic_close_ac" />
 
                 </com.sinyuk.fanfou.ui.BetterViewAnimator>
 
@@ -87,7 +87,7 @@
                     android:id="@+id/doneButton"
                     style="@style/action_textbutton"
                     android:text="@string/action_done"
-                    android:textColor="?android:colorAccent" />
+                    android:textColor="@color/text_enable_disable" />
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
