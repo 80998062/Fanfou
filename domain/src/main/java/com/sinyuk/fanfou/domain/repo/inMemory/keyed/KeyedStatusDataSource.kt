@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.domain.repo.inMemory.keyed
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.ItemKeyedDataSource
 import com.sinyuk.fanfou.domain.AppExecutors
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.api.RestAPI
@@ -48,7 +49,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
      * See BoundaryCallback example for a more complete example on syncing multiple network states.
      */
     val networkState = MutableLiveData<NetworkState>()
-    val initialLoad = MutableLiveData<NetworkState>()
+    val initialLoad = MutableLiveData<Resource<MutableList<Status>>>()
 
     fun retryAllFailed() {
         val prevRetry = retry
@@ -65,7 +66,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<Status>) {
         networkState.postValue(NetworkState.LOADING)
-        initialLoad.postValue(NetworkState.LOADING)
+        initialLoad.postValue(Resource.loading(null))
 
         try {
             val response = restAPI.fetch_from_path(path = path, count = params.requestedLoadSize, id = uniqueId).execute()
@@ -76,29 +77,28 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                     response.body()!!
                 }
                 retry = null
-                callback.onResult(items)
                 when (items.size) {
                     params.requestedLoadSize -> {
                         networkState.postValue(NetworkState.LOADED)
-                        initialLoad.postValue(NetworkState.LOADED)
                     }
                     else -> {
                         networkState.postValue(NetworkState.REACH_BOTTOM)
-                        initialLoad.postValue(NetworkState.REACH_BOTTOM)
                     }
                 }
+                initialLoad.postValue(Resource.success(items))
+                callback.onResult(items)
             } else {
                 retry = { loadInitial(params, callback) }
-                val error = NetworkState.error("error code: ${response.code()}")
-                networkState.postValue(error)
-                initialLoad.postValue(error)
+                val msg = "error code: ${response.code()}"
+                networkState.postValue(NetworkState.error(msg))
+                initialLoad.postValue(Resource.error(msg,null))
             }
 
         } catch (e: IOException) {
             retry = { loadInitial(params, callback) }
-            val error = NetworkState.error(e.message ?: "unknown error")
-            networkState.postValue(error)
-            initialLoad.postValue(error)
+            val msg = e.message ?: "unknown error"
+            networkState.postValue(NetworkState.error(msg))
+            initialLoad.postValue(Resource.error(msg,null))
         }
     }
 

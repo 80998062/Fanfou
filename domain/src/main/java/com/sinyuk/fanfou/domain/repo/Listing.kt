@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.domain.repo
 
 import android.arch.lifecycle.LiveData
 import android.arch.paging.PagedList
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.NetworkState
 
 /**
@@ -34,7 +35,7 @@ data class Listing<T>(
         val networkState: LiveData<NetworkState>,
         // represents the refresh status to show to the user. Separate from networkState, this
         // value is importantly only when refresh is requested.
-        val refreshState: LiveData<NetworkState>,
+        val refreshState: LiveData<Resource<MutableList<T>>>,
         // refreshes the whole data and fetches it from scratch.
         val refresh: () -> Unit,
         // retries any failed requests.

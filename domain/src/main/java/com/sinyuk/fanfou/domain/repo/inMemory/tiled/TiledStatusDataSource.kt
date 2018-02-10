@@ -24,6 +24,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.RestAPI
 import retrofit2.Call
@@ -48,7 +49,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         // we also provide an initial load state to the listeners so that the UI can know when the
         // very first list is loaded.
         networkState.postValue(NetworkState.LOADING)
-        initialLoad.postValue(NetworkState.LOADING)
+        initialLoad.postValue(Resource.loading(null))
 
         when (path) {
             TIMELINE_CONTEXT, TIMELINE_PUBLIC, TIMELINE_USER -> restAPI.fetch_from_path(path = path, id = uniqueId, count = params.requestedLoadSize, page = 1)
@@ -69,13 +70,12 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                         params.requestedLoadSize -> {
                             next = 2
                             networkState.postValue(NetworkState.LOADED)
-                            initialLoad.postValue(NetworkState.LOADED)
                         }
                         else -> {
                             networkState.postValue(NetworkState.REACH_BOTTOM)
-                            initialLoad.postValue(NetworkState.REACH_BOTTOM)
                         }
                     }
+                    initialLoad.postValue(Resource.success(items))
                     callback.onResult(items, null, next)
 
                 } else {
@@ -83,9 +83,9 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                         loadInitial(params, callback)
                     }
 
-                    val error = NetworkState.error("error code: ${response.code()}")
-                    networkState.postValue(error)
-                    initialLoad.postValue(error)
+                    val msg = "error code: ${response.code()}"
+                    networkState.postValue(NetworkState.error(msg))
+                    initialLoad.postValue(Resource.error(msg, null))
                 }
             }
 
@@ -95,9 +95,9 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                     loadInitial(params, callback)
                 }
                 // publish the error
-                val error = NetworkState.error(t.message ?: "unknown error")
-                networkState.postValue(error)
-                initialLoad.postValue(error)
+                val msg = t.message ?: "unknown error"
+                networkState.postValue(NetworkState.error(msg))
+                initialLoad.postValue(Resource.error(msg, null))
             }
 
         })
@@ -150,7 +150,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
      * See BoundaryCallback example for a more complete example on syncing multiple network states.
      */
     val networkState = MutableLiveData<NetworkState>()
-    val initialLoad = MutableLiveData<NetworkState>()
+    val initialLoad = MutableLiveData<Resource<MutableList<Status>>>()
 
     fun retryAllFailed() {
         val prevRetry = retry

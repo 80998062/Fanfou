@@ -87,5 +87,7 @@
     <string name="hint_no_more_home">我是有底线的人</string>
     <string name="hint_no_more_context"/>
     <string name="hint_no_more_user"></string>
+    <string name="hint_new_statuses_coming">有新的状态</string>
+    <string name="format_new_statuses_coming">%d条新状态</string>
 
 </resources>

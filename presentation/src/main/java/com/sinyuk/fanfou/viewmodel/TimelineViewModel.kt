@@ -74,5 +74,4 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
         repoResult.value?.refresh?.invoke()
     }
 
-    fun fetchTop(params: TimelinePath) = disk.fetchTop(path = params.path, pageSize = PAGE_SIZE,uniqueId = params.id!!)
 }

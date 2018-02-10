@@ -28,6 +28,9 @@ import android.view.View;
 
 import com.sinyuk.fanfou.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * 使按钮能方便地指定圆角、边框颜色、边框粗细、背景色

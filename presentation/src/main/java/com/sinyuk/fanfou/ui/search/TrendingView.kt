@@ -31,12 +31,10 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
-import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
@@ -81,17 +79,17 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
 
                 }
             }
-            if (findChildFragment(TimelineView::class.java) == null) {
-                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
-                fragment.refreshCallback = this@TrendingView
-                loadRootFragment(R.id.publicViewContainer, fragment)
-                refreshButton.setOnClickListener {
-                    toggleRefreshButton(false)
-                    findChildFragment(TimelineView::class.java)?.refresh()
-                }
-            } else {
-                showHideFragment(findChildFragment(TimelineView::class.java))
-            }
+//            if (findChildFragment(TimelineView::class.java) == null) {
+//                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
+//                fragment.refreshCallback = this@TrendingView
+//                loadRootFragment(R.id.publicViewContainer, fragment)
+//                refreshButton.setOnClickListener {
+//                    toggleRefreshButton(false)
+//                    findChildFragment(TimelineView::class.java)?.refresh()
+//                }
+//            } else {
+//                showHideFragment(findChildFragment(TimelineView::class.java))
+//            }
         })
     }
 

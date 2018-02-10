@@ -25,6 +25,7 @@ import android.arch.paging.PageKeyedDataSource
 import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Player
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import retrofit2.Call
@@ -97,43 +98,6 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
     }
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Player>) {
-//        networkState.postValue(NetworkState.LOADING)
-//        try {
-//            val response = when (path) {
-//                USERS_FOLLOWERS -> restAPI.fetch_followers(id = uniqueId, count = params.requestedLoadSize, page = params.key)
-//                USERS_FRIENDS -> restAPI.fetch_friends(id = uniqueId, count = params.requestedLoadSize, page = params.key)
-//                else -> TODO()
-//            }.execute()
-//
-//            if (response.isSuccessful) {
-//                val items = if (response.body() == null) {
-//                    mutableListOf()
-//                } else {
-//                    response.body()!!
-//                }
-//                retry = null
-//
-//                if (uniqueId == null) saveResultInDisk(items)
-//
-//                var prev: Int? = null
-//                when (items.size) {
-//                    params.requestedLoadSize -> {
-//                        networkState.postValue(NetworkState.LOADED)
-//                        prev = params.key - 1
-//                    }
-//                    else -> networkState.postValue(NetworkState.REACH_BOTTOM)
-//                }
-//                callback.onResult(items, prev)
-//            } else {
-//                retry = { loadAfter(params, callback) }
-//                networkState.postValue(NetworkState.error("error code: ${response.code()}"))
-//            }
-//
-//
-//        } catch (e: IOException) {
-//            retry = { loadAfter(params, callback) }
-//            networkState.postValue(NetworkState.error(e.message ?: "unknown error"))
-//        }
     }
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Player>) {
@@ -141,7 +105,7 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
         // we also provide an initial load state to the listeners so that the UI can know when the
         // very first list is loaded.
         networkState.postValue(NetworkState.LOADING)
-        initialLoad.postValue(NetworkState.LOADING)
+        initialLoad.postValue(Resource.loading(null))
 
         when (path) {
             USERS_FOLLOWERS -> restAPI.fetch_followers(id = uniqueId, count = params.requestedLoadSize, page = 1)
@@ -154,9 +118,9 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
                     loadInitial(params, callback)
                 }
                 // publish the error
-                val error = NetworkState.error(t?.message ?: "unknown error")
-                networkState.postValue(error)
-                initialLoad.postValue(error)
+                val msg = t?.message ?: "unknown error"
+                networkState.postValue(NetworkState.error(msg))
+                initialLoad.postValue(Resource.error(msg,null))
             }
 
             override fun onResponse(call: Call<MutableList<Player>>?, response: Response<MutableList<Player>>) {
@@ -175,23 +139,22 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
                         params.requestedLoadSize -> {
                             next = 2
                             networkState.postValue(NetworkState.LOADED)
-                            initialLoad.postValue(NetworkState.LOADED)
                         }
                         else -> {
                             networkState.postValue(NetworkState.REACH_BOTTOM)
-                            initialLoad.postValue(NetworkState.REACH_BOTTOM)
                         }
-                    }
-                    callback.onResult(items, null, next)
 
+                    }
+                    initialLoad.postValue(Resource.success(items))
+                    callback.onResult(items, null, next)
                 } else {
                     retry = {
                         loadInitial(params, callback)
                     }
 
-                    val error = NetworkState.error("error code: ${response.code()}")
-                    networkState.postValue(error)
-                    initialLoad.postValue(error)
+                    val msg = "error code: ${response.code()}"
+                    networkState.postValue(NetworkState.error(msg))
+                    initialLoad.postValue(Resource.error(msg, null))
                 }
             }
 
@@ -210,7 +173,7 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
      * See BoundaryCallback example for a more complete example on syncing multiple network states.
      */
     val networkState = MutableLiveData<NetworkState>()
-    val initialLoad = MutableLiveData<NetworkState>()
+    val initialLoad = MutableLiveData<Resource<MutableList<Player>>>()
 
     fun retryAllFailed() {
         val prevRetry = retry

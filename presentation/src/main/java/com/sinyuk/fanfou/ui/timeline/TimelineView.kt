@@ -26,6 +26,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
@@ -34,6 +35,7 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.home.TabDoubleClickEvent
@@ -71,6 +73,8 @@ class TimelineView : AbstractFragment(), Injectable {
                 putString("id", id)
             }
         }
+
+        const val TAG = "TimelineView"
     }
 
     override fun layoutId(): Int? = R.layout.timeline_view
@@ -107,10 +111,17 @@ class TimelineView : AbstractFragment(), Injectable {
 
     private fun setupSwipeRefresh() {
         timelineViewModel.refreshState.observe(this@TimelineView, Observer {
-            val refresh = it?.status == com.sinyuk.fanfou.domain.Status.RUNNING
+            val refresh = it?.states == States.LOADING
             refreshCallback?.toggle(refresh)
-            if (it?.status == com.sinyuk.fanfou.domain.Status.FAILED) {
-                it.msg?.let { refreshCallback?.error(Throwable(it)) }
+            if (States.ERROR == it?.states) {
+                it.message?.let { refreshCallback?.error(Throwable(it)) }
+            } else if (States.SUCCESS == it?.states) {
+                EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
+//                if ((recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() > 0) { // 列表不是在顶部
+//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
+//                } else {
+//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.format_new_statuses_coming, it.data?.size)))
+//                }
             }
         })
     }
@@ -159,6 +170,7 @@ class TimelineView : AbstractFragment(), Injectable {
 
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
+        Log.i(TAG, "PagedList has changed , size: ${it?.size}")
         // record the last scroll position
         val lastPos = (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
         adapter.setList(it)
@@ -196,21 +208,7 @@ class TimelineView : AbstractFragment(), Injectable {
             0 -> {
                 if (timelinePath == TIMELINE_HOME) {
                     recyclerView.smoothScrollToPosition(0)
-                    val id = sharedPreferences.getString(UNIQUE_ID, null)
-                    timelineViewModel.fetchTop(TimelineViewModel.TimelinePath(path = TIMELINE_HOME, id = id)).observe(this@TimelineView, Observer {
-                        @Suppress("NON_EXHAUSTIVE_WHEN")
-                        when (it?.status) {
-                            com.sinyuk.fanfou.domain.Status.SUCCESS -> {
-                                toast.toastShort("有新的状态")
-                            }
-                            com.sinyuk.fanfou.domain.Status.REACH_TOP -> {
-                                toast.toastShort("没有新的状态")
-                            }
-                            com.sinyuk.fanfou.domain.Status.FAILED -> {
-                                it.msg?.let { toast.toastShort(it) }
-                            }
-                        }
-                    })
+                    timelineViewModel.refresh()
                 }
             }
             1 -> {
@@ -218,6 +216,12 @@ class TimelineView : AbstractFragment(), Injectable {
             }
 
         }
+    }
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onScrollEvent(event: ScrollToTopEvent) {
+        recyclerView?.smoothScrollToPosition(0)
     }
 
 

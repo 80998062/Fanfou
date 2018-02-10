@@ -32,6 +32,7 @@ import android.support.annotation.WorkerThread
 import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.Endpoint
 import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
@@ -72,6 +73,7 @@ class TimelineRepository @Inject constructor(
      */
     fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
 
+        Log.i(TAG, "statuses()")
         // create a data source factory from Room
         val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path), uniqueId)
 
@@ -88,8 +90,8 @@ class TimelineRepository @Inject constructor(
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
-        val refreshTrigger = MutableLiveData<Unit>()
-        val refreshState = Transformations.switchMap(refreshTrigger, { refresh(path, pageSize, uniqueId) })
+        val trigger = MutableLiveData<Unit>()
+        val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, uniqueId) })
 
         val pagedList = builder.build()
 
@@ -106,23 +108,21 @@ class TimelineRepository @Inject constructor(
                 pagedList = pagedList,
                 networkState = boundaryCallback.networkState,
                 retry = { boundaryCallback.helper.retryAllFailed() },
-                refresh = { refreshTrigger.value = null },
+                refresh = { trigger.value = null },
                 refreshState = refreshState
         )
     }
 
-    private fun refresh(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
+    private fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<Resource<MutableList<Status>>> {
+        isInvalid.set(true)
         val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
         appExecutors.networkIO().execute(task)
-        isInvalid.set(true)
-        return task.networkState
+        return task.livedata
     }
 
-    fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<NetworkState> {
-        val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId, since = true)
-        appExecutors.networkIO().execute(task)
+    private fun refresh(path: String, uniqueId: String) {
         isInvalid.set(true)
-        return task.networkState
+        db.statusDao().deleteAll(convertPathToFlag(path), uniqueId)
     }
 
     private val isInvalid = AtomicBoolean(false)

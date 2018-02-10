@@ -44,6 +44,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:elevation="0dp">
@@ -66,8 +67,8 @@
                         android:id="@+id/navigationAnimator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inAnimation="@android:anim/fade_in"
-                        android:outAnimation="@android:anim/fade_out">
+                        android:inAnimation="@anim/rotate_in"
+                        android:outAnimation="@anim/rotate_out">
 
                         <android.support.v4.widget.Space style="@style/action_button" />
 
@@ -93,28 +94,48 @@
                         android:layout_width="0dp"
                         android:layout_height="@dimen/action_bar_height"
                         android:layout_weight="1"
-                        android:inAnimation="@android:anim/fade_in"
-                        android:outAnimation="@android:anim/fade_out">
+                        android:inAnimation="@anim/slide_up_fade_in"
+                        android:outAnimation="@anim/slide_down_fade_out">
 
-                        <TextSwitcher
+                        <RelativeLayout
                             android:id="@+id/textSwitcher"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:animateFirstView="true"
-                            android:inAnimation="@android:anim/fade_in"
-                            android:outAnimation="@android:anim/fade_out">
+                            android:layout_height="match_parent">
+
 
                             <TextView
                                 android:id="@+id/title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
+                                android:layout_above="@+id/toastSwitcher"
+                                android:layout_centerHorizontal="true"
                                 android:textColor="?android:textColorPrimary"
                                 android:textSize="@dimen/text_14"
                                 android:textStyle="bold"
                                 android:transitionName="@string/transition_toolbar_title"
                                 tools:text="@string/label_home" />
-                        </TextSwitcher>
+
+
+                            <TextSwitcher
+                                android:id="@+id/toastSwitcher"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentBottom="true"
+                                android:layout_marginBottom="2dp"
+                                android:animateFirstView="true"
+                                android:inAnimation="@anim/toast_switcher_anim_in"
+                                android:outAnimation="@anim/toast_switcher_anim_out">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_horizontal"
+                                    android:includeFontPadding="false"
+                                    android:textColor="?android:textColorHint"
+                                    android:textSize="9sp"
+                                    tools:text="加载60条新消息" />
+                            </TextSwitcher>
+                        </RelativeLayout>
 
 
                         <FrameLayout
@@ -161,8 +182,8 @@
                         android:id="@+id/actionButtonSwitcher"
                         android:layout_width="@dimen/action_bar_height"
                         android:layout_height="@dimen/action_bar_height"
-                        android:inAnimation="@android:anim/fade_in"
-                        android:outAnimation="@android:anim/fade_out">
+                        android:inAnimation="@anim/rotate_in"
+                        android:outAnimation="@anim/rotate_out">
 
                         <ImageView
                             android:id="@+id/postFanfouButton"
@@ -193,7 +214,7 @@
                             android:id="@+id/inboxSettingsButton"
                             style="@style/action_button"
                             android:contentDescription="@string/action_settings_inbox"
-                            android:src="@drawable/ic_settings_alt"
+                            android:src="@drawable/ic_settings"
                             android:transitionName="@string/transition_toolbar_button_2" />
 
                         <ImageView

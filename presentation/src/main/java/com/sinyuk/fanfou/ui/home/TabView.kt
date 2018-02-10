@@ -26,15 +26,19 @@ import android.animation.ObjectAnimator
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.AnticipateOvershootInterpolator
 import android.view.inputmethod.EditorInfo
+import android.widget.PopupWindow
 import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -52,11 +56,16 @@ import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
+import com.sinyuk.fanfou.ui.timeline.FetTopEvent
+import com.sinyuk.fanfou.ui.timeline.ScrollToTopEvent
+import com.sinyuk.fanfou.ui.timeline.TYPE
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
+import com.sinyuk.myutils.ConvertUtils
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.home_tab_view.*
+import kotlinx.android.synthetic.main.toast_fetch_top.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -268,6 +277,7 @@ class TabView : AbstractFragment(), Injectable {
 
     private var currentFragment: Int? = null
 
+    @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onTabEvent(event: TabEvent) {
         val to = event.index
@@ -288,7 +298,7 @@ class TabView : AbstractFragment(), Injectable {
 
         if (to == 1) {
             viewAnimator.displayedChildId = R.id.searchLayout
-            textSwitcher.setCurrentText(null)
+            title.text = null
             when ((fragments[1] as SearchView).currentFragment) {
                 0 -> {
                     actionButtonSwitcher.displayedChildId = R.id.searchPlayerButton
@@ -307,14 +317,48 @@ class TabView : AbstractFragment(), Injectable {
             navigationAnimator.displayedChildId = R.id.avatar
             KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
             viewAnimator.displayedChildId = R.id.textSwitcher
-            textSwitcher.setCurrentText(resources.getStringArray(R.array.tab_titles)[to])
+            title.text = resources.getStringArray(R.array.tab_titles)[to]
         }
         currentFragment?.let { viewPager.setCurrentItem(to, false) }
         currentFragment = to
     }
 
+
+    private val handler by lazy { Handler() }
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onFetchTop(event: FetTopEvent) {
+        when (event.type) {
+            TYPE.TOAST -> {
+                val toast = View.inflate(context, R.layout.toast_fetch_top, null)
+                toast.textView.text = event.message
+                val popup = PopupWindow(toast, WRAP_CONTENT, WRAP_CONTENT)
+                toast.textView.setOnClickListener {
+                    EventBus.getDefault().post(ScrollToTopEvent())
+                    popup.dismiss()
+                }
+                popup.isFocusable = false
+                popup.showAtLocation(coordinator, Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, ConvertUtils.dp2px(context, 72f))
+                handler.postDelayed({ popup.dismiss() }, 10000)
+            }
+            TYPE.ACTIONBAR -> {
+                toastSwitcher.setCurrentText(event.message)
+                handler.postDelayed({ toastSwitcher.setCurrentText("") }, 2000)
+            }
+        }
+    }
+
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onScrollEvent(event: ScrollToTopEvent) {
+        appBarLayout.scrollTo(0, 0)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this@TabView)
+        handler.removeCallbacksAndMessages(null)
     }
 }

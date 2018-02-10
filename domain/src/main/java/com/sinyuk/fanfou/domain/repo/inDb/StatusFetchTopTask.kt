@@ -22,11 +22,9 @@ package com.sinyuk.fanfou.domain.repo.inDb
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.WorkerThread
-import android.util.Log
-import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
+import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
@@ -43,32 +41,23 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
                          private val db: LocalDatabase,
                          private val path: String,
                          private val pageSize: Int,
-                         private val uniqueId: String,
-                         private val since: Boolean = false) : Runnable {
+                         private val uniqueId: String) : Runnable {
 
     companion object {
         const val TAG = "StatusFetchTopTask"
     }
 
-    val networkState = MutableLiveData<NetworkState>()
+    val livedata = MutableLiveData<Resource<MutableList<Status>>>()
 
     init {
-        networkState.postValue(NetworkState.LOADING)
+        livedata.postValue(Resource.loading(null))
     }
 
     override fun run() {
-        val first = if (since) {
-            db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
-        } else {
-            if (BuildConfig.DEBUG) Log.w(TAG, "Delete all statues in $path")
-            try {
-                db.beginTransaction()
-                db.statusDao().deleteAll(convertPathToFlag(path), uniqueId)
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
-            }
-            null
+        val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
+        if (first.isNullOrBlank()) {
+            livedata.postValue(Resource.success(mutableListOf()))
+            return
         }
         try {
             val response = if (path == TIMELINE_HOME) {
@@ -81,16 +70,15 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
             if (apiResponse.isSuccessful()) {
                 val data = apiResponse.body
                 if (insertResultIntoDb(data) > 0) {
-                    networkState.postValue(NetworkState.LOADED)
+                    livedata.postValue(Resource.success(data))
                 } else {
-                    networkState.postValue(NetworkState.REACH_TOP)
+                    livedata.postValue(Resource.success(mutableListOf()))
                 }
             } else {
-                networkState.postValue(NetworkState.error("error code: ${response.code()}"))
+                livedata.postValue(Resource.error("error code: ${response.code()}", null))
             }
         } catch (e: IOException) {
-            val error = NetworkState.error(e.message ?: "unknown error")
-            networkState.postValue(error)
+            livedata.postValue(Resource.error("error code: ${e.message}", null))
         }
     }
 
