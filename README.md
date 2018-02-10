@@ -1,4 +1,4 @@
-#Read me [中文]()
+#Read me [中文](https://github.com/80998062/Fanfou/blob/master/readme_chs.md)
 
 ## Intro
 

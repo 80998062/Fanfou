@@ -1,4 +1,4 @@
-# 说明 [English](https://fanfou.com/)
+# 说明 [English](https://github.com/80998062/Fanfou/blob/master/README.md)
 
 ##说明
 
