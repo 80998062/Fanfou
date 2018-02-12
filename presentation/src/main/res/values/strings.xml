@@ -89,5 +89,7 @@
     <string name="hint_no_more_user"></string>
     <string name="hint_new_statuses_coming">有新的状态</string>
     <string name="format_new_statuses_coming">%d条新状态</string>
+    <string name="name_divider">昏哥线</string>
+    <string name="name_blurry">糊糊</string>
 
 </resources>

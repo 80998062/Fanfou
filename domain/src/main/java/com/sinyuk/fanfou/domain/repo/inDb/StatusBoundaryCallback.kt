@@ -27,6 +27,7 @@ import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_PHOTO
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
 import retrofit2.Call
@@ -65,7 +66,11 @@ class StatusBoundaryCallback(
         if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded")
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
             if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded: true")
-            webservice.fetch_from_path(path = path, count = networkPageSize).enqueue(createWebserviceCallback(it))
+            if (path == TIMELINE_PHOTO) {
+                webservice.photos(count = networkPageSize, id = uniqueId)
+            } else {
+                webservice.fetch_from_path(path = path, count = networkPageSize)
+            }.enqueue(createWebserviceCallback(it))
         }
     }
 
@@ -77,7 +82,11 @@ class StatusBoundaryCallback(
         if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: " + itemAtEnd.id)
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
             if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: true")
-            webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id).enqueue(createWebserviceCallback(it))
+            if (path == TIMELINE_PHOTO) {
+                webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
+            } else {
+                webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id)
+            }.enqueue(createWebserviceCallback(it))
         }
     }
 

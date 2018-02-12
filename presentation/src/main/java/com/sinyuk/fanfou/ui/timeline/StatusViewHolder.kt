@@ -70,12 +70,12 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             else -> view.avatar.setOnClickListener { (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId)) }
         }
 
+        // Clear background
         view.screenName.background = null
         view.createdAt.background = null
         view.content.background = null
         view.screenName.text = status.playerExtracts?.screenName
         view.createdAt.text = DateUtils.getTimeAgo(view.context, status.createdAt)
-
 
         /**
          * code about imageView

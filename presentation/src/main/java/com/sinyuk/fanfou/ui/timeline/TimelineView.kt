@@ -56,7 +56,8 @@ import javax.inject.Named
  * Created by sinyuk on 2017/11/30.
  *
  */
-class TimelineView : AbstractFragment(), Injectable {
+class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.StatusOperationListener {
+
 
     companion object {
         fun newInstance(path: String, id: String? = null) = TimelineView().apply {
@@ -161,11 +162,31 @@ class TimelineView : AbstractFragment(), Injectable {
         val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
         val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, 10)
         recyclerView.addOnScrollListener(preloader)
-
+        adapter.statusOperationListener = this@TimelineView
         recyclerView.adapter = adapter
 
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
+    }
+
+
+    override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
+        if (favorited) {
+            timelineViewModel.createFavorite(status.id).observe(this@TimelineView, Observer {
+
+            })
+        } else {
+            timelineViewModel.destoryFavorite(status.id).observe(this@TimelineView, Observer {
+
+            })
+        }
+    }
+
+
+    override fun onDeleted(v: View?, p: Int, status: Status) {
+        timelineViewModel.delete(status.id).observe(this@TimelineView, Observer {
+
+        })
     }
 
 

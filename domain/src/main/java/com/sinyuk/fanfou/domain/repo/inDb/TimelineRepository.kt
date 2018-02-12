@@ -40,6 +40,7 @@ import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
 import com.sinyuk.fanfou.domain.util.stringLiveData
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
@@ -149,5 +150,92 @@ class TimelineRepository @Inject constructor(
         } else {
             return 0
         }
+    }
+
+
+    /**
+     * @param id status id
+     */
+    fun createFavorite(id: String): LiveData<Resource<Status>> {
+        val liveData = MutableLiveData<Resource<Status>>()
+        liveData.postValue(Resource.loading(null))
+        appExecutors.networkIO().execute {
+            try {
+                val response = restAPI.createFavorite(id).execute()
+                if (response.isSuccessful || response.body() != null) {
+                    val data = response.body()!!
+                    appExecutors.diskIO().execute {
+                        db.runInTransaction {
+                            db.statusDao().query(id, accountLiveData.value!!)?.let { data.pathFlag = it.pathFlag }
+                            data.user?.let { data.playerExtracts = PlayerExtracts(it) }
+                            db.statusDao().update(data)
+                        }
+                    }
+                    liveData.postValue(Resource.success(data))
+                } else {
+                    liveData.postValue(Resource.error("error code: ${response.code()}", null))
+                }
+            } catch (e: IOException) {
+                liveData.postValue(Resource.error("error msg: ${e.message}", null))
+            }
+
+        }
+        return liveData
+    }
+
+    /**
+     * @param id status id
+     */
+    fun destoryFavorite(id: String): LiveData<Resource<Status>> {
+        val liveData = MutableLiveData<Resource<Status>>()
+        liveData.postValue(Resource.loading(null))
+        appExecutors.networkIO().execute {
+            try {
+                val response = restAPI.deleteFavorite(id).execute()
+                if (response.isSuccessful || response.body() != null) {
+                    val data = response.body()!!
+                    appExecutors.diskIO().execute {
+                        db.runInTransaction {
+                            db.statusDao().query(id, accountLiveData.value!!)?.let {
+                                it.favorited = false
+                                db.statusDao().update(it)
+                            }
+                        }
+                    }
+                    liveData.postValue(Resource.success(data))
+                } else {
+                    liveData.postValue(Resource.error("error code: ${response.code()}", null))
+                }
+            } catch (e: IOException) {
+                liveData.postValue(Resource.error("error msg: ${e.message}", null))
+            }
+        }
+        return liveData
+    }
+
+    /**
+     * 删除某条状态，只能删除自己的
+     * @param id status id
+     */
+    fun delete(id: String): MutableLiveData<Resource<Status>> {
+        val liveData = MutableLiveData<Resource<Status>>()
+        liveData.postValue(Resource.loading(null))
+        appExecutors.networkIO().execute {
+            try {
+                val response = restAPI.deleteStatus(id).execute()
+                if (response.isSuccessful || response.body() != null) {
+                    val data = response.body()!!
+                    appExecutors.diskIO().execute {
+                        db.runInTransaction { db.statusDao().delete(data) }
+                    }
+                    liveData.postValue(Resource.success(data))
+                } else {
+                    liveData.postValue(Resource.error("error code: ${response.code()}", null))
+                }
+            } catch (e: IOException) {
+                liveData.postValue(Resource.error("error msg: ${e.message}", null))
+            }
+        }
+        return liveData
     }
 }

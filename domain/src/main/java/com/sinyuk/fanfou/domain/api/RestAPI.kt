@@ -27,10 +27,7 @@ import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.DO.Trend
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Url
+import retrofit2.http.*
 import java.util.*
 
 /**
@@ -109,4 +106,25 @@ interface RestAPI {
 
     data class TrendList @JvmOverloads constructor(@SerializedName("as_of") var date: Date? = null,
                                                    @SerializedName("trends") var data: MutableList<Trend> = mutableListOf())
+
+    @POST("favorites/create/{id}.json?format=html")
+    fun createFavorite(@Path("id") id: String): Call<Status>
+
+
+    @POST("favorites/destroy/{id}.json?format=html")
+    fun deleteFavorite(@Path("id") id: String): Call<Status>
+
+
+    @POST("statuses/destroy.json?format=html")
+    fun deleteStatus(@Query("id") id: String): Call<Status>
+
+    /**
+     * 获取有照片的状态
+     */
+    @GET("photos/user_timeline.json?format=html")
+    fun photos(@Query("count") count: Int,
+               @Query("since_id") since: String? = null,
+               @Query("max_id") max: String? = null,
+               @Query("id") id: String? = null,
+               @Query("page") page: Int? = null): Call<MutableList<Status>>
 }

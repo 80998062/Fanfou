@@ -69,4 +69,7 @@ interface StatusDao {
     @Query("DELETE FROM statuses WHERE pathFlag & :path = :path" +
             " AND uid = :uniqueId")
     fun deleteAll(path: Int, uniqueId: String)
+
+    @Delete
+    fun delete(data: Status)
 }

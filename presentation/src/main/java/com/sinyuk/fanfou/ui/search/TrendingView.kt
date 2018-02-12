@@ -21,9 +21,7 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.arch.lifecycle.Observer
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -31,10 +29,11 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.States
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
-import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
+import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
@@ -79,27 +78,27 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
 
                 }
             }
-//            if (findChildFragment(TimelineView::class.java) == null) {
-//                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
-//                fragment.refreshCallback = this@TrendingView
-//                loadRootFragment(R.id.publicViewContainer, fragment)
-//                refreshButton.setOnClickListener {
-//                    toggleRefreshButton(false)
-//                    findChildFragment(TimelineView::class.java)?.refresh()
-//                }
-//            } else {
-//                showHideFragment(findChildFragment(TimelineView::class.java))
-//            }
+            if (findChildFragment(TimelineView::class.java) == null) {
+                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
+                fragment.refreshCallback = this@TrendingView
+                loadRootFragment(R.id.publicViewContainer, fragment)
+                refreshButton.setOnClickListener {
+                    toggleRefreshButton(false)
+                    findChildFragment(TimelineView::class.java)?.refresh()
+                }
+            } else {
+                showHideFragment(findChildFragment(TimelineView::class.java))
+            }
         })
     }
 
     private fun toggleRefreshButton(enable: Boolean) {
         refreshButton.isEnabled = enable
-        if (enable) {
-            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
-        } else {
-            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlDisable))
-        }
+//        if (enable) {
+//            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
+//        } else {
+//            (refreshButton.background as QMUIRoundButtonDrawable).color = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorControlDisable))
+//        }
     }
 
     private lateinit var adapter: TrendAdapter

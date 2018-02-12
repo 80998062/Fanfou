@@ -39,6 +39,12 @@ const val TIMELINE_FAVORITES = "favorites_timeline"
  * 按照时间先后顺序显示消息上下文
  */
 const val TIMELINE_CONTEXT = "context_timeline"
+
+/**
+ *
+ */
+const val TIMELINE_PHOTO = "photo_timeline"
+
 /**
  * 浏览指定用户已发送消息
  */

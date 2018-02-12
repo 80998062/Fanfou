@@ -74,4 +74,9 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
         repoResult.value?.refresh?.invoke()
     }
 
+    fun createFavorite(id: String) = disk.createFavorite(id)
+
+    fun destoryFavorite(id: String) = disk.destoryFavorite(id)
+
+    fun delete(id: String) = disk.delete(id)
 }

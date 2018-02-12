@@ -25,6 +25,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
 import com.bumptech.glide.RequestBuilder
@@ -39,6 +40,9 @@ import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
+import com.sinyuk.fanfou.ui.QuickSwipeListener
+import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
+import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 import java.util.*
 
 /**
@@ -47,7 +51,7 @@ import java.util.*
  * Adapter implementation that shows status.
  */
 class StatusPagedListAdapter(
-        fragment: Fragment,
+        private val fragment: Fragment,
         private val retryCallback: () -> Unit,
         private val uniqueId: String?,
         private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
@@ -88,7 +92,7 @@ class StatusPagedListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
-        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback,path)
+        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 
@@ -108,7 +112,42 @@ class StatusPagedListAdapter(
                 if (getItem(position) == null) {
                     holder.clear()
                 } else {
-                    holder.bind(getItem(position)!!)
+                    val status = getItem(position)!!
+                    holder.bind(status)
+                    if (uniqueId == status.playerExtracts?.uniqueId) {
+                        glide.load(R.drawable.ic_empty).into(holder.itemView.actionButton)
+                        holder.itemView.actionButton.setOnClickListener { v ->
+                            statusOperationListener?.onDeleted(v, position, status)
+                        }
+                    } else {
+
+                        holder.itemView.actionButton.setImageResource(R.drawable.trimclip_heart)
+                        val checked = status.favorited
+                        val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
+                        holder.itemView.actionButton.setImageState(stateSet, true)
+
+                        @Suppress("NAME_SHADOWING")
+                        holder.itemView.actionButton.setOnClickListener { v ->
+                            val checked = !status.favorited
+                            val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
+                            holder.itemView.actionButton.setImageState(stateSet, true)
+                            status.apply {
+                                favorited = checked
+                                statusOperationListener?.onFavorited(checked, v, position, this)
+                            }
+                        }
+                    }
+
+                    //
+
+                    holder.itemView.swipeLayout.addSwipeListener(object : QuickSwipeListener() {
+                        override fun onClose(layout: SwipeLayout?) {
+                        }
+
+                        override fun onOpen(layout: SwipeLayout?) {
+                            mItemManger.closeAllExcept(layout)
+                        }
+                    })
                 }
             }
             R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bind(networkState)
@@ -123,6 +162,14 @@ class StatusPagedListAdapter(
         }
     }
 
+    var statusOperationListener: StatusOperationListener? = null
+
+    interface StatusOperationListener {
+        fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status)
+
+        fun onDeleted(v: View?, p: Int, status: Status)
+
+    }
 
     /**
      * Swipe implementing
