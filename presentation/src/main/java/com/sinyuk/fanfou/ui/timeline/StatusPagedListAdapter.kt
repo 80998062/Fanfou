@@ -22,7 +22,6 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -35,12 +34,14 @@ import com.daimajia.swipe.interfaces.SwipeAdapterInterface
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
 import com.sinyuk.fanfou.ui.QuickSwipeListener
+import com.sinyuk.myutils.ConvertUtils
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
 import java.util.*
@@ -57,9 +58,6 @@ class StatusPagedListAdapter(
         private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
-
-    //
-    private val initialGifBadgeColor = ContextCompat.getColor(fragment.context!!, R.color.scrim)
 
     private val glide: GlideRequests = GlideApp.with(fragment)
 
@@ -91,7 +89,7 @@ class StatusPagedListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId,fragment)
+        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId, fragment)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
@@ -223,7 +221,8 @@ class StatusPagedListAdapter(
     class StatusPreloadProvider constructor(private val adapter: StatusPagedListAdapter, private val fragment: Fragment, private val imageWidthPixels: Int) : ListPreloader.PreloadModelProvider<Status> {
 
         override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
-            return GlideApp.with(fragment).load(item.photos?.imageurl).illustrationThumb(fragment.context!!).override(imageWidthPixels, imageWidthPixels)
+            val url = item.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
+            return GlideApp.with(fragment).load(url).override(imageWidthPixels, imageWidthPixels)
         }
 
         override fun getPreloadItems(position: Int): MutableList<Status> = if (adapter.currentList?.isNotEmpty() == true && position < adapter.currentList?.size ?: 0) {
@@ -231,11 +230,7 @@ class StatusPagedListAdapter(
             if (status == null) {
                 Collections.emptyList<Status>()
             } else {
-                val url = when {
-                    status.photos?.largeurl != null -> status.photos?.largeurl
-                    status.photos?.thumburl != null -> status.photos?.thumburl
-                    else -> status.photos?.imageurl
-                }
+                val url = status.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
                 if (url == null) {
                     Collections.emptyList<Status>()
                 } else {
