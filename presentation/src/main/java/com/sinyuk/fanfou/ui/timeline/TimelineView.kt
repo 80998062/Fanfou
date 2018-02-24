@@ -175,7 +175,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
             })
         } else {
-            timelineViewModel.destoryFavorite(status.id).observe(this@TimelineView, Observer {
+            timelineViewModel.destroyFavorite(status.id).observe(this@TimelineView, Observer {
 
             })
         }

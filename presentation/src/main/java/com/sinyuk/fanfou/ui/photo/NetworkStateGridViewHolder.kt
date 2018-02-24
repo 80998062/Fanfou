@@ -24,8 +24,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.TextView
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.Status
@@ -35,15 +35,13 @@ import com.sinyuk.fanfou.ui.BetterViewAnimator
  * Created by sinyuk on 2018/2/24.
  *
  */
-class NetwordStateGridViewHolder(view: View, private val retryCallback: () -> Unit) : RecyclerView.ViewHolder(view) {
+class NetworkStateGridViewHolder(view: View, private val retryCallback: () -> Unit) : RecyclerView.ViewHolder(view) {
     private val viewAnimator = view.findViewById<BetterViewAnimator>(R.id.viewAnimator)
     private val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-    private val retry = view.findViewById<Button>(R.id.retryButton)
+    private val retry = view.findViewById<TextView>(R.id.retryButton)
 
     init {
-        retry.setOnClickListener {
-            retryCallback()
-        }
+        retry.setOnClickListener { retryCallback() }
     }
 
     fun bind(networkState: NetworkState?) {
@@ -58,10 +56,10 @@ class NetwordStateGridViewHolder(view: View, private val retryCallback: () -> Un
     }
 
     companion object {
-        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetwordStateGridViewHolder {
+        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateGridViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.network_state_item_photo_grid, parent, false)
-            return NetwordStateGridViewHolder(view, retryCallback)
+            return NetworkStateGridViewHolder(view, retryCallback)
         }
     }
 }

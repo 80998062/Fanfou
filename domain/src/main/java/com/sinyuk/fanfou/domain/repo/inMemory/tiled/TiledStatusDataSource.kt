@@ -54,6 +54,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
         when (path) {
             TIMELINE_CONTEXT, TIMELINE_PUBLIC, TIMELINE_USER -> restAPI.fetch_from_path(path = path, id = uniqueId, count = params.requestedLoadSize, page = 1)
             TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = 1)
+            TIMELINE_PHOTO -> restAPI.photos(page = 1, id = uniqueId, count = params.requestedLoadSize)
             SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = 1))
             SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = 1)
             else -> TODO()
@@ -109,6 +110,7 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
             val response = when (path) {
                 TIMELINE_CONTEXT, TIMELINE_PUBLIC, TIMELINE_USER -> restAPI.fetch_from_path(path = path, id = uniqueId, count = params.requestedLoadSize, page = params.key)
                 TIMELINE_FAVORITES -> restAPI.fetch_favorites(id = uniqueId, count = params.requestedLoadSize, page = params.key)
+                TIMELINE_PHOTO -> restAPI.photos(page = params.key, id = uniqueId, count = params.requestedLoadSize)
                 SEARCH_TIMELINE_PUBLIC -> restAPI.search_statuses(RestAPI.buildQueryUrl(query = query!!, count = params.requestedLoadSize, page = params.key))
                 SEARCH_USER_TIMELINE -> restAPI.search_user_statuses(query = query!!, id = uniqueId!!, count = params.requestedLoadSize, page = params.key)
                 else -> TODO()

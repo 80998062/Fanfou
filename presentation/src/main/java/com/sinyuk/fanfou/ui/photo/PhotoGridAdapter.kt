@@ -87,7 +87,7 @@ class PhotoGridAdapter(private val fragment: Fragment,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.photo_grid_list_item -> PhotoGridItemHolder.create(parent, glide, fragment)
-        R.layout.network_state_item_photo_grid -> NetwordStateGridViewHolder.create(parent, retryCallback)
+        R.layout.network_state_item_photo_grid -> NetworkStateGridViewHolder.create(parent, retryCallback)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 
@@ -102,7 +102,7 @@ class PhotoGridAdapter(private val fragment: Fragment,
                     holder.bind(status)
                 }
             }
-            R.layout.network_state_item_photo_grid -> (holder as NetwordStateGridViewHolder).bind(networkState)
+            R.layout.network_state_item_photo_grid -> (holder as NetworkStateGridViewHolder).bind(networkState)
         }
     }
 

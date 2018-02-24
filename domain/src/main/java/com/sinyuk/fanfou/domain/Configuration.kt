@@ -92,6 +92,8 @@ const val PROFILE_MODE_LITE = "lite"
  */
 const val PAGE_SIZE = 50
 
+const val PHOTO_SIZE = 18
+
 /**
  * message
  */

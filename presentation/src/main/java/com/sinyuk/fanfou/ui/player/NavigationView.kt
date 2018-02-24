@@ -30,6 +30,7 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_USER
+import com.sinyuk.fanfou.ui.photo.PhotoGridView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import kotlinx.android.synthetic.main.navigation_view.*
 
@@ -52,9 +53,9 @@ class NavigationView : AbstractFragment(), Injectable {
         super.onViewCreated(view, savedInstanceState)
 
         fragmentList = if (uniqueId == null) {
-            arrayListOf(TimelineView.newInstance(TIMELINE_USER), Fragment(), TimelineView.newInstance(TIMELINE_FAVORITES))
+            arrayListOf(TimelineView.newInstance(TIMELINE_USER), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES))
         } else {
-            arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), Fragment(), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
+            arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
         }
 
         setupViewPager()

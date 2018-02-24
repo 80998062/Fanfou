@@ -48,6 +48,7 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
         if (it.isBlank()) TODO()
         when (params.path) {
             SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = params.path, query = params.query, pageSize = PAGE_SIZE, uniqueId = params.id)
+            TIMELINE_PHOTO -> tiled.statuses(path = params.path,  pageSize = PHOTO_SIZE, uniqueId = params.id)
             TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
             TIMELINE_USER -> {
                 if (params.id == null) {
@@ -76,7 +77,7 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
 
     fun createFavorite(id: String) = disk.createFavorite(id)
 
-    fun destoryFavorite(id: String) = disk.destoryFavorite(id)
+    fun destroyFavorite(id: String) = disk.destoryFavorite(id)
 
     fun delete(id: String) = disk.delete(id)
 }

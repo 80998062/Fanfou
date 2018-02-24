@@ -20,19 +20,22 @@
 
 package com.sinyuk.fanfou.ui.photo
 
+import android.arch.lifecycle.Observer
+import android.arch.paging.PagedList
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.OrientationHelper
+import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.Status
-import com.sinyuk.fanfou.ui.timeline.StatusPagedListAdapter
+import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.domain.PHOTO_SIZE
+import com.sinyuk.fanfou.domain.TIMELINE_PHOTO
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
@@ -42,10 +45,19 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2018/2/24.
+ *
  */
 class PhotoGridView : AbstractFragment(), Injectable {
-    override fun layoutId() = R.layout.photo_grid_view
 
+    companion object {
+        fun newInstance(id: String? = null) = PhotoGridView().apply {
+            arguments = Bundle().apply { putString("id", id) }
+        }
+
+        const val TAG = "PhotoGridView"
+    }
+
+    override fun layoutId() = R.layout.photo_grid_view
     @Inject
     lateinit var factory: FanfouViewModelFactory
 
@@ -53,6 +65,12 @@ class PhotoGridView : AbstractFragment(), Injectable {
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
+
+        var id: String? = null
+        arguments?.let {
+            id = it.getString("id")
+        }.run { timelineViewModel.params = TimelineViewModel.TimelinePath(path = TIMELINE_PHOTO, id = id) }
+
         setupRecyclerView()
         setupSwipeRefresh()
     }
@@ -68,7 +86,7 @@ class PhotoGridView : AbstractFragment(), Injectable {
     private fun setupRecyclerView() {
         GridLayoutManager(context, gridCount, OrientationHelper.VERTICAL, false).apply {
             isItemPrefetchEnabled = true
-            initialPrefetchItemCount = 10
+            initialPrefetchItemCount = PHOTO_SIZE
             isAutoMeasureEnabled = true
             recyclerView.layoutManager = this
         }
@@ -81,10 +99,26 @@ class PhotoGridView : AbstractFragment(), Injectable {
         val imageWidthPixels = ScreenUtils.getScreenWidth(context) / gridCount
         val modelPreloader = PhotoGridAdapter.PhotoPreloadProvider(adapter, this, imageWidthPixels)
         val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
-        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@PhotoGridView), modelPreloader, sizePreloader, 10)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@PhotoGridView), modelPreloader, sizePreloader, PHOTO_SIZE)
         recyclerView.addOnScrollListener(preloader)
         recyclerView.adapter = adapter
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
+    }
+
+    private val pagedListConsumer = Observer<PagedList<Status>> {
+        Log.i(TAG, "PagedList has changed , size: ${it?.size}")
+        // Preserves the user's scroll position if items are inserted outside the viewable area:
+        val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
+        adapter.setList(it)
+        recyclerView.post { recyclerView.layoutManager.onRestoreInstanceState(recyclerViewState) }
+    }
+
+    private val networkConsumer = Observer<NetworkState> {
+        if (it?.status == com.sinyuk.fanfou.domain.Status.REACH_TOP) {
+            // never happen
+        } else {
+            adapter.setNetworkState(it)
+        }
     }
 }
