@@ -66,7 +66,7 @@ class MainActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         KeyboardUtil.attach(this@MainActivity, panelRoot)
-
+//        setDefaultFragmentBackground(android.R.color.transparent)
         if (sharedPreferences.getString(UNIQUE_ID, null) == null) {
             if (findFragment(SignInView::class.java) == null) {
                 loadRootFragment(R.id.fragment_container, SignInView())
@@ -93,7 +93,6 @@ class MainActivity : AbstractActivity() {
     } else {
         super.dispatchKeyEvent(event)
     }
-
 
     override fun onCreateFragmentAnimator(): FragmentAnimator {
         return DefaultHorizontalAnimator()

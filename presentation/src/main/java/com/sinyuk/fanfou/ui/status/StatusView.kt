@@ -49,6 +49,7 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractSwipeFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.STATUS_LIMIT
@@ -65,6 +66,7 @@ import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.PlayerViewModel
+import com.sinyuk.myutils.ConvertUtils
 import kotlinx.android.synthetic.main.status_view.*
 import kotlinx.android.synthetic.main.status_view_footer.*
 import kotlinx.android.synthetic.main.status_view_header.*
@@ -163,7 +165,8 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
                 })
             }
 
-            GlideApp.with(this@StatusView).asDrawable().load(status.photos?.bestUrl()).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(image)
+            GlideApp.with(this@StatusView).asDrawable().load(status.photos?.size(ConvertUtils.dp2px(context, Photos.LARGE_SIZE)))
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(image)
         }
 
 

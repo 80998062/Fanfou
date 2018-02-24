@@ -30,6 +30,7 @@ import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.ui.home.IndexView
 import com.sinyuk.fanfou.ui.home.TabView
 import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.photo.PhotoDetailsView
 import com.sinyuk.fanfou.ui.player.*
 import com.sinyuk.fanfou.ui.search.*
 import com.sinyuk.fanfou.ui.status.StatusView
@@ -138,5 +139,10 @@ abstract class FragmentBuildersModule {
     @Suppress("unused")
     @ContributesAndroidInjector
     abstract fun accountManageView(): AccountManageView
+
+
+    @Suppress("unused")
+    @ContributesAndroidInjector
+    abstract fun photoDetailsView(): PhotoDetailsView
 
 }

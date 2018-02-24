@@ -91,7 +91,7 @@ class StatusPagedListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
+        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId,fragment)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }

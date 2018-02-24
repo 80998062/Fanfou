@@ -21,8 +21,10 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -40,8 +42,12 @@ import com.bumptech.glide.request.target.Target
 import com.chad.library.adapter.base.BaseViewHolder
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
+import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
+import com.sinyuk.fanfou.ui.photo.PhotoDetailsView
+import com.sinyuk.fanfou.ui.photo.ThumbnailInfo
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
@@ -56,7 +62,7 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  *
  * A RecyclerView ViewHolder that displays a status.
  */
-class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String?) : BaseViewHolder(view) {
+class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String?, private val fragment: Fragment) : BaseViewHolder(view) {
 
     private val roundedCornersTransformation = RoundedCornersTransformation(ConvertUtils.dp2px(view.context, 4f), 0)
     fun bind(status: Status) {
@@ -113,21 +119,23 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             false
         })
 
-        val url = status.photos?.bestUrl()
+        val url = status.photos?.size(ConvertUtils.dp2px(view.context, Photos.SMALL_SIZE))
 
         if (url == null) {
+            view.image.setOnClickListener(null)
             view.image.visibility = View.GONE
             glide.clear(view.image)
         } else {
             view.image.visibility = View.VISIBLE
-            glide.load(url)
+            glide.asBitmap()
+                    .load(url)
                     .apply(RequestOptions.bitmapTransform(roundedCornersTransformation).centerCrop())
-//                    .listener(object : RequestListener<Drawable> {
-//                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-//                            return false
-//                        }
-//
-//                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    .listener(object : RequestListener<Bitmap> {
+                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                            return false
+                        }
+
+                        override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
 //                            if (!status.photos!!.hasFadedIn) {
 //                                view.image.setHasTransientState(true)
 //                                val cm = ObservableColorMatrix()
@@ -149,11 +157,18 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
 //                                saturation.start()
 //                                status.photos!!.hasFadedIn = true
 //                            }
-//                            return false
-//                        }
-//                    })
-                    .dontAnimate()
+
+
+                            return false
+                        }
+                    })
                     .into(view.image)
+            view.image.setOnClickListener {
+                val rect = Rect()
+                view.image.getGlobalVisibleRect(rect)
+                val thumbnailInfo = ThumbnailInfo(rect, view.image.scaleType)
+                gotoPhotoView(status, thumbnailInfo)
+            }
         }
 
         FanfouUtils.parseAndSetText(view.content, status.text)
@@ -162,24 +177,51 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             if (url == null) {
                 (view.context as AbstractActivity).start(StatusView.newInstance(status))
             } else {
-                Glide.with(view).asBitmap().load(url).listener(object : RequestListener<Bitmap> {
+                Glide.with(view)
+                        .asBitmap()
+                        .load(url)
+                        .listener(object : RequestListener<Bitmap> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                (view.context as AbstractActivity).start(StatusView.newInstance(status))
+                                return false
+                            }
+
+                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                resource?.apply {
+                                    Bundle().apply {
+                                        putInt("w", width)
+                                        putInt("h", height)
+                                    }.also { (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it)) }
+                                }
+                                return true
+                            }
+                        }).preload()
+            }
+        }
+
+    }
+
+
+    /**
+     * 这里要再加载一次原图，因为列表中的图是裁剪过的
+     *
+     */
+    private fun gotoPhotoView(status: Status, thumbnailInfo: ThumbnailInfo) {
+        GlideApp.with(view).asBitmap().load(status.photos?.size(thumbnailInfo.rect.width()))
+                .listener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                        (view.context as AbstractActivity).start(StatusView.newInstance(status))
                         return false
                     }
 
-                    override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                        resource?.apply {
-                            Bundle().apply {
-                                putInt("w", width)
-                                putInt("h", height)
-                            }.also { (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it)) }
-                        }
-                        return true
+                    override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        (view.context as AbstractActivity).extraTransaction()
+                                .setCustomAnimations(0, 0, 0, 0)
+                                .startDontHideSelf(PhotoDetailsView.newInstance(status, thumbnailInfo, resource!!))
+                        return false
                     }
-                }).preload()
-            }
-        }
+                })
+                .preload()
+
     }
 
 
@@ -197,10 +239,10 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
     }
 
     companion object {
-        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String?): StatusViewHolder {
+        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String?, fragment: Fragment): StatusViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.timeline_view_list_item, parent, false)
-            return StatusViewHolder(view, glide, uniqueId)
+            return StatusViewHolder(view, glide, uniqueId, fragment)
         }
     }
 

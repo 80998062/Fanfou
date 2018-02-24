@@ -25,7 +25,6 @@ import android.arch.paging.PagedList
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import com.bumptech.glide.Glide
@@ -192,16 +191,10 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
         Log.i(TAG, "PagedList has changed , size: ${it?.size}")
-        // record the last scroll position
-        val lastPos = (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+        // Preserves the user's scroll position if items are inserted outside the viewable area:
+        val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
         adapter.setList(it)
-        // TODO: Unsupported, can this be less tricky?
-        recyclerView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-            override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                recyclerView.removeOnLayoutChangeListener(this)
-                if (lastPos == RecyclerView.NO_POSITION) recyclerView.scrollToPosition(0)
-            }
-        })
+        recyclerView.post { recyclerView.layoutManager.onRestoreInstanceState(recyclerViewState) }
     }
 
     private val networkConsumer = Observer<NetworkState> {
