@@ -172,7 +172,9 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
         if (favorited) {
             timelineViewModel.createFavorite(status.id).observe(this@TimelineView, Observer {
-
+                if (it?.states == States.ERROR) {
+                    it.message?.let { toast.toastShort(it) }
+                }
             })
         } else {
             timelineViewModel.destroyFavorite(status.id).observe(this@TimelineView, Observer {

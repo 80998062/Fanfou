@@ -111,12 +111,10 @@ class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferen
 
 
         val httpUrl = request.url()
-        val contentType = request.header("Content-Type")
-        if (request.method() == "GET" || (request.method() == "POST")
-                && contentType == "application/x-www-form-urlencoded") {
+        if (request.method() == "GET" || (request.method() == "POST")) {
             val querySize = request.url().querySize()
             for (i in 0 until querySize) {
-                parameters.put(httpUrl.queryParameterName(i), httpUrl.queryParameterValue(i))
+                parameters[httpUrl.queryParameterName(i)] = httpUrl.queryParameterValue(i)
             }
         }
 

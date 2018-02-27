@@ -125,14 +125,10 @@ class StatusPagedListAdapter(
                         holder.itemView.actionButton.setImageState(stateSet, true)
 
                         @Suppress("NAME_SHADOWING")
-                        holder.itemView.actionButton.setOnClickListener { v ->
+                        holder.itemView.actionButton.setOnClickListener { _ ->
                             val checked = !status.favorited
-                            val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
-                            holder.itemView.actionButton.setImageState(stateSet, true)
-                            status.apply {
-                                favorited = checked
-                                statusOperationListener?.onFavorited(checked, v, position, this)
-                            }
+                            setFavorited(checked, holder)
+                            statusOperationListener?.onFavorited(checked, holder.itemView, holder.adapterPosition, status)
                         }
                     }
 
@@ -153,9 +149,14 @@ class StatusPagedListAdapter(
     }
 
 
+    private fun setFavorited(checked: Boolean, holder: StatusViewHolder) {
+        val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
+        holder.itemView?.actionButton?.setImageState(stateSet, true)
+    }
+
     companion object {
         val COMPARATOR = object : DiffCallback<Status>() {
-            override fun areContentsTheSame(oldItem: Status, newItem: Status) = true
+            override fun areContentsTheSame(oldItem: Status, newItem: Status) = newItem.favorited == oldItem.favorited
             override fun areItemsTheSame(oldItem: Status, newItem: Status) = oldItem.id == newItem.id
         }
     }
