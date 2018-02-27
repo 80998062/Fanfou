@@ -28,6 +28,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
 import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.util.ViewPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
@@ -40,9 +41,12 @@ import java.util.*
 
 /**
  * Created by sinyuk on 2018/2/24.
+ *
  */
 class PhotoGridAdapter(private val fragment: Fragment,
-                       private val retryCallback: () -> Unit) : PagedListAdapter<Status, RecyclerView.ViewHolder>(PhotoGridAdapter.COMPARATOR) {
+                       private val retryCallback: () -> Unit,
+                       private val preloader: ViewPreloadSizeProvider<Status>) : PagedListAdapter<Status, RecyclerView.ViewHolder>(PhotoGridAdapter.COMPARATOR), ListPreloader.PreloadModelProvider<Status> {
+
 
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
@@ -100,6 +104,7 @@ class PhotoGridAdapter(private val fragment: Fragment,
                 } else {
                     val status = getItem(position)!!
                     holder.bind(status)
+                    preloader.setView(holder.itemView.image)
                 }
             }
             R.layout.network_state_item_photo_grid -> (holder as NetworkStateGridViewHolder).bind(networkState)
@@ -124,29 +129,27 @@ class PhotoGridAdapter(private val fragment: Fragment,
     }
 
 
-    class PhotoPreloadProvider constructor(private val adapter: PhotoGridAdapter, private val fragment: Fragment, private val imageWidthPixels: Int) :
-            ListPreloader.PreloadModelProvider<Status> {
-
-        override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
-            val url = item.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
-            return GlideApp.with(fragment).load(url).override(imageWidthPixels, imageWidthPixels)
-        }
-
-        override fun getPreloadItems(position: Int): MutableList<Status> = if (adapter.currentList?.isNotEmpty() == true && position < adapter.currentList?.size ?: 0) {
-            val status = adapter.currentList!![position]
-            if (status == null) {
+    override fun getPreloadItems(position: Int): MutableList<Status> = if (currentList?.isNotEmpty() == true && position < currentList?.size ?: 0) {
+        val status = currentList!![position]
+        if (status == null) {
+            Collections.emptyList<Status>()
+        } else {
+            val url = status.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
+            if (url == null) {
                 Collections.emptyList<Status>()
             } else {
-                val url = status.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
-                if (url == null) {
-                    Collections.emptyList<Status>()
-                } else {
-                    Collections.singletonList(status)
-                }
+                Collections.singletonList(status)
             }
-
-        } else {
-            Collections.emptyList<Status>()
         }
+
+    } else {
+        Collections.emptyList<Status>()
     }
+
+    override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {
+        val url = item.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
+        return GlideApp.with(fragment).load(url)
+    }
+
+
 }

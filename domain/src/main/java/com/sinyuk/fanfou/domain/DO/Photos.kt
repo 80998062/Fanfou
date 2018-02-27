@@ -60,6 +60,7 @@ data class Photos constructor(
     }
 
 
+
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),

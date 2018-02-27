@@ -31,7 +31,7 @@ import java.util.*
 /**
  * Created by danylo.volokh on 3/16/16.
  */
-class EnterScreenAnimations(private val mAnimatedImage: ImageView, private val mImageTo: ImageView, private val mMainContainer: View) : ScreenAnimation(mAnimatedImage.context) {
+class EnterScreenAnimations(private val mAnimatedImage: ImageView, private val mImageTo: ImageView, private val mMainContainer: View) {
 
     private var mEnteringAnimation: AnimatorSet? = null
 

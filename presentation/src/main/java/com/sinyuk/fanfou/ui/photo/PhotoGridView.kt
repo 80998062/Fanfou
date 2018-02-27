@@ -28,7 +28,7 @@ import android.support.v7.widget.OrientationHelper
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
-import com.bumptech.glide.util.FixedPreloadSizeProvider
+import com.bumptech.glide.util.ViewPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -36,10 +36,10 @@ import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PHOTO_SIZE
 import com.sinyuk.fanfou.domain.TIMELINE_PHOTO
+import com.sinyuk.fanfou.ui.recyclerview.GridItemDividerDecoration
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
-import com.sinyuk.myutils.system.ScreenUtils
 import kotlinx.android.synthetic.main.photo_grid_view.*
 import javax.inject.Inject
 
@@ -91,15 +91,12 @@ class PhotoGridView : AbstractFragment(), Injectable {
             recyclerView.layoutManager = this
         }
 
+        val decoration = GridItemDividerDecoration(context!!, R.dimen.divider_size, R.color.divider_color)
+        recyclerView.addItemDecoration(decoration)
         recyclerView.setHasFixedSize(true)
-
-
-        adapter = PhotoGridAdapter(this@PhotoGridView, { timelineViewModel.retry() })
-
-        val imageWidthPixels = ScreenUtils.getScreenWidth(context) / gridCount
-        val modelPreloader = PhotoGridAdapter.PhotoPreloadProvider(adapter, this, imageWidthPixels)
-        val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
-        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@PhotoGridView), modelPreloader, sizePreloader, PHOTO_SIZE)
+        val sizePreloader = ViewPreloadSizeProvider<Status>()
+        adapter = PhotoGridAdapter(this@PhotoGridView, { timelineViewModel.retry() }, sizePreloader)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@PhotoGridView), adapter, sizePreloader, PHOTO_SIZE)
         recyclerView.addOnScrollListener(preloader)
         recyclerView.adapter = adapter
         timelineViewModel.statuses.observe(this, pagedListConsumer)
@@ -115,10 +112,6 @@ class PhotoGridView : AbstractFragment(), Injectable {
     }
 
     private val networkConsumer = Observer<NetworkState> {
-        if (it?.status == com.sinyuk.fanfou.domain.Status.REACH_TOP) {
-            // never happen
-        } else {
-            adapter.setNetworkState(it)
-        }
+        adapter.setNetworkState(it)
     }
 }

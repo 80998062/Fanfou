@@ -44,7 +44,6 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.photo.PhotoDetailsView
 import com.sinyuk.fanfou.ui.photo.ThumbnailInfo
@@ -130,39 +129,8 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             glide.asBitmap()
                     .load(url)
                     .apply(RequestOptions.bitmapTransform(roundedCornersTransformation).centerCrop())
-                    .listener(object : RequestListener<Bitmap> {
-                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                            return false
-                        }
-
-                        override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-//                            if (!status.photos!!.hasFadedIn) {
-//                                view.image.setHasTransientState(true)
-//                                val cm = ObservableColorMatrix()
-//                                val saturation = ObjectAnimator.ofFloat(cm, ObservableColorMatrix.SATURATION, 0f, 1f)
-//                                saturation.addUpdateListener {
-//                                    // just animating the color matrix does not invalidate the
-//                                    // drawable so need this update listener.  Also have to create a
-//                                    // new CMCF as the matrix is immutable :(
-//                                    view.image.colorFilter = ColorMatrixColorFilter(cm)
-//                                }
-//                                saturation.duration = 2000L
-//                                saturation.interpolator = FastOutSlowInInterpolator()
-//                                saturation.addListener(object : AnimatorListenerAdapter() {
-//                                    override fun onAnimationEnd(animation: Animator) {
-//                                        view.image.clearColorFilter()
-//                                        view.image.setHasTransientState(false)
-//                                    }
-//                                })
-//                                saturation.start()
-//                                status.photos!!.hasFadedIn = true
-//                            }
-
-
-                            return false
-                        }
-                    })
                     .into(view.image)
+
             view.image.setOnClickListener {
                 val rect = Rect()
                 view.image.getGlobalVisibleRect(rect)
@@ -207,7 +175,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
      *
      */
     private fun gotoPhotoView(status: Status, thumbnailInfo: ThumbnailInfo) {
-        GlideApp.with(view).asBitmap().load(status.photos?.size(thumbnailInfo.rect.width()))
+        glide.asBitmap().load(status.photos?.size(thumbnailInfo.rect.width()))
                 .listener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
                         return false

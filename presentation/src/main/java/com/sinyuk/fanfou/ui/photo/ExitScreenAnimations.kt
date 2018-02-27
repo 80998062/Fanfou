@@ -32,7 +32,7 @@ import com.sinyuk.fanfou.ui.photo.PhotoDetailsView.Companion.IMAGE_TRANSLATION_D
  * Created by danylo.volokh on 3/16/16.
  *
  */
-class ExitScreenAnimations(private val mAnimatedImage: ImageView, private val mImageTo: ImageView, private val mMainContainer: View) : ScreenAnimation(mAnimatedImage.context) {
+class ExitScreenAnimations(private val mAnimatedImage: ImageView, private val mImageTo: ImageView, private val mMainContainer: View)  {
 
     /**
      * These values represent the final position of a Image that is translated
