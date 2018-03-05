@@ -33,7 +33,7 @@ import javax.inject.Inject
 class AccountViewModel @Inject constructor(private val repo: AccountRepository) : ViewModel() {
 
 
-    val profile = repo.userLive()
+    val profile = repo.accountLive()
 
     fun authorization(account: String, password: String) = repo.authorization(account, password)
 

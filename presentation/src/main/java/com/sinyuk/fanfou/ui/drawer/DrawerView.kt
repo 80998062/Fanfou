@@ -75,9 +75,7 @@ class DrawerView : AbstractFragment(), Injectable {
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
 
-        accountViewModel.profile.observe(this@DrawerView, Observer {
-            it?.observe(this@DrawerView, Observer { renderPlayer(it) })
-        })
+        accountViewModel.profile.observe(this@DrawerView, Observer { renderPlayer(it) })
 
         setupNightButton()
 

@@ -26,10 +26,9 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
-import android.arch.persistence.room.InvalidationTracker
 import android.content.SharedPreferences
+import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
-import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
@@ -39,9 +38,7 @@ import com.sinyuk.fanfou.domain.api.Oauth1SigningInterceptor
 import com.sinyuk.fanfou.domain.db.LocalDatabase
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.base.AbstractRepository
-import com.sinyuk.fanfou.domain.util.stringLiveData
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -52,18 +49,17 @@ import javax.inject.Singleton
  */
 @Singleton
 class TimelineRepository @Inject constructor(
-        val application: Application,
+        private val application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
-        @Named(TYPE_GLOBAL) sharedPreferences: SharedPreferences,
+        @Named(TYPE_GLOBAL) private val sharedPreferences: SharedPreferences,
         @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
     companion object {
         const val TAG = "TimelineRepository"
     }
 
-    val accountLiveData = sharedPreferences.stringLiveData(UNIQUE_ID, "")
 
     /**
      * 加载保存的所有状态,并自动请求新的旧状态
@@ -72,18 +68,27 @@ class TimelineRepository @Inject constructor(
      *
      * @param pageSize 一次请求的条数
      */
-    fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
+    @MainThread
+    fun statuses(path: String, pageSize: Int, uniqueId: String? = null): Listing<Status> {
 
-        Log.i(TAG, "statuses()")
+        val notNullUniqueId = uniqueId ?: sharedPreferences.getString(UNIQUE_ID, null)
+
         // create a data source factory from Room
-        val dataSourceFactory = StatusDataSourceFactory(db.statusDao(), convertPathToFlag(path), uniqueId)
+//        val dataSourceFactory = StatusDataSourceFactory(db, convertPathToFlag(path), notNullUniqueId)
+
+        val dataSourceFactory = db.statusDao().loadAll(uniqueId = notNullUniqueId, path = convertPathToFlag(path))
 
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
-        val boundaryCallback = StatusBoundaryCallback(webservice = restAPI, path = path, uniqueId = uniqueId, handleResponse = this::insertResultIntoDb,
-                appExecutors = appExecutors, networkPageSize = pageSize)
+        val boundaryCallback = StatusBoundaryCallback(
+                webservice = restAPI,
+                path = path,
+                uniqueId = notNullUniqueId,
+                handleResponse = this::insertResultIntoDb,
+                appExecutors = appExecutors,
+                networkPageSize = pageSize)
 
-        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize)
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(PREFETCH_DISTANCE).setInitialLoadSizeHint(pageSize)
 
         val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setBackgroundThreadExecutor(appExecutors.diskIO())
 
@@ -92,18 +97,9 @@ class TimelineRepository @Inject constructor(
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val trigger = MutableLiveData<Unit>()
-        val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, uniqueId) })
+        val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, notNullUniqueId) })
 
         val pagedList = builder.build()
-
-        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
-            override fun onInvalidated(tables: MutableSet<String>) {
-                if (isInvalid.compareAndSet(true, false)) {
-                    Log.i(TAG, "onInvalidated: " + tables.first())
-                    dataSourceFactory.sourceLiveData.value?.invalidate()
-                }
-            }
-        })
 
         return Listing(
                 pagedList = pagedList,
@@ -115,18 +111,10 @@ class TimelineRepository @Inject constructor(
     }
 
     private fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<Resource<MutableList<Status>>> {
-        isInvalid.set(true)
         val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
         appExecutors.networkIO().execute(task)
         return task.livedata
     }
-
-    private fun refresh(path: String, uniqueId: String) {
-        isInvalid.set(true)
-        db.statusDao().deleteAll(convertPathToFlag(path), uniqueId)
-    }
-
-    private val isInvalid = AtomicBoolean(false)
 
     @WorkerThread
     private fun insertResultIntoDb(path: String, uniqueId: String, body: MutableList<Status>?): Int {
@@ -144,7 +132,6 @@ class TimelineRepository @Inject constructor(
                 db.setTransactionSuccessful()
             } finally {
                 db.endTransaction()
-                isInvalid.set(true)
             }
             return count
         } else {
@@ -160,13 +147,18 @@ class TimelineRepository @Inject constructor(
         val liveData = MutableLiveData<Resource<Status>>()
         liveData.postValue(Resource.loading(null))
         appExecutors.networkIO().execute {
+            val uniqueId = sharedPreferences.getString(UNIQUE_ID, null)
+            if (uniqueId == null) {
+                liveData.postValue(Resource.error("error msg: not logged", null))
+                return@execute
+            }
             try {
                 val response = restAPI.createFavorite(id).execute()
                 if (response.isSuccessful || response.body() != null) {
                     val data = response.body()!!
                     appExecutors.diskIO().execute {
                         db.runInTransaction {
-                            db.statusDao().query(id, accountLiveData.value!!)?.let { data.pathFlag = it.pathFlag }
+                            db.statusDao().query(id, uniqueId)?.let { data.pathFlag = it.pathFlag }
                             data.user?.let { data.playerExtracts = PlayerExtracts(it) }
                             db.statusDao().update(data)
                         }
@@ -190,13 +182,18 @@ class TimelineRepository @Inject constructor(
         val liveData = MutableLiveData<Resource<Status>>()
         liveData.postValue(Resource.loading(null))
         appExecutors.networkIO().execute {
+            val uniqueId = sharedPreferences.getString(UNIQUE_ID, null)
+            if (uniqueId == null) {
+                liveData.postValue(Resource.error("error msg: not logged", null))
+                return@execute
+            }
             try {
                 val response = restAPI.deleteFavorite(id).execute()
                 if (response.isSuccessful || response.body() != null) {
                     val data = response.body()!!
                     appExecutors.diskIO().execute {
                         db.runInTransaction {
-                            db.statusDao().query(id, accountLiveData.value!!)?.let {
+                            db.statusDao().query(id, uniqueId)?.let {
                                 it.favorited = false
                                 db.statusDao().update(it)
                             }

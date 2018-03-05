@@ -37,11 +37,11 @@ abstract class QuickAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K> {
     constructor(layoutResId: Int) : super(layoutResId)
 
 
-    override fun onBindViewHolder(holder: K, position: Int, payloads: List<Any>?) {
-        if (payloads == null || payloads.isEmpty()) {
+    override fun onBindViewHolder(holder: K, position: Int, payloads: List<Any>) {
+        if (payloads.isEmpty()) {
             onBindViewHolder(holder, position)
         } else {
-            throw TODO("Bind viewholder with payloads not implement")
+            throw TODO("Bind viewHolder with payloads not implement")
         }
     }
 

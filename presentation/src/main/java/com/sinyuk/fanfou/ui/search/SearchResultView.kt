@@ -58,7 +58,7 @@ class SearchResultView : AbstractFragment(), Injectable {
 
         query = arguments!!.getString("query")
         fragmentList = if (findChildFragment(TimelineView::class.java) == null) {
-            mutableListOf(TimelineView.search(SEARCH_TIMELINE_PUBLIC, query), SignInView())
+            mutableListOf(TimelineView.newInstance(SEARCH_TIMELINE_PUBLIC), SignInView())
         } else {
             (findChildFragment(TimelineView::class.java) as TimelineView).search(query)
             mutableListOf(findChildFragment(TimelineView::class.java), findChildFragment(SignInView::class.java))

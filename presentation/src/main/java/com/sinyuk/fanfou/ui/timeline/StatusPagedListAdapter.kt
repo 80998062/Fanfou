@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -95,15 +95,15 @@ class StatusPagedListAdapter(
     }
 
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        if (payloads?.isNotEmpty() == true) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
             TODO()
         } else {
             onBindViewHolder(holder, position)
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.timeline_view_list_item -> {
                 holder as StatusViewHolder
@@ -152,10 +152,11 @@ class StatusPagedListAdapter(
     private fun setFavorited(checked: Boolean, holder: StatusViewHolder) {
         val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
         holder.itemView?.actionButton?.setImageState(stateSet, true)
+        getItem(holder.adapterPosition)?.favorited = checked
     }
 
     companion object {
-        val COMPARATOR = object : DiffCallback<Status>() {
+        val COMPARATOR = object : DiffUtil.ItemCallback<Status>() {
             override fun areContentsTheSame(oldItem: Status, newItem: Status) = newItem.favorited == oldItem.favorited
             override fun areItemsTheSame(oldItem: Status, newItem: Status) = oldItem.id == newItem.id
         }

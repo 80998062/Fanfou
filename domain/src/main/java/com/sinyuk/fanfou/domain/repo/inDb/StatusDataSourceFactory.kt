@@ -23,17 +23,17 @@ package com.sinyuk.fanfou.domain.repo.inDb
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.db.dao.StatusDao
+import com.sinyuk.fanfou.domain.db.LocalDatabase
 
 /**
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSourceFactory(private val dao: StatusDao, private val path: Int,private val uniqueId:String) : DataSource.Factory<String, Status> {
+class StatusDataSourceFactory(private val db: LocalDatabase, private val path: Int,private val uniqueId:String) : DataSource.Factory<String, Status> {
     val sourceLiveData = MutableLiveData<StatusDataSource>()
 
     override fun create(): DataSource<String, Status> {
-        val source = StatusDataSource(dao, path,uniqueId)
+        val source = StatusDataSource(db, path,uniqueId)
         sourceLiveData.postValue(source)
         return source
     }

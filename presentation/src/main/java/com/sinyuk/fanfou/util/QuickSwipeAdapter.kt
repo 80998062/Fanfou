@@ -39,8 +39,8 @@ abstract class QuickSwipeAdapter<T, K : BaseViewHolder> : BaseQuickAdapter<T, K>
     constructor(layoutResId: Int) : super(layoutResId)
 
 
-    override fun onBindViewHolder(holder: K, position: Int, payloads: List<Any>?) {
-        if (payloads == null || payloads.isEmpty()) {
+    override fun onBindViewHolder(holder: K, position: Int, payloads: List<Any>) {
+        if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position)
         } else {
             throw TODO("onBindViewHolder( payloads ) Method not implement")

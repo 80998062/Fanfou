@@ -23,7 +23,7 @@ package com.sinyuk.fanfou.ui.photo
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
@@ -81,21 +81,7 @@ class PhotoGridAdapter(private val fragment: Fragment,
     }
 
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        if (payloads?.isNotEmpty() == true) {
-            TODO()
-        } else {
-            onBindViewHolder(holder, position)
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.photo_grid_list_item -> PhotoGridItemHolder.create(parent, glide, fragment)
-        R.layout.network_state_item_photo_grid -> NetworkStateGridViewHolder.create(parent, retryCallback)
-        else -> throw IllegalArgumentException("unknown view type $viewType")
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.photo_grid_list_item -> {
                 holder as PhotoGridItemHolder
@@ -111,8 +97,23 @@ class PhotoGridAdapter(private val fragment: Fragment,
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
+            TODO()
+        } else {
+            onBindViewHolder(holder, position)
+        }
+    }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
+        R.layout.photo_grid_list_item -> PhotoGridItemHolder.create(parent, glide, fragment)
+        R.layout.network_state_item_photo_grid -> NetworkStateGridViewHolder.create(parent, retryCallback)
+        else -> throw IllegalArgumentException("unknown view type $viewType")
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
         if (holder is PhotoGridItemHolder) {
             holder.itemView.image.setBadgeColor(initialGifBadgeColor)
             holder.itemView.image.drawBadge = false
@@ -121,8 +122,9 @@ class PhotoGridAdapter(private val fragment: Fragment,
         }
     }
 
+
     companion object {
-        val COMPARATOR = object : DiffCallback<Status>() {
+        val COMPARATOR = object : DiffUtil.ItemCallback<Status>() {
             override fun areContentsTheSame(oldItem: Status, newItem: Status) = true
             override fun areItemsTheSame(oldItem: Status, newItem: Status) = oldItem.id == newItem.id
         }

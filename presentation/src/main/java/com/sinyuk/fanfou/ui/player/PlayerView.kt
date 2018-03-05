@@ -88,7 +88,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
 
         if (isSelf()) {
             accountViewModel.profile.observe(this@PlayerView, Observer {
-                it?.observe(this@PlayerView, Observer { render(it) })
+                render(it)
             })
         } else {
             playerViewModel.profile(uniqueId!!).observe(this@PlayerView, Observer {
@@ -146,7 +146,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             if (it.protectedX == true) {
 
             } else {
-                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
+                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId!!))
             }
 
             if (isSelf()) {

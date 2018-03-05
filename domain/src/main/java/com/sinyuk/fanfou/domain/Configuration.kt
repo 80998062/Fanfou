@@ -91,7 +91,7 @@ const val PROFILE_MODE_LITE = "lite"
  * page
  */
 const val PAGE_SIZE = 50
-
+const val PREFETCH_DISTANCE = 5
 const val PHOTO_SIZE = 18
 
 /**

@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.ui.player
 
 import android.arch.paging.PagedListAdapter
 import android.support.v4.app.Fragment
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
@@ -69,15 +69,15 @@ class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -
     }
 
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        if (payloads?.isNotEmpty() == true) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
             TODO()
         } else {
             onBindViewHolder(holder, position)
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.player_list_item -> {
                 holder as PlayerItemViewHolder
@@ -104,7 +104,7 @@ class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -
     private val glide: GlideRequests = GlideApp.with(fragment)
 
     companion object {
-        val COMPARATOR = object : DiffCallback<Player>() {
+        val COMPARATOR = object : DiffUtil.ItemCallback<Player>() {
             override fun areContentsTheSame(oldItem: Player, newItem: Player) = true
             override fun areItemsTheSame(oldItem: Player, newItem: Player) = oldItem.id == newItem.id
         }

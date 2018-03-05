@@ -52,9 +52,7 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        accountViewModel.profile.observe(this@IndexView, Observer {
-            it?.observe(this@IndexView, Observer { render(it) })
-        })
+        accountViewModel.profile.observe(this@IndexView, Observer { render(it) })
     }
 
     private fun render(data: Player?) {

@@ -40,6 +40,8 @@ import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.home.TabDoubleClickEvent
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.util.obtainViewModel
+import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -66,13 +68,13 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             }
         }
 
-        fun search(path: String, query: String, id: String? = null) = TimelineView().apply {
-            arguments = Bundle().apply {
-                putString("path", path)
-                putString("query", query)
-                putString("id", id)
-            }
-        }
+//        fun search(path: String, query: String, id: String? = null) = TimelineView().apply {
+//            arguments = Bundle().apply {
+//                putString("path", path)
+//                putString("query", query)
+//                putString("id", id)
+//            }
+//        }
 
         const val TAG = "TimelineView"
     }
@@ -84,13 +86,13 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
 
-//    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
+    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     @Inject
     lateinit var toast: ToastUtils
 
+
     private lateinit var timelinePath: String
-    private var id: String? = null
     private var query: String? = null
 
 
@@ -98,12 +100,17 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         super.onLazyInitView(savedInstanceState)
         arguments?.let {
             timelinePath = it.getString("path")
-            id = it.getString("id")
+            val id = it.getString("id")
             query = it.getString("query")
-        }.run { timelineViewModel.params = TimelineViewModel.TimelinePath(path = timelinePath, id = id, query = query) }
+            timelineViewModel.setParams(timelinePath, id, query)
+        }
 
         setupRecyclerView()
         setupSwipeRefresh()
+
+        accountViewModel.profile.observe(this@TimelineView, Observer {
+            timelineViewModel.setParams(timelinePath, it?.uniqueId, query)
+        })
     }
 
 
@@ -144,7 +151,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
             initialPrefetchItemCount = PAGE_SIZE
-            isAutoMeasureEnabled = true
             recyclerView.layoutManager = this
         }
 
@@ -159,7 +165,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
         val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
-        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, 10)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, PAGE_SIZE)
         recyclerView.addOnScrollListener(preloader)
         adapter.statusOperationListener = this@TimelineView
         recyclerView.adapter = adapter
@@ -168,6 +174,9 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         timelineViewModel.networkState.observe(this, networkConsumer)
     }
 
+    /**
+     *  favorited 接口的数据在有网的情况下都不会缓存所以要更新adapter
+     */
 
     override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
         if (favorited) {
@@ -194,9 +203,9 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     private val pagedListConsumer = Observer<PagedList<Status>> {
         Log.i(TAG, "PagedList has changed , size: ${it?.size}")
         // Preserves the user's scroll position if items are inserted outside the viewable area:
-        val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
-        adapter.setList(it)
-        recyclerView.post { recyclerView.layoutManager.onRestoreInstanceState(recyclerViewState) }
+//        val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
+        adapter.submitList(it)
+//        recyclerView.post { recyclerView.layoutManager.onRestoreInstanceState(recyclerViewState) }
     }
 
     private val networkConsumer = Observer<NetworkState> {

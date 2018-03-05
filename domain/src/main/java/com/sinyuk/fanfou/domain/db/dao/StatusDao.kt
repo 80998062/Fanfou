@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.db.dao
 
+import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import com.sinyuk.fanfou.domain.DO.Status
 
@@ -65,6 +66,12 @@ interface StatusDao {
             " AND uid = :uniqueId" +
             " ORDER BY createdAt DESC LIMIT :limit")
     fun loadBefore(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
+
+
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
+            " uid = :uniqueId" +
+            " ORDER BY createdAt DESC")
+    fun loadAll(uniqueId: String, path: Int): DataSource.Factory<Int, Status>
 
     @Query("DELETE FROM statuses WHERE pathFlag & :path = :path" +
             " AND uid = :uniqueId")

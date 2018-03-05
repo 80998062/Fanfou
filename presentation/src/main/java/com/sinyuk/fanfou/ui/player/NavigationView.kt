@@ -42,22 +42,17 @@ class NavigationView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.navigation_view
 
     companion object {
-        fun newInstance(uniqueId: String? = null) = NavigationView().apply {
+        fun newInstance(uniqueId: String) = NavigationView().apply {
             arguments = Bundle().apply { putString("uniqueId", uniqueId) }
         }
     }
 
-    private val uniqueId by lazy { arguments?.getString("uniqueId") }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragmentList = if (uniqueId == null) {
-            arrayListOf(TimelineView.newInstance(TIMELINE_USER), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES))
-        } else {
-            arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
-        }
-
+        val uniqueId = arguments?.getString("uniqueId")
+        fragmentList = arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId!!), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
         setupViewPager()
     }
 

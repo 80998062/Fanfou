@@ -98,11 +98,8 @@ class StatusBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            if (handleResponse(path, uniqueId, response.body()) == networkPageSize) {
-                it.recordSuccess()
-            } else {
-                it.recordNoMore()
-            }
+            if (handleResponse(path, uniqueId, response.body()) == networkPageSize) it.recordSuccess()
+            else it.recordNoMore()
         }
     }
 

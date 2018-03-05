@@ -24,24 +24,29 @@ import android.arch.paging.PageKeyedDataSource
 import android.util.Log
 import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.db.dao.StatusDao
+import com.sinyuk.fanfou.domain.db.LocalDatabase
 
 /**
  * Created by sinyuk on 2018/1/29.
  *
  */
-class StatusDataSource(private val dao: StatusDao, private val path: Int, private val uniqueId: String) : PageKeyedDataSource<String, Status>() {
+class StatusDataSource(private val db: LocalDatabase, private val path: Int, private val uniqueId: String) : PageKeyedDataSource<String, Status>() {
 
-    init {
+//    init {
 //        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("statuses") {
 //            override fun onInvalidated(tables: MutableSet<String>) {
 //                invalidate()
 //            }
 //        })
-    }
+//    }
+//
+//    override fun isInvalid(): Boolean {
+//        db.invalidationTracker.refreshVersionsAsync()
+//        return super.isInvalid()
+//    }
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Status>) {
-        val data = dao.loadInitial(uniqueId, path, params.requestedLoadSize)
+        val data = db.statusDao().loadInitial(uniqueId, path, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadInitial: " + data.size)
         if (data.isEmpty()) {
             callback.onResult(data, null, null)
@@ -51,7 +56,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int, privat
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
-        val data = dao.loadAfter(uniqueId, path, params.key, params.requestedLoadSize)
+        val data = db.statusDao().loadAfter(uniqueId, path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + params.key)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadAfter: " + data.size)
         if (data.isEmpty()) {
@@ -62,7 +67,7 @@ class StatusDataSource(private val dao: StatusDao, private val path: Int, privat
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Status>) {
-        val data = dao.loadBefore(uniqueId, path, params.key, params.requestedLoadSize)
+        val data = db.statusDao().loadBefore(uniqueId, path, params.key, params.requestedLoadSize)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + params.key)
         if (BuildConfig.DEBUG) Log.i(TAG, "loadBefore: " + data.size)
         if (data.isEmpty()) {

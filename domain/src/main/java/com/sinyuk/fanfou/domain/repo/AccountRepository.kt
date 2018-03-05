@@ -99,11 +99,13 @@ class AccountRepository
 
     }
 
-    fun userLive(): LiveData<LiveData<Player?>> = map(sharedPreferences.stringLiveData(UNIQUE_ID, ""), {
+    private val uniqueIdLive = sharedPreferences.stringLiveData(UNIQUE_ID, "")
+
+    fun accountLive(): LiveData<Player?> = map(uniqueIdLive, {
         if (it.isBlank()) {
             TODO()
         } else {
-            db.playerDao().queryAsLive(it)
+            db.playerDao().query(it)
         }
     })
 

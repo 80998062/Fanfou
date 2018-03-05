@@ -106,9 +106,9 @@ class PlayerListView : AbstractFragment(), Injectable {
         recyclerView.adapter = adapter
 
         if (cached) {
-            playerViewModel.cached(path = path).observe(this@PlayerListView, Observer { adapter.setList(it) })
+            playerViewModel.cached(path = path).observe(this@PlayerListView, Observer { adapter.submitList(it) })
         } else {  // network
-            playerViewModel.players.observe(this@PlayerListView, Observer { adapter.setList(it) })
+            playerViewModel.players.observe(this@PlayerListView, Observer { adapter.submitList(it) })
             playerViewModel.networkState.observe(this@PlayerListView, Observer { adapter.setNetworkState(it) })
         }
 

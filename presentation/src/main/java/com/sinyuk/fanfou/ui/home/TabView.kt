@@ -99,7 +99,7 @@ class TabView : AbstractFragment(), Injectable {
         if (savedInstanceState == null) {
             // TODO: viewModel是不是只要注册在这里
         }
-        accountViewModel.profile.observe(this, Observer { it?.observe(this@TabView, Observer { renderAccount(it) }) })
+        accountViewModel.profile.observe(this, Observer { renderAccount(it) })
     }
 
     private fun renderUI() {

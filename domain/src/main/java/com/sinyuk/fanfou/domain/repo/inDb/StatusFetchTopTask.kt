@@ -84,16 +84,25 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
 
 
     @WorkerThread
-    private fun insertResultIntoDb(body: MutableList<Status>?) = if (body?.isNotEmpty() == true) {
+    private fun insertResultIntoDb(body: MutableList<Status>?): Int {
+        if (body?.isEmpty() != false) return 0
+
         for (status in body) {
             status.user?.let { status.playerExtracts = PlayerExtracts(it) }
             db.statusDao().query(status.id, uniqueId)?.let { status.addPath(it.pathFlag) }
             status.addPathFlag(path)
             status.uid = uniqueId
         }
-        db.statusDao().inserts(body).size
-    } else {
-        0
+
+        val size: Int
+        try {
+            db.beginTransaction()
+            size = db.statusDao().inserts(body).size
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+        return size
     }
 
 }

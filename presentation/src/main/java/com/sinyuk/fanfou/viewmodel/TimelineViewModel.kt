@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.viewmodel
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.Transformations.map
 import android.arch.lifecycle.Transformations.switchMap
@@ -41,23 +42,19 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
 
     data class TimelinePath(val path: String, val id: String? = null, val query: String? = null)
 
-    lateinit var params: TimelinePath
+    private var params: MutableLiveData<TimelinePath> = MutableLiveData()
 
+    fun setParams(path: String, id: String? = null, query: String? = null) {
+        params.postValue(TimelinePath(path, id, query))
+    }
 
-    private val repoResult: LiveData<Listing<Status>> = map(disk.accountLiveData, {
-        if (it.isBlank()) TODO()
-        when (params.path) {
-            SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = params.path, query = params.query, pageSize = PAGE_SIZE, uniqueId = params.id)
-            TIMELINE_PHOTO -> tiled.statuses(path = params.path,  pageSize = PHOTO_SIZE, uniqueId = params.id)
-            TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
-            TIMELINE_USER -> {
-                if (params.id == null) {
-                    disk.statuses(path = params.path, pageSize = PAGE_SIZE, uniqueId = it)
-                } else {
-                    tiled.statuses(path = params.path, uniqueId = params.id, pageSize = PAGE_SIZE)
-                }
-            }
-            TIMELINE_HOME -> disk.statuses(path = params.path, pageSize = PAGE_SIZE, uniqueId = it)
+    private val repoResult: LiveData<Listing<Status>> = map(params, {
+        when (it.path) {
+            SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.id)
+            TIMELINE_PHOTO -> tiled.statuses(path = it.path, pageSize = PHOTO_SIZE, uniqueId = it.id)
+            TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
+            TIMELINE_USER -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
+            TIMELINE_HOME -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
             else -> TODO()
         }
     })
@@ -65,6 +62,7 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
     val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
     val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
     val refreshState = switchMap(repoResult, { it.refreshState })!!
+
 
     fun retry() {
         val listing = repoResult.value

@@ -57,6 +57,7 @@ abstract class LocalDatabase : RoomDatabase() {
             synchronized(lock) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.applicationContext, LocalDatabase::class.java, "fanfou.db")
+                            .allowMainThreadQueries()
                             .fallbackToDestructiveMigration()
                             .build()
                 }

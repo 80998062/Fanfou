@@ -40,17 +40,17 @@ ext {
     buildToolsVersion = '27.0.1'
 
     // App dependencies
-    supportLibraryVersion = '27.0.1'
+    supportLibraryVersion = '27.1.0'
     junitVersion = '4.12'
     mockitoVersion = '2.8.47'
     runnerVersion = '1.0.1'
     roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha4-1"
+    pagingVersion = "1.0.0-alpha6"
 
     glideVersion = "4.5.0"
     transformationVersion = "3.0.1"
     // Architecture Components dependencies
-    archLifecycleVersion = "1.0.0"
+    archLifecycleVersion = "1.1.0"
 
     // dagger
     daggerVersion = '2.13'

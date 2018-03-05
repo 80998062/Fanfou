@@ -218,8 +218,8 @@ class SmoothCheckBox : View, Checkable {
         mTickPoints[2].x = Math.round(measuredWidth.toFloat() / 30 * 22)
         mTickPoints[2].y = Math.round(measuredHeight.toFloat() / 30 * 10)
 
-        mLeftLineDistance = Math.sqrt(Math.pow((mTickPoints!![1].x - mTickPoints!![0].x).toDouble(), 2.0) + Math.pow((mTickPoints[1].y - mTickPoints[0].y).toDouble(), 2.0)).toFloat()
-        mRightLineDistance = Math.sqrt(Math.pow((mTickPoints!![2].x - mTickPoints!![1].x).toDouble(), 2.0) + Math.pow((mTickPoints[2].y - mTickPoints[1].y).toDouble(), 2.0)).toFloat()
+        mLeftLineDistance = Math.sqrt(Math.pow((mTickPoints[1].x - mTickPoints[0].x).toDouble(), 2.0) + Math.pow((mTickPoints[1].y - mTickPoints[0].y).toDouble(), 2.0)).toFloat()
+        mRightLineDistance = Math.sqrt(Math.pow((mTickPoints[2].x - mTickPoints[1].x).toDouble(), 2.0) + Math.pow((mTickPoints[2].y - mTickPoints[1].y).toDouble(), 2.0)).toFloat()
         mTickPaint!!.strokeWidth = mStrokeWidth.toFloat()
     }
 
@@ -253,10 +253,10 @@ class SmoothCheckBox : View, Checkable {
         if (mDrewDistance < mLeftLineDistance) {
             val step: Float = if (mWidth / 20.0f < 3) 3f else mWidth / 20.0f
             mDrewDistance += step
-            val stopX = mTickPoints[0]?.x + (mTickPoints[1]?.x - mTickPoints[0]?.x) * mDrewDistance / mLeftLineDistance
-            val stopY = mTickPoints!![0].y + (mTickPoints!![1].y - mTickPoints!![0].y) * mDrewDistance / mLeftLineDistance
+            val stopX = mTickPoints[0].x + (mTickPoints[1].x - mTickPoints[0].x) * mDrewDistance / mLeftLineDistance
+            val stopY = mTickPoints[0].y + (mTickPoints[1].y - mTickPoints[0].y) * mDrewDistance / mLeftLineDistance
 
-            mTickPath!!.moveTo(mTickPoints!![0].x.toFloat(), mTickPoints!![0].y.toFloat())
+            mTickPath!!.moveTo(mTickPoints[0].x.toFloat(), mTickPoints[0].y.toFloat())
             mTickPath!!.lineTo(stopX, stopY)
             canvas.drawPath(mTickPath!!, mTickPaint!!)
 
@@ -265,17 +265,17 @@ class SmoothCheckBox : View, Checkable {
             }
         } else {
 
-            mTickPath!!.moveTo(mTickPoints!![0].x.toFloat(), mTickPoints!![0].y.toFloat())
-            mTickPath!!.lineTo(mTickPoints!![1].x.toFloat(), mTickPoints!![1].y.toFloat())
+            mTickPath!!.moveTo(mTickPoints[0].x.toFloat(), mTickPoints[0].y.toFloat())
+            mTickPath!!.lineTo(mTickPoints!![1].x.toFloat(), mTickPoints[1].y.toFloat())
             canvas.drawPath(mTickPath!!, mTickPaint!!)
 
             // draw right of the tick
             if (mDrewDistance < mLeftLineDistance + mRightLineDistance) {
-                val stopX = mTickPoints!![1].x + (mTickPoints!![2].x - mTickPoints!![1].x) * (mDrewDistance - mLeftLineDistance) / mRightLineDistance
-                val stopY = mTickPoints!![1].y - (mTickPoints!![1].y - mTickPoints!![2].y) * (mDrewDistance - mLeftLineDistance) / mRightLineDistance
+                val stopX = mTickPoints[1].x + (mTickPoints[2].x - mTickPoints[1].x) * (mDrewDistance - mLeftLineDistance) / mRightLineDistance
+                val stopY = mTickPoints!![1].y - (mTickPoints!![1].y - mTickPoints[2].y) * (mDrewDistance - mLeftLineDistance) / mRightLineDistance
 
                 mTickPath!!.reset()
-                mTickPath!!.moveTo(mTickPoints!![1].x.toFloat(), mTickPoints!![1].y.toFloat())
+                mTickPath!!.moveTo(mTickPoints[1].x.toFloat(), mTickPoints!![1].y.toFloat())
                 mTickPath!!.lineTo(stopX, stopY)
                 canvas.drawPath(mTickPath!!, mTickPaint!!)
 
@@ -283,7 +283,7 @@ class SmoothCheckBox : View, Checkable {
                 mDrewDistance += step
             } else {
                 mTickPath!!.reset()
-                mTickPath!!.moveTo(mTickPoints!![1].x.toFloat(), mTickPoints!![1].y.toFloat())
+                mTickPath!!.moveTo(mTickPoints[1].x.toFloat(), mTickPoints!![1].y.toFloat())
                 mTickPath!!.lineTo(mTickPoints!![2].x.toFloat(), mTickPoints!![2].y.toFloat())
                 canvas.drawPath(mTickPath!!, mTickPaint!!)
             }

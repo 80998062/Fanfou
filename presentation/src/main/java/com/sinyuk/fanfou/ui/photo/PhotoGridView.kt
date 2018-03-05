@@ -50,7 +50,7 @@ import javax.inject.Inject
 class PhotoGridView : AbstractFragment(), Injectable {
 
     companion object {
-        fun newInstance(id: String? = null) = PhotoGridView().apply {
+        fun newInstance(id: String) = PhotoGridView().apply {
             arguments = Bundle().apply { putString("id", id) }
         }
 
@@ -66,10 +66,10 @@ class PhotoGridView : AbstractFragment(), Injectable {
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
 
-        var id: String? = null
         arguments?.let {
-            id = it.getString("id")
-        }.run { timelineViewModel.params = TimelineViewModel.TimelinePath(path = TIMELINE_PHOTO, id = id) }
+            val id = it.getString("id")
+            timelineViewModel.setParams(TIMELINE_PHOTO, id)
+        }
 
         setupRecyclerView()
         setupSwipeRefresh()
@@ -107,7 +107,7 @@ class PhotoGridView : AbstractFragment(), Injectable {
         Log.i(TAG, "PagedList has changed , size: ${it?.size}")
         // Preserves the user's scroll position if items are inserted outside the viewable area:
         val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
-        adapter.setList(it)
+        adapter.submitList(it)
         recyclerView.post { recyclerView.layoutManager.onRestoreInstanceState(recyclerViewState) }
     }
 
