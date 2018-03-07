@@ -24,8 +24,8 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -61,7 +61,7 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  *
  * A RecyclerView ViewHolder that displays a status.
  */
-class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String?, private val fragment: Fragment) : BaseViewHolder(view) {
+class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String) : BaseViewHolder(view) {
 
     private val roundedCornersTransformation = RoundedCornersTransformation(ConvertUtils.dp2px(view.context, 4f), 0)
     fun bind(status: Status) {
@@ -72,7 +72,11 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         when (status.playerExtracts?.uniqueId) {
             null -> view.avatar.setOnClickListener(null)
             uniqueId -> view.avatar.setOnClickListener { }
-            else -> view.avatar.setOnClickListener { (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId)) }
+            else -> view.avatar.setOnClickListener {
+                val id = status.playerExtracts!!.uniqueId
+                Log.d("TimelineRepository", "uniqueId $id")
+                (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
+            }
         }
 
         // Clear background
@@ -207,10 +211,10 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
     }
 
     companion object {
-        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String?, fragment: Fragment): StatusViewHolder {
+        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String): StatusViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.timeline_view_list_item, parent, false)
-            return StatusViewHolder(view, glide, uniqueId, fragment)
+            return StatusViewHolder(view, glide, uniqueId)
         }
     }
 

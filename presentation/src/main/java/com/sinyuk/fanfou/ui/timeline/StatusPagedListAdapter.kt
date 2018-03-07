@@ -52,9 +52,9 @@ import java.util.*
  * Adapter implementation that shows status.
  */
 class StatusPagedListAdapter(
-        private val fragment: Fragment,
+        fragment: Fragment,
         private val retryCallback: () -> Unit,
-        private val uniqueId: String?,
+        private val uniqueId: String,
         private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
@@ -89,7 +89,7 @@ class StatusPagedListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId, fragment)
+        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }

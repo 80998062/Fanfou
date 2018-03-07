@@ -19,11 +19,11 @@
   -->
 
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@android:integer/config_mediumAnimTime"
+    android:duration="@android:integer/config_shortAnimTime"
     android:shareInterpolator="true">
 
     <translate
-        android:fromYDelta="50%"
+        android:fromYDelta="30%"
         android:toYDelta="0" />
 
     <alpha

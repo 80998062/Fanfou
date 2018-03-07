@@ -20,7 +20,6 @@
 <cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:windowBackground"
@@ -32,203 +31,151 @@
         style="@style/keyboardPanel"
         android:visibility="gone" />
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinator"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/status_bar_height" />
+
+        <LinearLayout
+            android:id="@+id/actionBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/action_bar_height"
+            android:orientation="horizontal"
+            android:transitionName="@string/transition_toolbar">
+
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/navImageView"
+                style="@style/action_button"
+                android:contentDescription="@string/name_avatar"
+                android:transitionName="@string/transition_toolbar_button_1"
+                app:riv_border_width="0dp"
+                app:riv_corner_radius="16dp"
+                tools:src="@mipmap/ic_launcher_round" />
+
+
+            <com.sinyuk.fanfou.ui.BetterViewAnimator
+                android:id="@+id/actionBarSwitcher"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:animateFirstView="true"
+                android:inAnimation="@anim/slide_up_fade_in"
+                android:outAnimation="@anim/slide_down_fade_out">
+
+                <RelativeLayout
+                    android:id="@+id/titleView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/actionBarTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@+id/actionBarSubTitle"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="@dimen/text_14"
+                        android:textStyle="bold"
+                        android:transitionName="@string/transition_toolbar_title"
+                        tools:text="@string/label_home" />
+
+                    <TextView
+                        android:id="@+id/actionBarSubTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="2dp"
+                        android:gravity="center_horizontal"
+                        android:includeFontPadding="false"
+                        android:textColor="?android:textColorHint"
+                        android:textSize="9sp"
+                        tools:ignore="SmallSp"
+                        tools:text="加载60条新消息" />
+                </RelativeLayout>
+
+
+                <FrameLayout
+                    android:id="@+id/searchView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/gap_8"
+                    android:paddingTop="@dimen/gap_8">
+
+                    <View
+                        android:id="@+id/searchBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/search_view_bg" />
+
+
+                    <EditText
+                        android:id="@+id/searchEt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:drawablePadding="@dimen/gap_4"
+                        android:drawableStart="@drawable/ic_search"
+                        android:focusableInTouchMode="false"
+                        android:gravity="start|center_vertical"
+                        android:hint="@string/hint_search"
+                        android:imeActionLabel="@string/action_confirm"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:paddingEnd="@dimen/gap_8"
+                        android:paddingStart="@dimen/gap_8"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:textColor="?android:textColorPrimary"
+                        android:textColorHint="?android:textColorHint"
+                        android:textSize="@dimen/text_14" />
+                </FrameLayout>
+
+            </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+            <com.sinyuk.fanfou.ui.BetterViewAnimator
+                android:id="@+id/endButtonSwitcher"
+                android:layout_width="@dimen/action_bar_height"
+                android:layout_height="@dimen/action_bar_height"
+                android:inAnimation="@anim/rotate_in"
+                android:outAnimation="@anim/rotate_out">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/endButton"
+                    style="@style/action_button"
+                    android:contentDescription="@null"
+                    android:transitionName="@string/transition_toolbar_button_2"
+                    app:riv_border_width="0dp"
+                    app:riv_corner_radius="16dp"
+                    tools:src="@drawable/ic_rice" />
+
+
+                <TextView
+                    android:id="@+id/searchBack"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/action_bar_height"
+                    android:contentDescription="@string/action_close"
+                    android:gravity="center"
+                    android:text="@string/action_cancel"
+                    android:textColor="?android:colorAccent"
+                    android:textSize="@dimen/text_14"
+                    android:transitionName="@string/transition_toolbar_button_2" />
+
+            </com.sinyuk.fanfou.ui.BetterViewAnimator>
+
+        </LinearLayout>
 
         <com.sinyuk.fanfou.ui.FreezeViewPager
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appBarLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:elevation="0dp">
-
-            <android.support.v7.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/status_bar_height"
-                android:transitionName="@string/transition_toolbar"
-                app:contentInsetStart="0dp"
-                app:layout_scrollFlags="enterAlways|scroll|snap">
-
-                <LinearLayout
-                    android:id="@+id/actionBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/action_bar_height"
-                    android:orientation="horizontal">
-
-                    <com.sinyuk.fanfou.ui.BetterViewAnimator
-                        android:id="@+id/navigationAnimator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:inAnimation="@anim/rotate_in"
-                        android:outAnimation="@anim/rotate_out">
-
-                        <android.support.v4.widget.Space style="@style/action_button" />
-
-                        <ImageView
-                            android:id="@+id/navBack"
-                            style="@style/action_button"
-                            android:contentDescription="@string/name_avatar"
-                            android:src="@drawable/ic_back"
-                            android:transitionName="@string/transition_toolbar_button_1" />
-
-                        <ImageView
-                            android:id="@+id/avatar"
-                            style="@style/action_button"
-                            android:contentDescription="@string/name_avatar"
-                            android:transitionName="@string/transition_toolbar_button_1"
-                            tools:src="@mipmap/ic_launcher_round" />
-
-                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
-
-
-                    <com.sinyuk.fanfou.ui.BetterViewAnimator
-                        android:id="@+id/viewAnimator"
-                        android:layout_width="0dp"
-                        android:layout_height="@dimen/action_bar_height"
-                        android:layout_weight="1"
-                        android:inAnimation="@anim/slide_up_fade_in"
-                        android:outAnimation="@anim/slide_down_fade_out">
-
-                        <RelativeLayout
-                            android:id="@+id/textSwitcher"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-
-                            <TextView
-                                android:id="@+id/title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_above="@+id/toastSwitcher"
-                                android:layout_centerHorizontal="true"
-                                android:textColor="?android:textColorPrimary"
-                                android:textSize="@dimen/text_14"
-                                android:textStyle="bold"
-                                android:transitionName="@string/transition_toolbar_title"
-                                tools:text="@string/label_home" />
-
-
-                            <TextSwitcher
-                                android:id="@+id/toastSwitcher"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentBottom="true"
-                                android:layout_marginBottom="2dp"
-                                android:animateFirstView="true"
-                                android:inAnimation="@anim/toast_switcher_anim_in"
-                                android:outAnimation="@anim/toast_switcher_anim_out">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_horizontal"
-                                    android:includeFontPadding="false"
-                                    android:textColor="?android:textColorHint"
-                                    android:textSize="9sp"
-                                    tools:text="加载60条新消息" />
-                            </TextSwitcher>
-                        </RelativeLayout>
-
-
-                        <FrameLayout
-                            android:id="@+id/searchLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:paddingBottom="@dimen/gap_8"
-                            android:paddingTop="@dimen/gap_8">
-
-                            <View
-                                android:id="@+id/searchBg"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:background="@drawable/search_view_bg" />
-
-
-                            <EditText
-                                android:id="@+id/searchEt"
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center"
-                                android:background="@null"
-                                android:drawablePadding="@dimen/gap_4"
-                                android:drawableStart="@drawable/ic_search"
-                                android:focusableInTouchMode="false"
-                                android:gravity="start|center_vertical"
-                                android:hint="@string/hint_search"
-                                android:imeActionLabel="@string/action_confirm"
-                                android:imeOptions="actionSearch"
-                                android:inputType="text"
-                                android:maxLines="1"
-                                android:paddingEnd="@dimen/gap_8"
-                                android:paddingStart="@dimen/gap_8"
-                                android:scrollHorizontally="true"
-                                android:singleLine="true"
-                                android:textColor="?android:textColorPrimary"
-                                android:textColorHint="?android:textColorHint"
-                                android:textSize="@dimen/text_14" />
-                        </FrameLayout>
-
-                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
-
-                    <com.sinyuk.fanfou.ui.BetterViewAnimator
-                        android:id="@+id/actionButtonSwitcher"
-                        android:layout_width="@dimen/action_bar_height"
-                        android:layout_height="@dimen/action_bar_height"
-                        android:inAnimation="@anim/rotate_in"
-                        android:outAnimation="@anim/rotate_out">
-
-                        <ImageView
-                            android:id="@+id/postFanfouButton"
-                            style="@style/action_button"
-                            android:contentDescription="@string/action_post_fanfou"
-                            android:src="@drawable/ic_rice"
-                            android:transitionName="@string/transition_toolbar_button_2" />
-
-                        <ImageView
-                            android:id="@+id/searchPlayerButton"
-                            style="@style/action_button"
-                            android:contentDescription="@string/action_addfriend"
-                            android:src="@drawable/ic_addfriend"
-                            android:transitionName="@string/transition_toolbar_button_2" />
-
-                        <TextView
-                            android:id="@+id/searchCloseButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/action_bar_height"
-                            android:contentDescription="@string/action_close"
-                            android:gravity="center"
-                            android:text="@string/action_cancel"
-                            android:textColor="?android:colorAccent"
-                            android:textSize="@dimen/text_14"
-                            android:transitionName="@string/transition_toolbar_button_2" />
-
-                        <ImageView
-                            android:id="@+id/inboxSettingsButton"
-                            style="@style/action_button"
-                            android:contentDescription="@string/action_settings_inbox"
-                            android:src="@drawable/ic_settings"
-                            android:transitionName="@string/transition_toolbar_button_2" />
-
-                        <ImageView
-                            android:id="@+id/sendMessageButton"
-                            style="@style/action_button"
-                            android:contentDescription="@string/action_sendmessage"
-                            android:src="@drawable/ic_sendmessage"
-                            android:transitionName="@string/transition_toolbar_button_2" />
-                    </com.sinyuk.fanfou.ui.BetterViewAnimator>
-
-                </LinearLayout>
-            </android.support.v7.widget.Toolbar>
-        </android.support.design.widget.AppBarLayout>
-    </android.support.design.widget.CoordinatorLayout>
-
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 </cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout>

@@ -35,28 +35,39 @@ import dagger.multibindings.IntoMap
 @Module
 abstract class ViewModelModule {
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(AccountViewModel::class)
     abstract fun accountViewModel(accountViewModel: AccountViewModel): ViewModel
 
-
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(TimelineViewModel::class)
     abstract fun timelineViewModel(timelineViewModel: TimelineViewModel): ViewModel
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(PlayerViewModel::class)
     abstract fun playerViewModel(playerViewModel: PlayerViewModel): ViewModel
 
 
+    @Suppress("unused")
     @Binds
     @IntoMap
     @ViewModelKey(SearchViewModel::class)
     abstract fun searchViewModel(searchViewModel: SearchViewModel): ViewModel
 
+
+    @Suppress("unused")
+    @Binds
+    @IntoMap
+    @ViewModelKey(ActionBarViewModel::class)
+    abstract fun actionBarViewModel(actionBarViewModel: ActionBarViewModel): ViewModel
+
+    @Suppress("unused")
     @Binds
     abstract fun bindViewModelFactory(factory: FanfouViewModelFactory): ViewModelProvider.Factory
 }

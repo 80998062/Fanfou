@@ -79,11 +79,6 @@ class DrawerView : AbstractFragment(), Injectable {
 
         setupNightButton()
 
-        mineButton.setOnClickListener {
-            closeDrawerAndPost(mineButton, { (activity as AbstractActivity).start(PlayerView.newInstance()) })
-        }
-
-
         accountButton.setOnClickListener { (activity as AbstractActivity).start(AccountManageView()) }
     }
 
@@ -113,6 +108,10 @@ class DrawerView : AbstractFragment(), Injectable {
                         (activity as AbstractActivity).start(FollowingView.newInstance(data.uniqueId))
                     })
                 }
+            }
+
+            mineButton.setOnClickListener {
+                closeDrawerAndPost(mineButton, { (activity as AbstractActivity).start(PlayerView.newInstance(uniqueId = data.uniqueId)) })
             }
 
         }

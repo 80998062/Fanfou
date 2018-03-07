@@ -56,11 +56,11 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
     }
 
     private fun render(data: Player?) {
-        viewAnimator.displayedChildId = if (data?.friendsCount == 0) {
+        viewAnimator.displayedChildId = if (data == null || data.friendsCount == 0) {
             R.id.emptyLayout
         } else {
             if (findChildFragment(TimelineView::class.java) == null) {
-                val fragment = TimelineView.newInstance(TIMELINE_HOME)
+                val fragment = TimelineView.newInstance(TIMELINE_HOME, data.uniqueId)
                 fragment.refreshCallback = this@IndexView
                 loadRootFragment(R.id.homeTimelineViewContainer, fragment)
             } else {

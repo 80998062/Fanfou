@@ -49,12 +49,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class TimelineRepository @Inject constructor(
-        private val application: Application,
+        application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors,
         @Named(TYPE_GLOBAL) private val sharedPreferences: SharedPreferences,
-        @Named(DATABASE_IN_DISK) private val db: LocalDatabase) : AbstractRepository(application, url, interceptor) {
+        @Named(DATABASE_IN_DISK) private val db: LocalDatabase,
+        @Named(DATABASE_IN_MEMORY) private val memory: LocalDatabase) : AbstractRepository(application, url, interceptor) {
 
     companion object {
         const val TAG = "TimelineRepository"
@@ -69,21 +70,21 @@ class TimelineRepository @Inject constructor(
      * @param pageSize 一次请求的条数
      */
     @MainThread
-    fun statuses(path: String, pageSize: Int, uniqueId: String? = null): Listing<Status> {
-
-        val notNullUniqueId = uniqueId ?: sharedPreferences.getString(UNIQUE_ID, null)
-
+    fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
+        val account = sharedPreferences.getString(UNIQUE_ID, null)
         // create a data source factory from Room
-//        val dataSourceFactory = StatusDataSourceFactory(db, convertPathToFlag(path), notNullUniqueId)
-
-        val dataSourceFactory = db.statusDao().loadAll(uniqueId = notNullUniqueId, path = convertPathToFlag(path))
+        val dataSourceFactory = if (uniqueId == account) {
+            db.statusDao().loadAll(uniqueId = uniqueId, path = convertPathToFlag(path))
+        } else {
+            memory.statusDao().loadAll(uniqueId = uniqueId, path = convertPathToFlag(path))
+        }
 
         // create a boundary callback which will observe when the user reaches to the edges of
         // the list and update the database with extra data.
         val boundaryCallback = StatusBoundaryCallback(
                 webservice = restAPI,
                 path = path,
-                uniqueId = notNullUniqueId,
+                uniqueId = uniqueId,
                 handleResponse = this::insertResultIntoDb,
                 appExecutors = appExecutors,
                 networkPageSize = pageSize)
@@ -97,7 +98,7 @@ class TimelineRepository @Inject constructor(
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
         // dispatched data in refreshTrigger
         val trigger = MutableLiveData<Unit>()
-        val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, notNullUniqueId) })
+        val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, uniqueId) })
 
         val pagedList = builder.build()
 
@@ -118,20 +119,22 @@ class TimelineRepository @Inject constructor(
 
     @WorkerThread
     private fun insertResultIntoDb(path: String, uniqueId: String, body: MutableList<Status>?): Int {
+        val isSelf = uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
+        val dao = if (isSelf) db.statusDao() else memory.statusDao()
         if (body?.isNotEmpty() == true) {
             val count: Int
             try {
-                db.beginTransaction()
+                if (isSelf) db.beginTransaction() else memory.beginTransaction()
                 for (status in body) {
-                    db.statusDao().query(status.id, uniqueId)?.let { status.addPath(it.pathFlag) }
+                    dao.query(status.id, uniqueId)?.let { status.addPath(it.pathFlag) }
                     status.addPathFlag(path)
                     status.user?.let { status.playerExtracts = PlayerExtracts(it) }
                     status.uid = uniqueId
                 }
-                count = db.statusDao().inserts(body).size
-                db.setTransactionSuccessful()
+                count = dao.inserts(body).size
+                if (isSelf) db.setTransactionSuccessful() else memory.setTransactionSuccessful()
             } finally {
-                db.endTransaction()
+                if (isSelf) db.endTransaction() else memory.endTransaction()
             }
             return count
         } else {

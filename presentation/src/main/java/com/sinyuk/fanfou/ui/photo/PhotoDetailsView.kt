@@ -27,6 +27,7 @@ import android.animation.ObjectAnimator
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.util.Log
@@ -42,6 +43,8 @@ import com.bumptech.glide.request.target.Target
 import com.github.florent37.glidepalette.BitmapPalette
 import com.github.florent37.glidepalette.BitmapPalette.Profile.MUTED_DARK
 import com.github.florent37.glidepalette.GlidePalette
+import com.sinyuk.fanfou.PHOTO_FILE_ROOT
+import com.sinyuk.fanfou.PHOTO_PREFIX
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -54,6 +57,13 @@ import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import com.sinyuk.myutils.ConvertUtils
 import kotlinx.android.synthetic.main.photo_details_view.*
 import me.yokeyword.fragmentation.anim.FragmentAnimator
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.net.URL
 
 
 /**
@@ -198,7 +208,7 @@ class PhotoDetailsView : AbstractFragment(), Injectable {
 
             override fun onPreDraw(): Boolean {
                 // When this method is called we already have everything laid out and measured so we can start our animation
-                Log.v(TAG, "onPreDraw, mFrames " + mFrames)
+                Log.v(TAG, "onPreDraw, mFrames $mFrames")
                 when (mFrames++) {
                     0 -> {
                         // Start animation on first frame
@@ -216,7 +226,7 @@ class PhotoDetailsView : AbstractFragment(), Injectable {
                     1 -> return true //  Do nothing. We just draw this frame
                 }
                 photo.viewTreeObserver.removeOnPreDrawListener(this)
-                Log.v(TAG, "onPreDraw, << mFrames " + mFrames)
+                Log.v(TAG, "onPreDraw, << mFrames $mFrames")
                 return true
             }
         })
@@ -323,4 +333,88 @@ class PhotoDetailsView : AbstractFragment(), Injectable {
     }
 
 
+    var downloadTask: PhotoDownloadTask? = null
+
+    private fun download() {
+        if (downloadTask == null) {
+            downloadTask = PhotoDownloadTask()
+            downloadTask!!.execute(status.photos?.size())
+        } else {
+
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        downloadTask?.cancel(true)
+    }
+
+    class PhotoDownloadTask : AsyncTask<String, Float, File?>() {
+
+        companion object {
+            const val TAG = "PhotoDownloadTask"
+        }
+
+        override fun onProgressUpdate(vararg values: Float?) {
+            super.onProgressUpdate(*values)
+
+        }
+
+        override fun onPostExecute(result: File?) {
+            super.onPostExecute(result)
+        }
+
+        override fun doInBackground(vararg params: String?): File? {
+            val url = URL(params[0])
+
+            var connection: HttpURLConnection? = null
+            try {
+                connection = url.openConnection() as HttpURLConnection?
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: MalformedURLException) {
+                e.printStackTrace()
+                return null
+            }
+
+            val filename = PHOTO_PREFIX + System.currentTimeMillis()
+            val output = FileOutputStream(File(PHOTO_FILE_ROOT, filename))
+            var inputStream: InputStream? = null
+            if (connection == null) return null
+            try {
+                connection.doInput = true
+                connection.connectTimeout = 30 * 1000
+                val total = connection.contentLength
+                val data = ByteArray(total)
+                inputStream = connection.inputStream
+                var current = 0
+                var seg = inputStream.read(data)
+                while (!isCancelled && seg != -1) {
+                    current += seg
+                    seg = inputStream.read(data)
+                    output.write(data, 0, seg)
+                    val progress = current.toFloat() / total * 100
+                    publishProgress(progress)
+                    println("$TAG progress ==> $progress %")
+                }
+
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                connection.disconnect()
+                output.close()
+                inputStream?.close()
+            }
+            return File(PHOTO_FILE_ROOT, filename)
+        }
+
+
+        override fun onCancelled() {
+            super.onCancelled()
+        }
+
+        override fun onCancelled(result: File?) {
+            super.onCancelled(result)
+        }
+    }
 }

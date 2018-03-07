@@ -25,3 +25,6 @@ package com.sinyuk.fanfou
  */
 
 const val URL_REGISTER_FANFOU = "https://www.baidu.com"
+
+const val PHOTO_FILE_ROOT = "/photo/"
+const val PHOTO_PREFIX = "FanfouImage"

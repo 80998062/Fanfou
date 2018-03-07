@@ -27,9 +27,7 @@ import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.SEARCH_TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
-import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.Objects
@@ -57,12 +55,12 @@ class SearchResultView : AbstractFragment(), Injectable {
         coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
 
         query = arguments!!.getString("query")
-        fragmentList = if (findChildFragment(TimelineView::class.java) == null) {
-            mutableListOf(TimelineView.newInstance(SEARCH_TIMELINE_PUBLIC), SignInView())
-        } else {
-            (findChildFragment(TimelineView::class.java) as TimelineView).search(query)
-            mutableListOf(findChildFragment(TimelineView::class.java), findChildFragment(SignInView::class.java))
-        }
+//        fragmentList = if (findChildFragment(TimelineView::class.java) == null) {
+//            mutableListOf(TimelineView.newInstance(SEARCH_TIMELINE_PUBLIC), SignInView())
+//        } else {
+//            (findChildFragment(TimelineView::class.java) as TimelineView).search(query)
+//            mutableListOf(findChildFragment(TimelineView::class.java), findChildFragment(SignInView::class.java))
+//        }
         setupViewPager()
     }
 

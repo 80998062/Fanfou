@@ -51,8 +51,8 @@ class NavigationView : AbstractFragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val uniqueId = arguments?.getString("uniqueId")
-        fragmentList = arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId!!), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
+        val uniqueId = arguments?.getString("uniqueId")!!
+        fragmentList = arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
         setupViewPager()
     }
 

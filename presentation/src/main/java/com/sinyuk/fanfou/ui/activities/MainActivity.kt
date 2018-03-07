@@ -35,6 +35,7 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.viewmodel.ActionBarViewModel
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.main_activity.*
@@ -57,6 +58,11 @@ class MainActivity : AbstractActivity() {
     private val accountViewModel by lazy { obtainViewModel(factory, AccountViewModel::class.java) }
     @Suppress("unused")
     private val searchViewModel by lazy { obtainViewModel(factory, SearchViewModel::class.java) }
+
+    @Suppress("unused")
+    private val actionBarViewModel by lazy { obtainViewModel(factory, ActionBarViewModel::class.java) }
+
+    @Suppress("unused")
     @Inject
     lateinit var toast: ToastUtils
 
@@ -66,7 +72,6 @@ class MainActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         KeyboardUtil.attach(this@MainActivity, panelRoot)
-//        setDefaultFragmentBackground(android.R.color.transparent)
         if (sharedPreferences.getString(UNIQUE_ID, null) == null) {
             if (findFragment(SignInView::class.java) == null) {
                 loadRootFragment(R.id.fragment_container, SignInView())

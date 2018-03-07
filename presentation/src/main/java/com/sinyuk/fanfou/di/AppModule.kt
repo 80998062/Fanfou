@@ -41,39 +41,46 @@ import javax.inject.Singleton
  * Created by sinyuk on 2017/11/28.
  *
  */
-@Module(includes = arrayOf(ViewModelModule::class))
+@Module(includes = [(ViewModelModule::class)])
 class AppModule constructor(private val app: App) {
 
+    @Suppress("unused")
     @Provides
     @Singleton
     fun provideApplication(): Application = app
 
+    @Suppress("unused")
     @Provides
     @Singleton
     @Named(DATABASE_IN_DISK)
     fun provideDatabase(): LocalDatabase = LocalDatabase.getInstance(app)
 
 
+    @Suppress("unused")
     @Provides
     @Singleton
     @Named(DATABASE_IN_MEMORY)
     fun provideMemoryDatabase(): LocalDatabase = LocalDatabase.getInMemory(app)
 
+    @Suppress("unused")
     @Provides
     @Singleton
     fun provideEndpoint() = Endpoint("http://api.fanfou.com/")
 
+    @Suppress("unused")
     @Provides
     @Singleton
     fun provideAuthenticator(@Named(TYPE_GLOBAL) p: SharedPreferences) = Oauth1SigningInterceptor(p)
 
 
+    @Suppress("unused")
     @Provides
     @Singleton
     @Named(TYPE_GLOBAL)
     fun provideGlobalPrefs(): SharedPreferences = app.getSharedPreferences(TYPE_GLOBAL, MODE_PRIVATE)
 
 
+    @Suppress("unused")
     @Provides
     @Singleton
     fun provideToastUtils(): ToastUtils = ToastUtils(app)

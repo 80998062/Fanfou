@@ -78,7 +78,8 @@
                         android:layout_marginStart="@dimen/gap_16"
                         android:background="@drawable/action_button_scrim_oval"
                         android:padding="3dp"
-                        android:src="@drawable/ic_back" />
+                        android:src="@drawable/ic_back"
+                        android:contentDescription="@null" />
 
                     <LinearLayout
                         android:id="@+id/titleLayout"

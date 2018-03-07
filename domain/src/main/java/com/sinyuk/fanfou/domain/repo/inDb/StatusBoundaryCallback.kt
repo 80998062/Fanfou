@@ -69,7 +69,7 @@ class StatusBoundaryCallback(
             if (path == TIMELINE_PHOTO) {
                 webservice.photos(count = networkPageSize, id = uniqueId)
             } else {
-                webservice.fetch_from_path(path = path, count = networkPageSize)
+                webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }
@@ -85,7 +85,7 @@ class StatusBoundaryCallback(
             if (path == TIMELINE_PHOTO) {
                 webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
             } else {
-                webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id)
+                webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }

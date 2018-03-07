@@ -61,7 +61,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
 
     companion object {
-        fun newInstance(path: String, id: String? = null) = TimelineView().apply {
+        fun newInstance(path: String, id: String) = TimelineView().apply {
             arguments = Bundle().apply {
                 putString("path", path)
                 putString("id", id)
@@ -81,6 +81,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     override fun layoutId(): Int? = R.layout.timeline_view
 
+    @Suppress("MemberVisibilityCanBePrivate")
     @Inject
     lateinit var factory: FanfouViewModelFactory
 
@@ -102,15 +103,16 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             timelinePath = it.getString("path")
             val id = it.getString("id")
             query = it.getString("query")
+            Log.d(TAG, "path: $timelinePath , id: $id , query: $query")
             timelineViewModel.setParams(timelinePath, id, query)
         }
 
         setupRecyclerView()
         setupSwipeRefresh()
 
-        accountViewModel.profile.observe(this@TimelineView, Observer {
-            timelineViewModel.setParams(timelinePath, it?.uniqueId, query)
-        })
+//        accountViewModel.profile.observe(this@TimelineView, Observer {
+//            it?.apply { timelineViewModel.setParams(timelinePath, uniqueId, query) }
+//        })
     }
 
 
@@ -144,6 +146,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     private lateinit var adapter: StatusPagedListAdapter
 
+    @Suppress("MemberVisibilityCanBePrivate")
     @field:[Inject Named(TYPE_GLOBAL)]
     lateinit var sharedPreferences: SharedPreferences
 
@@ -157,10 +160,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(this@TimelineView,
-                { timelineViewModel.retry() },
-                sharedPreferences.getString(UNIQUE_ID, null),
-                path = timelinePath)
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null), path = timelinePath)
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)

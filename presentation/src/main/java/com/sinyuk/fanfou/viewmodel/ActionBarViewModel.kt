@@ -18,24 +18,32 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inDb
+package com.sinyuk.fanfou.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
-import android.arch.paging.DataSource
-import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.db.LocalDatabase
+import android.arch.lifecycle.ViewModel
+import android.os.Bundle
+import com.sinyuk.fanfou.util.ActionBarUi
+import javax.inject.Inject
 
 /**
- * Created by sinyuk on 2018/1/29.
+ * Created by sinyuk on 2018/3/6.
  *
  */
-@Deprecated("unused")
-class StatusDataSourceFactory(private val db: LocalDatabase, private val path: Int,private val uniqueId:String) : DataSource.Factory<String, Status> {
-    val sourceLiveData = MutableLiveData<StatusDataSource>()
+class ActionBarViewModel @Inject constructor() : ViewModel() {
 
-    override fun create(): DataSource<String, Status> {
-        val source = StatusDataSource(db, path,uniqueId)
-        sourceLiveData.postValue(source)
-        return source
+    companion object {
+        const val TAG = "ActionBarViewModel"
     }
+
+    val actionBarUi = MutableLiveData<ActionBarUi>()
+
+    val actionBarUiPayload = MutableLiveData<ActionBarUi.PayLoads>()
+
+    fun apply(bundle: Bundle) {
+        if (bundle.isEmpty) return
+        val payLoads = ActionBarUi.PayLoads(bundle)
+        actionBarUiPayload.postValue(payLoads)
+    }
+
 }

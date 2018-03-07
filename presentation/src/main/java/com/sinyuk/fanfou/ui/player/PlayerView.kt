@@ -57,7 +57,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
     override fun layoutId() = R.layout.player_view
 
     companion object {
-        fun newInstance(uniqueId: String? = null) = PlayerView().apply {
+        fun newInstance(uniqueId: String) = PlayerView().apply {
             arguments = Bundle().apply { putString("uniqueId", uniqueId) }
         }
     }
@@ -73,7 +73,8 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
     @Inject
     lateinit var toast: ToastUtils
 
-    private val uniqueId by lazy { arguments?.getString("uniqueId") }
+    private lateinit var uniqueId: String
+    private var isSelf: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -85,21 +86,17 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
 
     override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
         super.onEnterAnimationEnd(savedInstanceState)
+        uniqueId = arguments?.getString("uniqueId")!!
+        isSelf = uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
 
-        if (isSelf()) {
-            accountViewModel.profile.observe(this@PlayerView, Observer {
-                render(it)
-            })
-        } else {
-            playerViewModel.profile(uniqueId!!).observe(this@PlayerView, Observer {
-                when (it?.states) {
-                    States.SUCCESS -> render(it.data)
-                    States.ERROR -> it.message?.let { toast.toastShort(it) }
-                    else -> {
-                    }
+        playerViewModel.profile(uniqueId).observe(this@PlayerView, Observer {
+            when (it?.states) {
+                States.SUCCESS -> render(it.data)
+                States.ERROR -> it.message?.let { toast.toastShort(it) }
+                else -> {
                 }
-            })
-        }
+            }
+        })
 
         appBarLayout.addOnOffsetChangedListener { v, verticalOffset ->
             val max = v.totalScrollRange
@@ -124,8 +121,6 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
         }
     }
 
-    private fun isSelf() = uniqueId == null || uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
-
 
     private fun render(player: Player?) {
         player?.let {
@@ -146,11 +141,10 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             if (it.protectedX == true) {
 
             } else {
-                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId!!))
+                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
             }
 
-            if (isSelf()) {
-                // isSelf
+            if (isSelf) {
                 directMsgButton.visibility = View.GONE
                 followOrEdit.text = getString(R.string.action_edit_profile)
                 followOrEdit.toggleOutline(true)

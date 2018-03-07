@@ -26,6 +26,7 @@ import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.Transformations.map
 import android.arch.lifecycle.Transformations.switchMap
 import android.arch.lifecycle.ViewModel
+import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.repo.Listing
@@ -40,21 +41,24 @@ import javax.inject.Inject
 class TimelineViewModel @Inject constructor(private val disk: TimelineRepository,
                                             private val tiled: TiledTimelineRepository) : ViewModel() {
 
-    data class TimelinePath(val path: String, val id: String? = null, val query: String? = null)
+    companion object { const val TAG = "TimelineViewModel" }
+
+    data class TimelinePath(val path: String, val id: String, val query: String? = null)
 
     private var params: MutableLiveData<TimelinePath> = MutableLiveData()
 
-    fun setParams(path: String, id: String? = null, query: String? = null) {
+    fun setParams(path: String, id: String, query: String? = null) {
         params.postValue(TimelinePath(path, id, query))
     }
 
     private val repoResult: LiveData<Listing<Status>> = map(params, {
+        Log.d(TAG, "path: ${it.path} , id: ${it.id} , query: ${it.query}")
         when (it.path) {
             SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.id)
-            TIMELINE_PHOTO -> tiled.statuses(path = it.path, pageSize = PHOTO_SIZE, uniqueId = it.id)
+            TIMELINE_PHOTO -> disk.statuses(path = it.path, pageSize = PHOTO_SIZE, uniqueId = it.id)
             TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-            TIMELINE_USER -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-            TIMELINE_HOME -> disk.statuses(path = it.path, pageSize = PAGE_SIZE)
+            TIMELINE_USER -> disk.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
+            TIMELINE_HOME -> disk.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
             else -> TODO()
         }
     })

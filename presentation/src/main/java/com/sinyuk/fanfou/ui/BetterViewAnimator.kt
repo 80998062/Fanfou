@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.ViewAnimator
 
 /**
@@ -29,22 +30,30 @@ import android.widget.ViewAnimator
  */
 class BetterViewAnimator(context: Context, attrs: AttributeSet) : ViewAnimator(context, attrs) {
 
+    companion object {
+        const val TAG = "BetterViewAnimator"
+    }
+
     var displayedChildId: Int
         get() = getChildAt(displayedChild).id
         set(id) {
+            Log.d(TAG, "displayedChild: $id")
             if (displayedChildId == id) {
                 return
             }
             var i = 0
             val count = childCount
+            Log.d(TAG, "childCount: $childCount")
+
             while (i < count) {
                 if (getChildAt(i).id == id) {
                     displayedChild = i
+                    Log.d(TAG, "index: $i")
                     return
                 }
                 i++
             }
             val name = resources.getResourceEntryName(id)
-            throw IllegalArgumentException("No view with ID " + name)
+            throw IllegalArgumentException("No view with ID $name")
         }
 }

@@ -30,6 +30,7 @@ import com.sinyuk.fanfou.domain.db.LocalDatabase
  * Created by sinyuk on 2018/1/29.
  *
  */
+@Deprecated("unused")
 class StatusDataSource(private val db: LocalDatabase, private val path: Int, private val uniqueId: String) : PageKeyedDataSource<String, Status>() {
 
 //    init {
