@@ -21,12 +21,12 @@
 package com.sinyuk.fanfou.ui.search
 
 import android.os.Bundle
-import android.view.MotionEvent
-import cn.dreamtobe.kpswitch.util.KeyboardUtil
+import android.support.v4.app.SharedElementCallback
+import android.transition.TransitionInflater
+import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import kotlinx.android.synthetic.main.suggestion_view.*
 
 /**
@@ -38,23 +38,42 @@ class SuggestionView : AbstractFragment(), Injectable {
 
     override fun layoutId() = R.layout.suggestion_view
 
-    override fun onLazyInitView(savedInstanceState: Bundle?) {
-        super.onLazyInitView(savedInstanceState)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.fade)
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.fade)
+        postponeEnterTransition()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        navBack.setOnClickListener { pop() }
         setupKeyboard()
-        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
-        if (findChildFragment(HistoryView::class.java) == null) {
-            loadRootFragment(R.id.historyViewContainer, HistoryView.newInstance(true))
-        } else {
-            showHideFragment(findChildFragment(HistoryView::class.java))
-        }
+        startPostponedEnterTransition()
+        setEnterSharedElementCallback(object : SharedElementCallback() {
+            override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
+                super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
+                if (findChildFragment(HistoryView::class.java) == null) {
+                    childFragmentManager.beginTransaction()
+                            .replace(R.id.historyViewContainer, HistoryView.newInstance(true))
+                            .disallowAddToBackStack()
+                            .commit()
+                } else {
+                    showHideFragment(findChildFragment(HistoryView::class.java))
+                }
+            }
+        })
     }
 
 
     private fun setupKeyboard() {
-        coordinator.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_UP) KeyboardUtil.hideKeyboard(v)
-            return@setOnTouchListener false
-        }
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
 }

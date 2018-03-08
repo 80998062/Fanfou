@@ -40,66 +40,45 @@ class SearchView : AbstractFragment(), Injectable {
     @Inject
     lateinit var toast: ToastUtils
 
-    var currentFragment = 0
-
-    private lateinit var fragments: MutableList<AbstractFragment>
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
 
-        fragments = if (findChildFragment(TrendingView::class.java) == null) {
-            mutableListOf(TrendingView(), SuggestionView())
+        if (findChildFragment(TrendingView::class.java) == null) {
+            loadRootFragment(R.id.searchView, TrendingView())
         } else {
-            mutableListOf(findChildFragment(TrendingView::class.java), findChildFragment(SuggestionView::class.java))
+            showHideFragment(findChildFragment(TrendingView::class.java))
         }
 
-        loadMultipleRootFragment(R.id.searchView, 0, fragments[0], fragments[1])
-        if (savedInstanceState != null) {
-            val current = savedInstanceState.getInt("currentFragment")
-            val q = savedInstanceState.getString("query", null)
-            when (current) {
-                0 -> showTrending()
-                1 -> showSuggestion()
-                2 -> showResult(q)
-            }
-        } else {
-            currentFragment = 0
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("currentFragment", currentFragment)
-        outState.putString("query", query)
-
-    }
-
-    private var query: String? = null
-    fun showResult(q: String) {
-        if (currentFragment == 2) return
-        if (findChildFragment(SearchResultView::class.java) == null) {
-            SearchResultView.newInstance(q).also {
-                loadRootFragment(R.id.searchView, it)
-                showHideFragment(it, fragments[currentFragment])
-                fragments.add(it)
-            }
-        } else {
-            showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
-        }
-        query = q
-        currentFragment = 2
-    }
-
-    fun showSuggestion() {
-        if (currentFragment == 1) return
-        showHideFragment(findChildFragment(SuggestionView::class.java), fragments[currentFragment])
-        currentFragment = 1
     }
 
 
-    fun showTrending() {
-        if (currentFragment == 0) return
-        showHideFragment(findChildFragment(TrendingView::class.java), fragments[currentFragment])
-        currentFragment = 0
-    }
+//    private var query: String? = null
+//    fun showResult(q: String) {
+//        if (currentFragment == 2) return
+//        if (findChildFragment(SearchResultView::class.java) == null) {
+//            SearchResultView.newInstance(q).also {
+//                loadRootFragment(R.id.searchView, it)
+//                showHideFragment(it, fragments[currentFragment])
+//                fragments.add(it)
+//            }
+//        } else {
+//            showHideFragment(findChildFragment(SearchResultView::class.java), fragments[currentFragment])
+//        }
+//        query = q
+//        currentFragment = 2
+//    }
+//
+//    fun showSuggestion() {
+//        if (currentFragment == 1) return
+//        showHideFragment(findChildFragment(SuggestionView::class.java), fragments[currentFragment])
+//        currentFragment = 1
+//    }
+//
+//
+//    fun showTrending() {
+//        if (currentFragment == 0) return
+//        showHideFragment(findChildFragment(TrendingView::class.java), fragments[currentFragment])
+//        currentFragment = 0
+//    }
 }

@@ -31,7 +31,6 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
-import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
@@ -62,8 +61,6 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
-
         setupTrendList()
 
         searchViewModel.trends().observe(this@TrendingView, Observer {
@@ -110,7 +107,6 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
                 return false
             }
         }.apply {
-            isAutoMeasureEnabled = true
             trendList.layoutManager = this
         }
 

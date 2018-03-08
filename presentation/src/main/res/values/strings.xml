@@ -92,5 +92,8 @@
     <string name="name_divider">昏哥线</string>
     <string name="name_blurry">糊糊</string>
     <string name="action_retry">重试</string>
+    <string name="transition_search_view_bg">search_view_bg</string>
+    <string name="transition_search_view_input">search_view_input</string>
+    <string name="transition_search_view">search_view</string>
 
 </resources>

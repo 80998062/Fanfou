@@ -17,19 +17,15 @@
   ~  * limitations under the License.
   ~  */
   -->
-<cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:windowBackground"
     android:fitsSystemWindows="false"
     android:orientation="vertical">
-
-    <cn.dreamtobe.kpswitch.widget.KPSwitchPanelLinearLayout
-        android:id="@+id/panelRoot"
-        style="@style/keyboardPanel"
-        android:visibility="gone" />
 
 
     <LinearLayout
@@ -38,7 +34,8 @@
         android:layout_height="@dimen/action_bar_height"
         android:layout_marginTop="@dimen/status_bar_height"
         android:orientation="horizontal"
-        android:transitionName="@string/transition_toolbar">
+        android:transitionName="@string/transition_toolbar"
+        tools:background="#fff">
 
 
         <com.makeramen.roundedimageview.RoundedImageView
@@ -92,43 +89,34 @@
             </RelativeLayout>
 
 
-            <FrameLayout
+            <RelativeLayout
                 android:id="@+id/searchView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingBottom="@dimen/gap_8"
-                android:paddingTop="@dimen/gap_8">
+                android:layout_marginBottom="@dimen/gap_8"
+                android:layout_marginTop="@dimen/gap_8"
+                android:background="@drawable/search_view_bg"
+                android:transitionName="@string/transition_search_view">
 
-                <View
-                    android:id="@+id/searchBg"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/search_view_bg" />
-
-
-                <EditText
-                    android:id="@+id/searchEt"
+                <ImageView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:background="@null"
-                    android:drawablePadding="@dimen/gap_4"
-                    android:drawableStart="@drawable/ic_search"
-                    android:focusableInTouchMode="false"
-                    android:gravity="start|center_vertical"
-                    android:hint="@string/hint_search"
-                    android:imeActionLabel="@string/action_confirm"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:paddingEnd="@dimen/gap_8"
-                    android:paddingStart="@dimen/gap_8"
-                    android:scrollHorizontally="true"
-                    android:singleLine="true"
-                    android:textColor="?android:textColorPrimary"
-                    android:textColorHint="?android:textColorHint"
-                    android:textSize="@dimen/text_14" />
-            </FrameLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="4dp"
+                    android:layout_toStartOf="@+id/searchHint"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_search" />
+
+                <TextView
+                    android:id="@+id/searchHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/hint_search"
+                    android:textColor="?android:textColorHint"
+                    android:textSize="@dimen/text_14"
+                    tools:ignore="RelativeOverlap" />
+            </RelativeLayout>
 
         </com.sinyuk.fanfou.ui.BetterViewAnimator>
 
@@ -168,7 +156,7 @@
     <com.sinyuk.fanfou.ui.FreezeViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/actionBar" />
 
-
-</cn.dreamtobe.kpswitch.widget.KPSwitchRootFrameLayout>
+</RelativeLayout>

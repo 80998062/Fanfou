@@ -20,9 +20,6 @@
 
 package com.sinyuk.fanfou.ui.home
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.graphics.Color
@@ -31,16 +28,9 @@ import android.os.Handler
 import android.support.annotation.ColorInt
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.animation.FastOutSlowInInterpolator
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.animation.AnticipateOvershootInterpolator
-import android.view.inputmethod.EditorInfo
 import android.widget.ImageView
-import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
-import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
@@ -56,8 +46,7 @@ import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.player.PlayerViewEvent
 import com.sinyuk.fanfou.ui.search.SearchView
-import com.sinyuk.fanfou.ui.search.event.InputEvent
-import com.sinyuk.fanfou.ui.search.event.QueryEvent
+import com.sinyuk.fanfou.ui.search.SuggestionView
 import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.ui.status.StatusViewEvent
 import com.sinyuk.fanfou.ui.timeline.FetTopEvent
@@ -66,7 +55,6 @@ import com.sinyuk.fanfou.util.ActionButton
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.ActionBarViewModel
-import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.home_tab_view.*
 import org.greenrobot.eventbus.EventBus
@@ -89,11 +77,10 @@ class TabView : AbstractFragment(), Injectable {
     @Inject
     lateinit var factory: ViewModelProvider.Factory
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
-    private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
     private val actionBarViewModel by lazy { obtainViewModelFromActivity(factory, ActionBarViewModel::class.java) }
+
     @Inject
     lateinit var toast: ToastUtils
-
 
     override fun onResume() {
         super.onResume()
@@ -172,7 +159,9 @@ class TabView : AbstractFragment(), Injectable {
                     R.drawable.ic_settings_ac
                 }
                 ActionButton.AddFriend -> {
-                    endButton.setOnClickListener { }
+                    endButton.setOnClickListener {
+                        toSuggestionView()
+                    }
                     R.drawable.ic_addfriend
                 }
                 else -> -1
@@ -201,132 +190,98 @@ class TabView : AbstractFragment(), Injectable {
 
 
     private fun renderUI() {
-        setupKeyboard()
         setupViewPager()
         setupSearchWidget()
     }
 
 
-    private fun setupKeyboard() {
-        KeyboardUtil.attach(activity, panelRoot) {
-            if (it) {
-                if (currentFragment == 1) searchEt?.requestFocus()
-            } else {
-                searchEt?.clearFocus()
-            }
-        }
-    }
-
     private fun setupSearchWidget() {
-        searchEt.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
-        searchBg.setOnClickListener { if (!searchEt.isFocusableInTouchMode) expandSearchView() }
-
-//        navBack.setOnClickListener {
-//            collapseSearchView()
-//            (fragments[1] as SearchView).showTrending()
-//        }
-//        searchCloseButton.setOnClickListener {
-//            collapseSearchView()
-//            (fragments[1] as SearchView).showTrending()
-//        }
-
-        searchEt.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                EventBus.getDefault().post(InputEvent(s.toString()))
-            }
-        })
-
-        searchEt.setOnEditorActionListener { _, id, _ ->
-            if (arrayOf(EditorInfo.IME_ACTION_DONE, EditorInfo.IME_ACTION_SEARCH, EditorInfo.IME_NULL).contains(id)) {
-                val query = searchEt.text.toString()
-                collapseSearchView(query)
-                if (query.isNotBlank()) {
-                    (fragments[1] as SearchView).showResult(query)
-                    searchViewModel.save(query)
-                    EventBus.getDefault().post(QueryEvent(query))
-                }
-            }
-            return@setOnEditorActionListener false
+        searchView.setOnClickListener {
+            toSuggestionView()
         }
     }
 
-    /**
-     * 收起🔍栏
-     */
-    private fun collapseSearchView(query: String? = null) {
-        val animator = ObjectAnimator.ofFloat(searchEt, View.TRANSLATION_X, 0f)
-        animator.duration = 200
-        animator.interpolator = FastOutSlowInInterpolator()
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                onCollapse()
-            }
-
-            override fun onAnimationCancel(animation: Animator?) {
-                onCollapse()
-            }
-
-            private fun onCollapse() {
-//                searchEt.layoutParams.apply {
-//                    width = WRAP_CONTENT
-//                    searchEt.layoutParams = this
-//                }
-                searchEt.setText(query)
-                if (query?.isNotBlank() == true) searchEt.setSelection(query.length)
-                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
-                searchEt.isFocusableInTouchMode = false
-
-                if (query?.isNotBlank() == true) {
-                    actionBarViewModel.apply(ActionBarUi.PayLoads().startButtonType(ActionButton.Back).get())
-                } else {
-                    actionBarViewModel.apply(ActionBarUi.PayLoads().startButtonType(ActionButton.Avatar).get())
-                }
-            }
-        })
-        animator.start()
+    private fun toSuggestionView() {
+        if (currentFragment != 1) return
+        Log.d(TAG, "Start SuggestionView")
+        childFragmentManager.beginTransaction()
+                .add(R.id.rootView, SuggestionView())
+                .disallowAddToBackStack()
+                .addSharedElement(searchView, searchView.transitionName)
+                .addSharedElement(navImageView, navImageView.transitionName)
+                .addSharedElement(endButton, endButton.transitionName)
+                .addSharedElement(actionBar, actionBar.transitionName)
+                .commit()
     }
-
-    private var searchTextOffset: Float? = null
-    /**
-     * 展开🔍栏
-     */
-    private fun expandSearchView() {
-        if (searchTextOffset == null) {
-            searchTextOffset = (searchBg.left - searchEt.left).toFloat()
-        }
-        val animator = ObjectAnimator.ofFloat(searchEt, View.TRANSLATION_X, 0f, searchTextOffset!!)
-        animator.duration = 250
-        animator.interpolator = AnticipateOvershootInterpolator()
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                onExpand()
-            }
-
-            override fun onAnimationCancel(animation: Animator?) {
-                onExpand()
-            }
-
-            private fun onExpand() {
-//                actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
-//                searchEt.layoutParams.apply {
-//                    width = MATCH_PARENT
-//                    searchEt.layoutParams = this
+//    /**
+//     * 收起🔍栏
+//     */
+//    private fun collapseSearchView(query: String? = null) {
+//        val animator = ObjectAnimator.ofFloat(searchEt, View.TRANSLATION_X, 0f)
+//        animator.duration = 200
+//        animator.interpolator = FastOutSlowInInterpolator()
+//        animator.addListener(object : AnimatorListenerAdapter() {
+//            override fun onAnimationEnd(animation: Animator?) {
+//                onCollapse()
+//            }
+//
+//            override fun onAnimationCancel(animation: Animator?) {
+//                onCollapse()
+//            }
+//
+//            private fun onCollapse() {
+////                searchEt.layoutParams.apply {
+////                    width = WRAP_CONTENT
+////                    searchEt.layoutParams = this
+////                }
+//                searchEt.setText(query)
+//                if (query?.isNotBlank() == true) searchEt.setSelection(query.length)
+//                KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+//                searchEt.isFocusableInTouchMode = false
+//
+//                if (query?.isNotBlank() == true) {
+//                    actionBarViewModel.apply(ActionBarUi.PayLoads().startButtonType(ActionButton.Back).get())
+//                } else {
+//                    actionBarViewModel.apply(ActionBarUi.PayLoads().startButtonType(ActionButton.Avatar).get())
 //                }
-                (fragments[1] as SearchView).showSuggestion()
-                searchEt.isFocusableInTouchMode = true
-                KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
-            }
-        })
-        animator.start()
-    }
+//            }
+//        })
+//        animator.start()
+//    }
+//
+//    private var searchTextOffset: Float? = null
+//    /**
+//     * 展开🔍栏
+//     */
+//    private fun expandSearchView() {
+//        if (searchTextOffset == null) {
+//            searchTextOffset = (searchBg.left - searchEt.left).toFloat()
+//        }
+//        val animator = ObjectAnimator.ofFloat(searchEt, View.TRANSLATION_X, 0f, searchTextOffset!!)
+//        animator.duration = 250
+//        animator.interpolator = AnticipateOvershootInterpolator()
+//        animator.addListener(object : AnimatorListenerAdapter() {
+//            override fun onAnimationEnd(animation: Animator?) {
+//                onExpand()
+//            }
+//
+//            override fun onAnimationCancel(animation: Animator?) {
+//                onExpand()
+//            }
+//
+//            private fun onExpand() {
+////                actionButtonSwitcher.displayedChildId = R.id.searchCloseButton
+////                searchEt.layoutParams.apply {
+////                    width = MATCH_PARENT
+////                    searchEt.layoutParams = this
+////                }
+//                (fragments[1] as SearchView).showSuggestion()
+//                searchEt.isFocusableInTouchMode = true
+//                KPSwitchConflictUtil.showKeyboard(panelRoot, searchEt)
+//            }
+//        })
+//        animator.start()
+//    }
 
 
     private lateinit var fragments: MutableList<AbstractFragment>
@@ -357,12 +312,12 @@ class TabView : AbstractFragment(), Injectable {
     fun onStatusViewEvent(event: StatusViewEvent) {
         if (currentFragment == null) return
         val toFragment = StatusView.newInstance(status = event.status, photoExtra = event.photoExtra)
-        fragments[currentFragment!!].childFragmentManager.beginTransaction()
+        childFragmentManager.beginTransaction()
                 .addSharedElement(navImageView, navImageView.transitionName)
                 .addSharedElement(actionBar, actionBar.transitionName)
                 .addSharedElement(endButton, endButton.transitionName)
                 .addSharedElement(actionBarTitle, actionBarTitle.transitionName)
-                .replace(R.id.fragment_container, toFragment)
+                .replace(R.id.rootView, toFragment)
                 .addToBackStack(toFragment.javaClass.simpleName)
                 .commit()
     }
@@ -378,7 +333,7 @@ class TabView : AbstractFragment(), Injectable {
                 .addSharedElement(actionBar, actionBar.transitionName)
                 .addSharedElement(endButton, endButton.transitionName)
                 .addSharedElement(actionBarTitle, actionBarTitle.transitionName)
-                .replace(R.id.fragment_container, toFragment)
+                .replace(R.id.rootView, toFragment)
                 .addToBackStack(toFragment.javaClass.simpleName)
                 .commit()
     }
@@ -404,7 +359,6 @@ class TabView : AbstractFragment(), Injectable {
 
         val payload = ActionBarUi.PayLoads()
         if (to == 1) {
-            KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
             payload.displayedChildIndex(1)
         } else if (currentFragment == 1) {
             payload.displayedChildIndex(0)

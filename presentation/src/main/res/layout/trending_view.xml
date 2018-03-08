@@ -18,47 +18,35 @@
   ~  */
   -->
 
-<com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground">
+    android:background="?android:windowBackground"
+    android:fillViewport="true"
+    android:overScrollMode="never">
 
-    <FrameLayout
-        android:id="@+id/publicViewContainer"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
-
-        <android.support.v7.widget.Toolbar
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/trendList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll">
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        <include layout="@layout/timeline_view_list_header_public" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/trendList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never" />
+        <FrameLayout
+            android:id="@+id/publicViewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-                <include layout="@layout/timeline_view_list_header_public" />
-            </LinearLayout>
-        </android.support.v7.widget.Toolbar>
+    </LinearLayout>
 
-    </android.support.design.widget.AppBarLayout>
 
-</com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout>
+</android.support.v4.widget.NestedScrollView>

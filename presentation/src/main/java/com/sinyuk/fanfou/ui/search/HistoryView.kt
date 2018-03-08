@@ -24,6 +24,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
@@ -61,9 +62,11 @@ class HistoryView : AbstractFragment(), Injectable {
         }
     }
 
-    @Inject lateinit var factory: FanfouViewModelFactory
+    @Inject
+    lateinit var factory: FanfouViewModelFactory
 
-    @Inject lateinit var toast: ToastUtils
+    @Inject
+    lateinit var toast: ToastUtils
 
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
 
@@ -76,6 +79,14 @@ class HistoryView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.histyory_view
 
     private lateinit var listing: LiveData<MutableList<Keyword>?>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (collapsed && savedInstanceState == null) {
+            enterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.slide_top)
+            exitTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.slide_top)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
