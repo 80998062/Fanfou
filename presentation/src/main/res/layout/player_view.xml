@@ -67,19 +67,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/action_bar_height"
                     android:layout_marginTop="@dimen/status_bar_height"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:transitionName="@string/transition_toolbar">
 
                     <ImageView
                         android:id="@+id/closeButton"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        style="@style/action_button"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="@dimen/gap_16"
-                        android:layout_marginStart="@dimen/gap_16"
                         android:background="@drawable/action_button_scrim_oval"
-                        android:padding="3dp"
+                        android:contentDescription="@null"
                         android:src="@drawable/ic_back"
-                        android:contentDescription="@null" />
+                        android:transitionName="@string/transition_toolbar_button_1" />
 
                     <LinearLayout
                         android:id="@+id/titleLayout"
@@ -107,6 +105,7 @@
                             android:textColor="@color/colorAccent"
                             android:textSize="12sp"
                             android:textStyle="bold"
+                            android:transitionName="@string/transition_toolbar_title"
                             tools:text="开膛手椰壳" />
 
 
@@ -128,15 +127,11 @@
 
                     <ImageView
                         android:id="@+id/sendButton"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="@dimen/gap_16"
-                        android:layout_marginStart="@dimen/gap_16"
+                        style="@style/action_button"
                         android:background="@drawable/action_button_scrim_oval"
                         android:contentDescription="@string/action_post_fanfou"
-                        android:padding="4dp"
-                        android:src="@drawable/ic_rice" />
+                        android:src="@drawable/ic_rice"
+                        android:transitionName="@string/transition_toolbar_button_2" />
                 </LinearLayout>
 
 

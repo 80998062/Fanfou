@@ -18,11 +18,13 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.home
+package com.sinyuk.fanfou.ui.status
+
+import android.os.Bundle
+import com.sinyuk.fanfou.domain.DO.Status
 
 /**
- * Created by sinyuk on 2018/1/11.
+ * Created by sinyuk on 2018/3/7.
  *
  */
-@Deprecated("")
-data class TabEvent @JvmOverloads constructor(var index: Int = 0, var again: Boolean = false)
+data class StatusViewEvent @JvmOverloads constructor(var status: Status, var photoExtra: Bundle? = null)

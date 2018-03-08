@@ -23,15 +23,12 @@ package com.sinyuk.fanfou.ui.timeline
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.TransitionDrawable
-import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -47,8 +44,6 @@ import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.photo.PhotoDetailsView
 import com.sinyuk.fanfou.ui.photo.ThumbnailInfo
-import com.sinyuk.fanfou.ui.player.PlayerView
-import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
 import com.sinyuk.myutils.ConvertUtils
 import com.sinyuk.myutils.DateUtils
@@ -68,16 +63,6 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         view.swipeLayout.isRightSwipeEnabled = true
         view.swipeLayout.isClickToClose = true
         glide.asDrawable().load(status.playerExtracts?.profileImageUrl).avatar().transition(withCrossFade()).into(view.avatar)
-
-        when (status.playerExtracts?.uniqueId) {
-            null -> view.avatar.setOnClickListener(null)
-            uniqueId -> view.avatar.setOnClickListener { }
-            else -> view.avatar.setOnClickListener {
-                val id = status.playerExtracts!!.uniqueId
-                Log.d("TimelineRepository", "uniqueId $id")
-                (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
-            }
-        }
 
         // Clear background
         view.screenName.background = null
@@ -144,32 +129,6 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
         }
 
         FanfouUtils.parseAndSetText(view.content, status.text)
-
-        view.surfaceView.setOnClickListener {
-            if (url == null) {
-                (view.context as AbstractActivity).start(StatusView.newInstance(status))
-            } else {
-                Glide.with(view)
-                        .asBitmap()
-                        .load(url)
-                        .listener(object : RequestListener<Bitmap> {
-                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                                (view.context as AbstractActivity).start(StatusView.newInstance(status))
-                                return false
-                            }
-
-                            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                                resource?.apply {
-                                    Bundle().apply {
-                                        putInt("w", width)
-                                        putInt("h", height)
-                                    }.also { (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it)) }
-                                }
-                                return true
-                            }
-                        }).preload()
-            }
-        }
 
     }
 

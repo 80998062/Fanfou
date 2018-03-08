@@ -32,6 +32,7 @@ import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.ui.DuoDrawerLayout.LOCK_MODE_LOCKED_CLOSED
 import com.sinyuk.fanfou.ui.colormatchtabs.adapter.ColorTabAdapter
 import com.sinyuk.fanfou.ui.colormatchtabs.listeners.OnColorTabSelectedListener
 import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
@@ -71,6 +72,7 @@ class HomeView : AbstractFragment(), Injectable {
     }
 
     private fun renderUI() {
+        drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
         drawerLayout.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
 

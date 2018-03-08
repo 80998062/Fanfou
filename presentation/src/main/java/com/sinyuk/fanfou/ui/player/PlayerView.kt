@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.ui.player
 import android.arch.lifecycle.Observer
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.util.Log
 import android.view.View
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -76,18 +77,25 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
     private lateinit var uniqueId: String
     private var isSelf: Boolean = false
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        closeButton.setOnClickListener { activity?.onBackPressed() }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.fade)
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.fade)
+        postponeEnterTransition()
     }
+
 
     @field:[Inject Named(TYPE_GLOBAL)]
     lateinit var sharedPreferences: SharedPreferences
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         uniqueId = arguments?.getString("uniqueId")!!
         isSelf = uniqueId == sharedPreferences.getString(UNIQUE_ID, null)
+
+        closeButton.setOnClickListener { pop() }
 
         playerViewModel.profile(uniqueId).observe(this@PlayerView, Observer {
             when (it?.states) {
@@ -119,8 +127,9 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             }
             Log.i("OnOffsetChanged", "max: $max, min: $minHeight, offset: $verticalOffset")
         }
-    }
 
+        startPostponedEnterTransition()
+    }
 
     private fun render(player: Player?) {
         player?.let {

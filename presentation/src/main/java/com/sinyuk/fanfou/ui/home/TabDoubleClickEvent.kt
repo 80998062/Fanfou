@@ -24,4 +24,5 @@ package com.sinyuk.fanfou.ui.home
  * Created by sinyuk on 2018/2/6.
  *
  */
+@Deprecated("")
 data class TabDoubleClickEvent @JvmOverloads constructor(var index: Int = 0)

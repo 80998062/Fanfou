@@ -53,9 +53,13 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.message.MessageView
+import com.sinyuk.fanfou.ui.player.PlayerView
+import com.sinyuk.fanfou.ui.player.PlayerViewEvent
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.search.event.InputEvent
 import com.sinyuk.fanfou.ui.search.event.QueryEvent
+import com.sinyuk.fanfou.ui.status.StatusView
+import com.sinyuk.fanfou.ui.status.StatusViewEvent
 import com.sinyuk.fanfou.ui.timeline.FetTopEvent
 import com.sinyuk.fanfou.util.ActionBarUi
 import com.sinyuk.fanfou.util.ActionButton
@@ -146,8 +150,8 @@ class TabView : AbstractFragment(), Injectable {
                     navImageView.setOnClickListener { EventBus.getDefault().post(DrawerToggleEvent()) }
                 }
                 ActionButton.Back -> {
-                    GlideApp.with(this).asFile().load(R.drawable.ic_back).into(navImageView)
-                    navImageView.setOnClickListener {}
+                    GlideApp.with(this).load(R.drawable.ic_back).into(navImageView)
+                    navImageView.setOnClickListener { onBackPressedSupport() }
                 }
             }
         }
@@ -345,6 +349,38 @@ class TabView : AbstractFragment(), Injectable {
         currentFragment = 0
         actionBarViewModel.apply(ActionBarUi.PayLoads().background(ContextCompat.getColor(context!!, R.color.colorPrimary))
                 .startButtonType(ActionButton.Avatar).title(titles[0]).endButtonType(ActionButton.Rice).get())
+    }
+
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onStatusViewEvent(event: StatusViewEvent) {
+        if (currentFragment == null) return
+        val toFragment = StatusView.newInstance(status = event.status, photoExtra = event.photoExtra)
+        fragments[currentFragment!!].childFragmentManager.beginTransaction()
+                .addSharedElement(navImageView, navImageView.transitionName)
+                .addSharedElement(actionBar, actionBar.transitionName)
+                .addSharedElement(endButton, endButton.transitionName)
+                .addSharedElement(actionBarTitle, actionBarTitle.transitionName)
+                .replace(R.id.fragment_container, toFragment)
+                .addToBackStack(toFragment.javaClass.simpleName)
+                .commit()
+    }
+
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onPlayerViewEvent(event: PlayerViewEvent) {
+        if (currentFragment == null) return
+        val toFragment = PlayerView.newInstance(uniqueId = event.uniqueId)
+        fragments[currentFragment!!].childFragmentManager.beginTransaction()
+                .addSharedElement(navImageView, navImageView.transitionName)
+                .addSharedElement(actionBar, actionBar.transitionName)
+                .addSharedElement(endButton, endButton.transitionName)
+                .addSharedElement(actionBarTitle, actionBarTitle.transitionName)
+                .replace(R.id.fragment_container, toFragment)
+                .addToBackStack(toFragment.javaClass.simpleName)
+                .commit()
     }
 
 

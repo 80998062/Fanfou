@@ -17,39 +17,50 @@
   ~  * limitations under the License.
   ~  */
   -->
-
-<com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/viewAnimator"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.Space
-        android:id="@+id/placeholder"
-        android:layout_width="0dp"
-        android:layout_height="0dp" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/pullRefreshLayout"
+    <com.sinyuk.fanfou.ui.BetterViewAnimator
+        android:id="@+id/viewAnimator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/status_bar_height"
+        android:paddingTop="@dimen/action_bar_height">
+
+        <android.support.v4.widget.Space
+            android:id="@+id/placeholder"
+            android:layout_width="0dp"
+            android:layout_height="0dp" />
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/pullRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/homeTimelineViewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
         <FrameLayout
-            android:id="@+id/homeTimelineViewContainer"
+            android:id="@+id/emptyLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="空空如也"
+                android:textSize="30sp" />
+        </FrameLayout>
+    </com.sinyuk.fanfou.ui.BetterViewAnimator>
 
     <FrameLayout
-        android:id="@+id/emptyLayout"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="空空如也"
-            android:textSize="30sp" />
-    </FrameLayout>
-
-</com.sinyuk.fanfou.ui.BetterViewAnimator>
+        android:layout_height="match_parent" />
+</FrameLayout>

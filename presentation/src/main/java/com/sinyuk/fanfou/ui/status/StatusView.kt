@@ -28,12 +28,12 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
+import android.transition.TransitionInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
-import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -56,7 +56,6 @@ import com.sinyuk.fanfou.domain.STATUS_LIMIT
 import com.sinyuk.fanfou.domain.StatusCreation
 import com.sinyuk.fanfou.domain.TIMELINE_CONTEXT
 import com.sinyuk.fanfou.glide.GlideApp
-import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
 import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.editor.MentionListView
@@ -97,17 +96,22 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
 
     private val playerViewModel by lazy { obtainViewModelFromActivity(factory, PlayerViewModel::class.java) }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.explode)
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.explode)
+        postponeEnterTransition()
+    }
 
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
-        coordinator.setPassMode(NestedScrollCoordinatorLayout.PASS_MODE_PARENT_FIRST)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val status = arguments!!.getParcelable<Status>("status")
-        navBack.setOnClickListener { pop() }
         setupEditor(status)
         setupKeyboard()
         onFormValidation(0)
         renderUI(status)
+        navBack.setOnClickListener { pop() }
+        startPostponedEnterTransition()
 
         if (findChildFragment(TimelineView::class.java) == null) {
             loadRootFragment(R.id.contextTimelineContainer, TimelineView.newInstance(TIMELINE_CONTEXT, status.id))
@@ -116,11 +120,12 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
         }
     }
 
+
     private var keyboardListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     private fun setupKeyboard() {
         keyboardListener = KeyboardUtil.attach(activity, panelRoot, {
-            panelRootContainer.visibility =
+            panelRootContainer?.visibility =
                     if (it) {
                         if (replyEt.requestFocus()) replyEt.setSelection(replyEt.text.length)
                         View.VISIBLE
@@ -131,10 +136,13 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
         })
 
 
-        rootView.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) KPSwitchConflictUtil.hidePanelAndKeyboard(panelRootContainer)
+        nestedScrollView.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                KeyboardUtil.hideKeyboard(v)
+            }
             return@setOnTouchListener false
         }
+
     }
 
     private val uidFormat = "@%s"
@@ -283,10 +291,14 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
 
     override fun isDisplayingSuggestions() = viewAnimator.displayedChildId == R.id.mentionLayout
 
-    override fun onDestroy() {
+
+    override fun onDestroyView() {
+        super.onDestroyView()
         keyboardListener?.let { KeyboardUtil.detach(activity, it) }
-        activity?.currentFocus?.let { KeyboardUtil.hideKeyboard(it) }
-        super.onDestroy()
     }
 
+    override fun onPause() {
+        super.onPause()
+        activity?.currentFocus?.let { KeyboardUtil.hideKeyboard(it) }
+    }
 }

@@ -18,11 +18,10 @@
  *
  */
 
-package com.sinyuk.fanfou.ui.home
+package com.sinyuk.fanfou.ui.player
 
 /**
- * Created by sinyuk on 2018/1/11.
+ * Created by sinyuk on 2018/3/7.
  *
  */
-@Deprecated("")
-data class TabEvent @JvmOverloads constructor(var index: Int = 0, var again: Boolean = false)
+data class PlayerViewEvent @JvmOverloads constructor(var uniqueId: String = "")

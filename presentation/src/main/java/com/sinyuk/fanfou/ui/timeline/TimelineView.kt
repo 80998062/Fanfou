@@ -125,7 +125,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             if (States.ERROR == it?.states) {
                 it.message?.let { refreshCallback?.error(Throwable(it)) }
             } else if (States.SUCCESS == it?.states) {
-                EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
+//                EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
 //                if ((recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() > 0) { // 列表不是在顶部
 //                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
 //                } else {
@@ -142,7 +142,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     fun refresh() {
         timelineViewModel.refresh()
     }
-
 
     private lateinit var adapter: StatusPagedListAdapter
 

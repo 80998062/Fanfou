@@ -27,5 +27,5 @@
     <color name="colorControlNormal">#647888</color>
     <color name="colorControlActivated">@color/colorAccent</color>
     <color name="colorControlDisable">#E6EBEF</color>
-    <color name="scrim">#6b4e4d4d</color>
+    <color name="scrim">#486e6d6d</color>
 </resources>

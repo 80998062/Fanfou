@@ -21,6 +21,8 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
+import android.graphics.Bitmap
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
@@ -28,6 +30,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.ListPreloader
 import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
 import com.daimajia.swipe.interfaces.SwipeAdapterInterface
@@ -41,9 +47,12 @@ import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
 import com.sinyuk.fanfou.ui.QuickSwipeListener
+import com.sinyuk.fanfou.ui.player.PlayerViewEvent
+import com.sinyuk.fanfou.ui.status.StatusViewEvent
 import com.sinyuk.myutils.ConvertUtils
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
 import kotlinx.android.synthetic.main.timeline_view_list_item_underlayer.view.*
+import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 /**
@@ -52,7 +61,7 @@ import java.util.*
  * Adapter implementation that shows status.
  */
 class StatusPagedListAdapter(
-        fragment: Fragment,
+        private val fragment: Fragment,
         private val retryCallback: () -> Unit,
         private val uniqueId: String,
         private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
@@ -142,6 +151,43 @@ class StatusPagedListAdapter(
                             mItemManger.closeAllExcept(layout)
                         }
                     })
+
+
+                    // Click itemView
+                    val url = status.photos?.size(ConvertUtils.dp2px(fragment.context, Photos.SMALL_SIZE))
+                    holder.itemView.surfaceView.setOnClickListener {
+                        if (url == null) {
+                            EventBus.getDefault().post(StatusViewEvent(status))
+                        } else {
+                            glide.asBitmap().load(url)
+                                    .listener(object : RequestListener<Bitmap> {
+                                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                                            EventBus.getDefault().post(StatusViewEvent(status))
+                                            return false
+                                        }
+
+                                        override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                            resource?.apply {
+                                                Bundle().apply {
+                                                    putInt("w", width)
+                                                    putInt("h", height)
+                                                }.also {
+                                                    EventBus.getDefault().post(StatusViewEvent(status, photoExtra = it))
+                                                }
+                                            }
+                                            return true
+                                        }
+                                    }).preload()
+                        }
+                    }
+
+
+                    when (status.playerExtracts?.uniqueId) {
+                        null -> holder.itemView.avatar.setOnClickListener(null)
+                        else -> holder.itemView.avatar.setOnClickListener {
+                            EventBus.getDefault().post(PlayerViewEvent(uniqueId = status.playerExtracts?.uniqueId!!))
+                        }
+                    }
                 }
             }
             R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bind(networkState)
@@ -168,8 +214,18 @@ class StatusPagedListAdapter(
         fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status)
 
         fun onDeleted(v: View?, p: Int, status: Status)
-
     }
+
+
+//    var statusRouter: StatusRouter? = null
+//
+//    interface StatusRouter {
+//        fun toDetails(status: Status, photoExtra: Bundle?)
+//
+//        fun toPlayer(uniqueId: String)
+//
+//        fun toProfile(uniqueId: String)
+//    }
 
     /**
      * Swipe implementing
