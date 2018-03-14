@@ -23,6 +23,7 @@ package com.sinyuk.fanfou.ui.activities
 import android.arch.lifecycle.ViewModelProvider
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
@@ -50,6 +51,10 @@ import javax.inject.Named
  */
 class MainActivity : AbstractActivity() {
 
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
     override fun layoutId() = R.layout.main_activity
 
     @Inject
@@ -71,6 +76,7 @@ class MainActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate() $savedInstanceState")
         KeyboardUtil.attach(this@MainActivity, panelRoot)
         if (sharedPreferences.getString(UNIQUE_ID, null) == null) {
             if (findFragment(SignInView::class.java) == null) {
@@ -85,6 +91,11 @@ class MainActivity : AbstractActivity() {
                 showHideFragment(findFragment(HomeView::class.java))
             }
         }
+    }
+
+    override fun recreate() {
+        super.recreate()
+        Log.d(TAG, "recreate()")
     }
 
 

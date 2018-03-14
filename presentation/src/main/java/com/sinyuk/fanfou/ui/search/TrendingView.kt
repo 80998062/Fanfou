@@ -30,10 +30,12 @@ import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
+import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
+import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.SearchViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -58,35 +60,16 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
 
 
     private val searchViewModel by lazy { obtainViewModelFromActivity(factory, SearchViewModel::class.java) }
+    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        setupTrendList()
+//        setupTrendList()
 
-        searchViewModel.trends().observe(this@TrendingView, Observer {
-            when (it?.states) {
-                States.SUCCESS -> {
-                    adapter.setNewData(it.data)
-                }
-                States.ERROR -> {
-                    it.message?.let { toast.toastShort(it) }
-                }
-                States.LOADING -> {
-
-                }
-            }
-            if (findChildFragment(TimelineView::class.java) == null) {
-                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC, "")
-                fragment.refreshCallback = this@TrendingView
-                loadRootFragment(R.id.publicViewContainer, fragment)
-                refreshButton.setOnClickListener {
-                    toggleRefreshButton(false)
-                    findChildFragment(TimelineView::class.java)?.refresh()
-                }
-            } else {
-                showHideFragment(findChildFragment(TimelineView::class.java))
-            }
+        accountViewModel.profile.observe(this@TrendingView, Observer {
+            GlideApp.with(this).load(it?.profileImageUrlLarge).into(avatar)
         })
+
     }
 
     private fun toggleRefreshButton(enable: Boolean) {
@@ -119,6 +102,32 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
             setOnItemClickListener { _, _, _ -> }
             trendList.adapter = this
         }
+
+
+        searchViewModel.trends().observe(this@TrendingView, Observer {
+            when (it?.states) {
+                States.SUCCESS -> {
+                    adapter.setNewData(it.data)
+                }
+                States.ERROR -> {
+                    it.message?.let { toast.toastShort(it) }
+                }
+                States.LOADING -> {
+
+                }
+            }
+            if (findChildFragment(TimelineView::class.java) == null) {
+                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC, "")
+                fragment.refreshCallback = this@TrendingView
+                loadRootFragment(R.id.publicViewContainer, fragment)
+                refreshButton.setOnClickListener {
+                    toggleRefreshButton(false)
+                    findChildFragment(TimelineView::class.java)?.refresh()
+                }
+            } else {
+                showHideFragment(findChildFragment(TimelineView::class.java))
+            }
+        })
     }
 
 

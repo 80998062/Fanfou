@@ -22,17 +22,22 @@ package com.sinyuk.fanfou.ui.home
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
+import com.sinyuk.fanfou.glide.GlideApp
+import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import kotlinx.android.synthetic.main.index_view.*
+import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 /**
@@ -41,17 +46,17 @@ import javax.inject.Inject
  */
 class IndexView : AbstractFragment(), Injectable, RefreshCallback {
 
-
     override fun layoutId() = R.layout.index_view
-
     @Inject
     lateinit var factory: FanfouViewModelFactory
 
 
     private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
-    override fun onLazyInitView(savedInstanceState: Bundle?) {
-        super.onLazyInitView(savedInstanceState)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated() $savedInstanceState")
         accountViewModel.profile.observe(this@IndexView, Observer { render(it) })
     }
 
@@ -60,13 +65,17 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
             R.id.emptyLayout
         } else {
             if (findChildFragment(TimelineView::class.java) == null) {
+                Log.d(TAG, "recreateFragment()")
                 val fragment = TimelineView.newInstance(TIMELINE_HOME, data.uniqueId)
                 fragment.refreshCallback = this@IndexView
                 loadRootFragment(R.id.homeTimelineViewContainer, fragment)
             } else {
+                Log.d(TAG, "showHideFragment()")
                 showHideFragment(findChildFragment(TimelineView::class.java))
             }
 
+            avatar.setOnClickListener { EventBus.getDefault().post(DrawerToggleEvent()) }
+            GlideApp.with(this).load(data.profileImageUrlLarge).into(avatar)
             pullRefreshLayout.setOnRefreshListener { (findChildFragment(TimelineView::class.java) as TimelineView).refresh() }
 
             R.id.pullRefreshLayout
@@ -80,5 +89,21 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
 
     override fun error(throwable: Throwable) {
         pullRefreshLayout.isRefreshing = false
+    }
+
+    companion object {
+        const val TAG = "IndexView"
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate() $savedInstanceState")
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy()")
     }
 }

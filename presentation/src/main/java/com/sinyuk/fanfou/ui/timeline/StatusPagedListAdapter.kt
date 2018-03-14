@@ -40,6 +40,7 @@ import com.daimajia.swipe.interfaces.SwipeAdapterInterface
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface
 import com.daimajia.swipe.util.Attributes
 import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
@@ -48,6 +49,7 @@ import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
 import com.sinyuk.fanfou.ui.QuickSwipeListener
 import com.sinyuk.fanfou.ui.player.PlayerViewEvent
+import com.sinyuk.fanfou.ui.status.StatusView
 import com.sinyuk.fanfou.ui.status.StatusViewEvent
 import com.sinyuk.myutils.ConvertUtils
 import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
@@ -158,11 +160,13 @@ class StatusPagedListAdapter(
                     holder.itemView.surfaceView.setOnClickListener {
                         if (url == null) {
                             EventBus.getDefault().post(StatusViewEvent(status))
+                            (fragment as AbstractFragment).extraTransaction().startDontHideSelf(StatusView.newInstance(status))
                         } else {
                             glide.asBitmap().load(url)
                                     .listener(object : RequestListener<Bitmap> {
                                         override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
                                             EventBus.getDefault().post(StatusViewEvent(status))
+                                            (fragment as AbstractFragment).extraTransaction().startDontHideSelf(StatusView.newInstance(status))
                                             return false
                                         }
 
@@ -173,6 +177,7 @@ class StatusPagedListAdapter(
                                                     putInt("h", height)
                                                 }.also {
                                                     EventBus.getDefault().post(StatusViewEvent(status, photoExtra = it))
+                                                    (fragment as AbstractFragment).extraTransaction().startDontHideSelf(StatusView.newInstance(status, photoExtra = it))
                                                 }
                                             }
                                             return true

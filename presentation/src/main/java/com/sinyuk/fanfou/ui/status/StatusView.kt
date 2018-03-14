@@ -25,10 +25,10 @@ import android.arch.lifecycle.Observer
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
-import android.transition.TransitionInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +47,7 @@ import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
-import com.sinyuk.fanfou.base.AbstractSwipeFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Player
@@ -59,6 +59,7 @@ import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.QMUIRoundButtonDrawable
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.editor.MentionListView
+import com.sinyuk.fanfou.ui.player.PlayerView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.FanfouFormatter
 import com.sinyuk.fanfou.util.linkfy.FanfouUtils
@@ -77,7 +78,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/12.
  *
  */
-class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
+class StatusView : AbstractFragment(), Injectable, QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
 
     companion object {
@@ -96,13 +97,8 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
 
     private val playerViewModel by lazy { obtainViewModelFromActivity(factory, PlayerViewModel::class.java) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.explode)
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.explode)
-        postponeEnterTransition()
-    }
 
+    private val handler = Handler()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val status = arguments!!.getParcelable<Status>("status")
@@ -111,12 +107,15 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
         onFormValidation(0)
         renderUI(status)
         navBack.setOnClickListener { pop() }
-        startPostponedEnterTransition()
 
-        if (findChildFragment(TimelineView::class.java) == null) {
-            loadRootFragment(R.id.contextTimelineContainer, TimelineView.newInstance(TIMELINE_CONTEXT, status.id))
-        } else {
-            showHideFragment(findChildFragment(TimelineView::class.java))
+        view.post {
+            handler.postDelayed({
+                if (findChildFragment(TimelineView::class.java) == null) {
+                    loadRootFragment(R.id.contextTimelineContainer, TimelineView.newInstance(TIMELINE_CONTEXT, status.id))
+                } else {
+                    showHideFragment(findChildFragment(TimelineView::class.java))
+                }
+            }, 400)
         }
     }
 
@@ -179,6 +178,11 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
 
 
         moreButton.setOnClickListener {}
+
+
+        avatar.setOnClickListener {
+            extraTransaction().startDontHideSelf(PlayerView.newInstance(status.playerExtracts?.uniqueId!!))
+        }
 
     }
 
@@ -295,6 +299,11 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
     override fun onDestroyView() {
         super.onDestroyView()
         keyboardListener?.let { KeyboardUtil.detach(activity, it) }
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun onPause() {

@@ -18,37 +18,110 @@
   ~  */
   -->
 
-<com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/viewAnimator"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?android:windowBackground"
+    android:fitsSystemWindows="false">
 
-    <android.support.v4.widget.Space
-        android:id="@+id/placeholder"
-        android:layout_width="0dp"
-        android:layout_height="0dp" />
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/pullRefreshLayout"
+    <LinearLayout
+        android:id="@+id/actionBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="@dimen/action_bar_height"
+        android:layout_marginTop="@dimen/status_bar_height"
+        android:background="?android:colorPrimary"
+        android:orientation="horizontal"
+        android:transitionName="@string/transition_toolbar"
+        tools:background="#fff">
+
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/avatar"
+            style="@style/action_button"
+            android:contentDescription="@string/name_avatar"
+            android:transitionName="@string/transition_toolbar_button_1"
+            app:riv_border_width="0dp"
+            app:riv_corner_radius="16dp"
+            tools:src="@mipmap/ic_launcher_round" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/actionBarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/actionBarSubTitle"
+                android:layout_centerHorizontal="true"
+                android:text="@string/label_home"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/text_14"
+                android:textStyle="bold"
+                android:transitionName="@string/transition_toolbar_title" />
+
+            <TextView
+                android:id="@+id/actionBarSubTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_horizontal"
+                android:includeFontPadding="false"
+                android:textColor="?android:textColorHint"
+                android:textSize="9sp"
+                tools:ignore="SmallSp"
+                tools:text="加载60条新消息" />
+        </RelativeLayout>
+
+
+        <ImageView
+            android:id="@+id/postFanfouButton"
+            style="@style/action_button"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_rice"
+            android:transitionName="@string/transition_toolbar_button_2" />
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_size"
+        android:background="@color/divider_color" />
+
+    <com.sinyuk.fanfou.ui.BetterViewAnimator
+        android:id="@+id/viewAnimator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/actionBar">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/pullRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/homeTimelineViewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
         <FrameLayout
-            android:id="@+id/homeTimelineViewContainer"
+            android:id="@+id/emptyLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/emptyLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="空空如也"
-            android:textSize="30sp" />
-    </FrameLayout>
-</com.sinyuk.fanfou.ui.BetterViewAnimator>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="空空如也"
+                android:textSize="30sp" />
+        </FrameLayout>
+    </com.sinyuk.fanfou.ui.BetterViewAnimator>
+</RelativeLayout>

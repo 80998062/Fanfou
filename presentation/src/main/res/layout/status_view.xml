@@ -24,6 +24,7 @@
     android:orientation="vertical">
 
     <FrameLayout
+        android:id="@+id/actionBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/status_bar_height">
@@ -44,6 +45,7 @@
 
 
             <TextView
+                android:id="@+id/actionBarTitle"
                 style="@style/toolbarTitle.Linear"
                 android:text="@string/label_status"
                 android:transitionName="@string/transition_toolbar_title" />

@@ -52,23 +52,36 @@ import javax.inject.Inject
 class HomeView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.home_view
 
+    companion object {
+        const val TAG = "HomeView"
+    }
+
     @Inject
     lateinit var factory: ViewModelProvider.Factory
     @Inject
     lateinit var toast: ToastUtils
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG,"onCreate() $savedInstanceState")
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(this@HomeView.tag, "onViewCreated")
-        if (findChildFragment(TabView::class.java) == null) {
-            loadRootFragment(R.id.tabViewContainer, TabView())
-            loadRootFragment(R.id.drawerViewContainer, DrawerView())
-        } else {
-            showHideFragment(findChildFragment(TabView::class.java))
-            showHideFragment(findChildFragment(DrawerView::class.java))
-        }
+        Log.i(TAG, "onViewCreated()")
+        if (findChildFragment(TabView::class.java) == null) loadRootFragment(R.id.tabViewContainer, TabView())
+        else showHideFragment(findChildFragment(TabView::class.java))
+
+
+        if (findChildFragment(TabView::class.java) == null) loadRootFragment(R.id.drawerViewContainer, DrawerView())
+        else showHideFragment(findChildFragment(DrawerView::class.java))
 
         renderUI()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG,"onDestroy()")
     }
 
     private fun renderUI() {

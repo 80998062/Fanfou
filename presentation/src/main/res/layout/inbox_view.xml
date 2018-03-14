@@ -17,12 +17,12 @@
   ~  * limitations under the License.
   ~  */
   -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground"
     android:fitsSystemWindows="false">
 
     <LinearLayout
@@ -41,47 +41,47 @@
             style="@style/action_button"
             android:contentDescription="@string/name_avatar"
             android:transitionName="@string/transition_toolbar_button_1"
-            app:riv_border_color="@color/divider_color"
-            app:riv_border_width="1dp"
+            app:riv_border_width="0dp"
             app:riv_corner_radius="16dp"
             tools:src="@mipmap/ic_launcher_round" />
 
         <RelativeLayout
-            android:id="@+id/searchView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/gap_8"
-            android:layout_marginTop="@dimen/gap_8"
-            android:layout_weight="1"
-            android:background="@drawable/search_view_bg"
-            android:transitionName="@string/transition_search_view">
+            android:layout_weight="1">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="4dp"
-                android:layout_toStartOf="@+id/searchHint"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_search" />
 
             <TextView
-                android:id="@+id/searchHint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/hint_search"
-                android:textColor="?android:textColorHint"
+                android:layout_above="@+id/actionBarSubTitle"
+                android:layout_centerHorizontal="true"
+                android:text="@string/label_inbox"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="@dimen/text_14"
-                tools:ignore="RelativeOverlap" />
+                android:textStyle="bold"
+                android:transitionName="@string/transition_toolbar_title" />
+
+            <TextView
+                android:id="@+id/actionBarSubTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_horizontal"
+                android:includeFontPadding="false"
+                android:textColor="?android:textColorHint"
+                android:textSize="9sp"
+                tools:ignore="SmallSp"
+                tools:text="加载60条新消息" />
         </RelativeLayout>
 
 
         <ImageView
-            android:id="@+id/addFriendButton"
+            android:id="@+id/settingsButton"
             style="@style/action_button"
             android:contentDescription="@null"
-            android:src="@drawable/ic_addfriend"
+            android:src="@drawable/ic_settings_ac"
             android:transitionName="@string/transition_toolbar_button_2" />
 
     </LinearLayout>
@@ -90,38 +90,4 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_size"
         android:background="@color/divider_color" />
-
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/actionBar"
-        android:fillViewport="true"
-        android:overScrollMode="never">
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/trendList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never" />
-
-            <include layout="@layout/timeline_view_list_header_public" />
-
-            <FrameLayout
-                android:id="@+id/publicViewContainer"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-
-    </android.support.v4.widget.NestedScrollView>
 </RelativeLayout>
