@@ -26,7 +26,6 @@ import android.arch.lifecycle.ViewModelProvider
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.widget.DrawerLayout
 import android.util.Log
 import android.view.KeyEvent
@@ -41,11 +40,11 @@ import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.domain.StatusCreation
 import com.sinyuk.fanfou.glide.GlideApp
-import com.sinyuk.fanfou.glide.loadDrawable
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.colormatchtabs.adapter.ColorTabAdapter
 import com.sinyuk.fanfou.ui.colormatchtabs.listeners.OnColorTabSelectedListener
 import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
+import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.fanfou.ui.editor.EditorView
 import com.sinyuk.fanfou.ui.home.IndexView
 import com.sinyuk.fanfou.ui.message.MessageView
@@ -65,6 +64,17 @@ import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/11/28.
+ *
+ * ┌──────────────────────────────────────────────────────────────────┐
+ * │                                                                  │
+ * │        _______. __  .__   __. ____    ____  __    __   __  ___   │
+ * │       /       ||  | |  \ |  | \   \  /   / |  |  |  | |  |/  /   │
+ * │      |   (----`|  | |   \|  |  \   \/   /  |  |  |  | |  '  /    │
+ * │       \   \    |  | |  . `  |   \_    _/   |  |  |  | |    <     │
+ * │   .----)   |   |  | |  |\   |     |  |     |  `--'  | |  .  \    │
+ * │   |_______/    |__| |__| \__|     |__|      \______/  |__|\__\   │
+ * │                                                                  │
+ * └──────────────────────────────────────────────────────────────────┘
  *
  */
 class HomeActivity : AbstractActivity() {
@@ -101,23 +111,18 @@ class HomeActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setupDrawerLayout(savedInstanceState)
+        setupTabLayout(savedInstanceState)
+        setupViewPager(savedInstanceState)
+
         onGlobalLayoutListener = KeyboardUtil.attach(this@HomeActivity, panelRoot, {
 
         })
     }
 
-    private fun renderUI() {
-        setupDrawerLayout()
-        setupTabLayout()
-        setupViewPager()
-        accountViewModel.profile.observe(this, Observer {
-            it?.apply {
-                GlideApp.with(navImageView).load(profileImageUrlLarge).avatar().transition(withCrossFade()).into(navImageView)
-            }
-        })
-    }
 
-    private fun setupDrawerLayout() {
+    private fun setupDrawerLayout(savedInstanceState: Bundle?) {
         drawerLayout.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
 
@@ -134,11 +139,16 @@ class HomeActivity : AbstractActivity() {
             }
         })
 
-        navImageView.setOnClickListener { drawerLayout.openDrawer() }
+        navImageView.setOnClickListener {
+            if (findFragment(DrawerView::class.java) == null) {
+                loadRootFragment(R.id.drawerViewContainer, DrawerView(), false, false)
+            }
+            drawerLayout.openDrawer()
+        }
     }
 
     @SuppressLint("Recycle")
-    private fun setupTabLayout() {
+    private fun setupTabLayout(savedInstanceState: Bundle?) {
         val colors = resources.getStringArray(R.array.tab_colors)
         val icons = resources.obtainTypedArray(R.array.tab_icons)
         try {
@@ -157,7 +167,6 @@ class HomeActivity : AbstractActivity() {
         tabLayout.addOnColorTabSelectedListener(object : OnColorTabSelectedListener {
             override fun onReSelectedTab(tab: ColorTab?) {
                 if (BuildConfig.DEBUG) Log.i("onReSelectedTab", "position: " + tab?.position)
-                onPageSwitched(tab?.position ?: 0)
             }
 
             override fun onDoubleClick(tab: ColorTab?) {
@@ -167,6 +176,7 @@ class HomeActivity : AbstractActivity() {
 
             override fun onSelectedTab(tab: ColorTab?) {
                 if (BuildConfig.DEBUG) Log.i("onSelectedTab", "position: " + tab?.position)
+                onPageSwitched(tab?.position ?: 0)
             }
 
             override fun onUnselectedTab(tab: ColorTab?) {
@@ -179,25 +189,24 @@ class HomeActivity : AbstractActivity() {
 
     private val titles by lazy { resources.getStringArray(R.array.tab_titles) }
 
-    private var currentFragment: Int? = null
+    private var currentFragment: Int = 0
 
-    private fun setupViewPager() {
-        fragments = if (findFragment(IndexView::class.java) == null) {
+    private fun setupViewPager(savedInstanceState: Bundle?) {
+        fragments = if (savedInstanceState == null) {
             mutableListOf(IndexView(), SearchView(), SignInView(), MessageView())
         } else {
+            currentFragment = savedInstanceState.getInt("currentFragment", 0)
             mutableListOf(findFragment(IndexView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
         }
 
-        viewPager.setPagingEnabled(false)
-        viewPager.offscreenPageLimit = fragments.size
-        viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
-            override fun getItem(position: Int) = fragments[position]
-
-            override fun getCount() = fragments.size
-        }
-        currentFragment = 0
+        loadMultipleRootFragment(R.id.viewPager, currentFragment, *fragments.toTypedArray())
     }
 
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putInt("currentFragment", currentFragment)
+    }
 
     private fun onPageSwitched(to: Int) {
         if (to == currentFragment) return
@@ -220,10 +229,10 @@ class HomeActivity : AbstractActivity() {
             3 -> ActionButton.Send
             else -> null
         }?.let {
-            endButton.loadDrawable(it)
+            GlideApp.with(this).load(it).into(endButton)
         }
 
-        viewPager.setCurrentItem(to, false)
+        showHideFragment(fragments[to], fragments[currentFragment])
         currentFragment = to
     }
 
@@ -267,11 +276,20 @@ class HomeActivity : AbstractActivity() {
     }
 
 
+    private var renderingRunnable: Runnable? = Runnable {
+        renderingRunnable = null
+        accountViewModel.profile.observe(this@HomeActivity, Observer {
+            it?.apply {
+                GlideApp.with(navImageView).load(profileImageUrlLarge).avatar().transition(withCrossFade()).into(navImageView)
+            }
+        })
+    }
+
     override fun onResume() {
         super.onResume()
 //        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
-        window.decorView.post {
-            delayHandler.post { renderUI() }
+        if (renderingRunnable != null) {
+            window.decorView.post { delayHandler.post(renderingRunnable) }
         }
     }
 

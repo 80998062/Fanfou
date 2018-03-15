@@ -163,7 +163,7 @@
 
             </LinearLayout>
 
-            <com.sinyuk.fanfou.ui.FreezeViewPager
+            <FrameLayout
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

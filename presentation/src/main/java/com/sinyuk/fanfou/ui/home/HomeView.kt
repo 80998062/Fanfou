@@ -18,10 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.glide
-
-import android.widget.ImageView
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+package com.sinyuk.fanfou.ui.home
 
 /**
  * Created by sinyuk on 2018/3/15.
@@ -36,6 +33,5 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
  */
-fun ImageView.loadDrawable(res: Int) {
-    GlideApp.with(this).load(res).transition(DrawableTransitionOptions.withCrossFade()).into(this)
+class HomeView {
 }

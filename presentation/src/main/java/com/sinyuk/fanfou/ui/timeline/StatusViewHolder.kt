@@ -25,7 +25,6 @@ import android.graphics.Rect
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -73,9 +72,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
             null -> view.avatar.setOnClickListener(null)
             uniqueId -> view.avatar.setOnClickListener { }
             else -> view.avatar.setOnClickListener {
-                val id = status.playerExtracts!!.uniqueId
-                Log.d("TimelineRepository", "uniqueId $id")
-                (view.context as AbstractActivity).start(PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
+                (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container, PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
             }
         }
 
@@ -147,14 +144,14 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
 
         view.surfaceView.setOnClickListener {
             if (url == null) {
-                (view.context as AbstractActivity).start(StatusView.newInstance(status))
+                (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container, (StatusView.newInstance(status)))
             } else {
                 Glide.with(view)
                         .asBitmap()
                         .load(url)
                         .listener(object : RequestListener<Bitmap> {
                             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                                (view.context as AbstractActivity).start(StatusView.newInstance(status))
+                                (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container, StatusView.newInstance(status))
                                 return false
                             }
 
@@ -163,7 +160,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
                                     Bundle().apply {
                                         putInt("w", width)
                                         putInt("h", height)
-                                    }.also { (view.context as AbstractActivity).start(StatusView.newInstance(status, photoExtra = it)) }
+                                    }.also { (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container, StatusView.newInstance(status, photoExtra = it)) }
                                 }
                                 return true
                             }
