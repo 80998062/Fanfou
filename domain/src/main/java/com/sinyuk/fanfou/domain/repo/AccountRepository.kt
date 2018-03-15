@@ -103,7 +103,7 @@ class AccountRepository
 
     fun accountLive(): LiveData<Player?> = map(uniqueIdLive, {
         if (it.isBlank()) {
-            TODO()
+            null
         } else {
             db.playerDao().query(it)
         }

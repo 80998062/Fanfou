@@ -33,11 +33,13 @@ import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
-import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.domain.PAGE_SIZE
+import com.sinyuk.fanfou.domain.TYPE_GLOBAL
+import com.sinyuk.fanfou.domain.UNIQUE_ID
 import com.sinyuk.fanfou.ui.MarginDecoration
-import com.sinyuk.fanfou.ui.home.TabDoubleClickEvent
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
@@ -224,23 +226,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     override fun onDestroy() {
         super.onDestroy()
         if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
-    }
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onTabEvent(event: TabDoubleClickEvent) {
-        when (event.index) {
-            0 -> {
-                if (timelinePath == TIMELINE_HOME) {
-                    recyclerView.smoothScrollToPosition(0)
-                    timelineViewModel.refresh()
-                }
-            }
-            1 -> {
-
-            }
-
-        }
     }
 
     @Suppress("unused")

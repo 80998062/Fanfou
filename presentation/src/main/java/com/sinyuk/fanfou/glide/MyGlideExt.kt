@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.glide
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
@@ -33,12 +34,14 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation
  */
 @GlideExtension
 object MyGlideExt {
+    @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
     fun avatar(options: RequestOptions) {
         options.optionalCircleCrop()
     }
 
+    @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
     fun illustrationThumb(options: RequestOptions, context: Context) {
@@ -46,6 +49,7 @@ object MyGlideExt {
     }
 
 
+    @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
     fun illustrationLarge(options: RequestOptions, context: Context) {

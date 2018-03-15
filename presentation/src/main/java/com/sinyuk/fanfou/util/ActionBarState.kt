@@ -21,7 +21,6 @@
 package com.sinyuk.fanfou.util
 
 import android.os.Bundle
-import android.support.annotation.ColorInt
 import android.support.annotation.DrawableRes
 
 /**
@@ -32,7 +31,6 @@ data class ActionBarUi
 @JvmOverloads constructor(var title: String? = null,
                           var subTitle: String? = null,
                           @DrawableRes var startButtonDrawable: Int?,
-                          @ColorInt var backgroundColor: Int?,
                           var startButtonType: Int = ActionButton.Avatar,
                           var endButtonType: Int = ActionButton.Rice,
                           @DrawableRes var endButtonDrawable: Int?,
@@ -44,7 +42,6 @@ data class ActionBarUi
         const val DISPLAYED_CHILD_INDEX = "displayedChildIndex"
         const val SUBTITLE = "subTitle"
         const val START_BUTTON_DRAWABLE = "startButtonDrawable"
-        const val BACKGROUND_COLOR = "backgroundColor"
         const val START_BUTTON_TYPE = "startButtonType"
         const val END_BUTTON_DRAWABLE = "endButtonDrawable"
         const val END_BUTTON_TYPE = "endButtonType"
@@ -58,7 +55,6 @@ data class ActionBarUi
         if (payLoads.get().containsKey(DISPLAYED_CHILD_INDEX)) displayedChildIndex = payLoads.get().getInt(DISPLAYED_CHILD_INDEX)
         if (payLoads.get().containsKey(SUBTITLE)) subTitle = payLoads.get().getString(SUBTITLE)
         if (payLoads.get().containsKey(START_BUTTON_DRAWABLE)) startButtonDrawable = payLoads.get().getInt(START_BUTTON_DRAWABLE)
-        if (payLoads.get().containsKey(BACKGROUND_COLOR)) backgroundColor = payLoads.get().getInt(BACKGROUND_COLOR)
         if (payLoads.get().containsKey(START_BUTTON_TYPE)) startButtonType = payLoads.get().getInt(START_BUTTON_TYPE)
         if (payLoads.get().containsKey(END_BUTTON_DRAWABLE)) endButtonDrawable = payLoads.get().getInt(END_BUTTON_DRAWABLE)
         if (payLoads.get().containsKey(END_BUTTON_TYPE)) endButtonType = payLoads.get().getInt(END_BUTTON_TYPE)
@@ -76,7 +72,6 @@ data class ActionBarUi
                     other.subTitle == subTitle &&
                     other.startButtonDrawable == startButtonDrawable &&
                     other.startButtonType == startButtonType &&
-                    other.backgroundColor == backgroundColor &&
                     other.endButtonDrawable == endButtonDrawable &&
                     other.endButtonType == endButtonType) {
                 return true
@@ -111,12 +106,6 @@ data class ActionBarUi
             bundle.putInt(END_BUTTON_DRAWABLE, drawable)
             return this@PayLoads
         }
-
-        fun background(@ColorInt background: Int): PayLoads {
-            bundle.putInt(BACKGROUND_COLOR, background)
-            return this@PayLoads
-        }
-
 
         fun startButtonType(type: Int): PayLoads {
             bundle.putInt(START_BUTTON_TYPE, type)

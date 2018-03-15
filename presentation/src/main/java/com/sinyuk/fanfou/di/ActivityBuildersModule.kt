@@ -20,7 +20,7 @@
 
 package com.sinyuk.fanfou.di
 
-import com.sinyuk.fanfou.ui.activities.MainActivity
+import com.sinyuk.fanfou.ui.activities.HomeActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -31,8 +31,9 @@ import dagger.android.ContributesAndroidInjector
 @Module
 abstract class ActivityBuildersModule {
 
+    @Suppress("unused")
     @ActivityScope
     @ContributesAndroidInjector(modules = [(FragmentBuildersModule::class)])
-    abstract fun mianActivity(): MainActivity
+    abstract fun mianActivity(): HomeActivity
 
 }

@@ -30,7 +30,6 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Authorization
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.States
-import com.sinyuk.fanfou.ui.home.HomeView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -73,7 +72,7 @@ class SignInView : AbstractFragment(), Injectable {
                             } else {
                                 accountViewModel.verifyCredentials(it.data!!).observe(this@SignInView, Observer {
                                     when (it?.states) {
-                                        States.SUCCESS -> startWithPop(HomeView())
+//                                        States.SUCCESS -> startWithPop(HomeView())
                                         States.ERROR -> {
                                             it.message?.let { toast.toastShort(it) }
                                             loginButton.isEnabled = true
