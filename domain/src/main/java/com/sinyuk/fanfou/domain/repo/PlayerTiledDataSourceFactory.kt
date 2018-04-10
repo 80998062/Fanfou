@@ -35,7 +35,7 @@ class PlayerTiledDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,
                                    private val uniqueId: String? = null,
                                    private val db: LocalDatabase,
-                                   private val appExecutors: AppExecutors) : DataSource.Factory<Int, Player> {
+                                   private val appExecutors: AppExecutors) : DataSource.Factory<Int, Player>() {
     val sourceLiveData = MutableLiveData<PlayerTiledDataSource>()
 
     override fun create(): DataSource<Int, Player> {

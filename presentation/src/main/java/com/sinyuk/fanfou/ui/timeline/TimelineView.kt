@@ -30,6 +30,7 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.FixedPreloadSizeProvider
+import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
@@ -94,27 +95,15 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     @Inject
     lateinit var toast: ToastUtils
 
-
-    private lateinit var timelinePath: String
-    private var query: String? = null
-
-
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        arguments?.let {
-            timelinePath = it.getString("path")
-            val id = it.getString("id")
-            query = it.getString("query")
-            Log.d(TAG, "path: $timelinePath , id: $id , query: $query")
-            timelineViewModel.setParams(timelinePath, id, query)
-        }
-
-        setupRecyclerView()
         setupSwipeRefresh()
+        setupRecyclerView()
 
-//        accountViewModel.profile.observe(this@TimelineView, Observer {
-//            it?.apply { timelineViewModel.setParams(timelinePath, uniqueId, query) }
-//        })
+        assert(arguments != null)
+        arguments!!.apply { timelineViewModel.setRelativeUrl(getString("path"), getString("id"), getString("query")) }
+        adapter.submitList(null)
+        recyclerView.scrollToPosition(0)
     }
 
 
@@ -142,6 +131,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     }
 
     fun refresh() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "trigger refresh fromUser")
         timelineViewModel.refresh()
     }
 
@@ -162,7 +152,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null), path = timelinePath)
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null))
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
@@ -175,10 +165,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         timelineViewModel.statuses.observe(this, pagedListConsumer)
         timelineViewModel.networkState.observe(this, networkConsumer)
     }
-
-    /**
-     *  favorited 接口的数据在有网的情况下都不会缓存所以要更新adapter
-     */
 
     override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
         if (favorited) {
@@ -203,7 +189,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
 
     private val pagedListConsumer = Observer<PagedList<Status>> {
-        Log.i(TAG, "PagedList has changed , size: ${it?.size}")
         // Preserves the user's scroll position if items are inserted outside the viewable area:
 //        val recyclerViewState = recyclerView.layoutManager.onSaveInstanceState()
         adapter.submitList(it)
@@ -211,11 +196,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     }
 
     private val networkConsumer = Observer<NetworkState> {
-        if (it?.status == com.sinyuk.fanfou.domain.Status.REACH_TOP) {
-            // never happen
-        } else {
-            adapter.setNetworkState(it)
-        }
+        adapter.setNetworkState(it)
     }
 
     override fun onResume() {

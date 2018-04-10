@@ -54,8 +54,7 @@ import java.util.*
 class StatusPagedListAdapter(
         fragment: Fragment,
         private val retryCallback: () -> Unit,
-        private val uniqueId: String,
-        private val path: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
+        private val uniqueId: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
@@ -90,7 +89,7 @@ class StatusPagedListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
-        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
+        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 
@@ -108,6 +107,8 @@ class StatusPagedListAdapter(
             R.layout.timeline_view_list_item -> {
                 holder as StatusViewHolder
                 if (getItem(position) == null) {
+                    // Null defines a placeholder item - PagedListAdapter will automatically invalidate
+                    // this row when the actual object is loaded from the database
                     holder.clear()
                 } else {
                     val status = getItem(position)!!
@@ -220,6 +221,9 @@ class StatusPagedListAdapter(
     override fun getSwipeLayoutResourceId(position: Int): Int = R.id.swipeLayout
 
 
+    /**
+     *
+     */
     class StatusPreloadProvider constructor(private val adapter: StatusPagedListAdapter, private val fragment: Fragment, private val imageWidthPixels: Int) : ListPreloader.PreloadModelProvider<Status> {
 
         override fun getPreloadRequestBuilder(item: Status): RequestBuilder<*>? {

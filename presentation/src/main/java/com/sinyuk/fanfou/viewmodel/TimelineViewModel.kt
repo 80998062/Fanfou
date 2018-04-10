@@ -22,49 +22,51 @@ package com.sinyuk.fanfou.viewmodel
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.Transformations.map
 import android.arch.lifecycle.Transformations.switchMap
 import android.arch.lifecycle.ViewModel
 import android.util.Log
-import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.PAGE_SIZE
 import com.sinyuk.fanfou.domain.repo.Listing
 import com.sinyuk.fanfou.domain.repo.inDb.TimelineRepository
-import com.sinyuk.fanfou.domain.repo.inMemory.tiled.TiledTimelineRepository
 import javax.inject.Inject
 
 /**
  * Created by sinyuk on 2017/12/6.
  *
  */
-class TimelineViewModel @Inject constructor(private val disk: TimelineRepository,
-                                            private val tiled: TiledTimelineRepository) : ViewModel() {
+class TimelineViewModel @Inject constructor(private val repo: TimelineRepository) : ViewModel() {
 
-    companion object { const val TAG = "TimelineViewModel" }
-
-    data class TimelinePath(val path: String, val id: String, val query: String? = null)
-
-    private var params: MutableLiveData<TimelinePath> = MutableLiveData()
-
-    fun setParams(path: String, id: String, query: String? = null) {
-        params.postValue(TimelinePath(path, id, query))
+    companion object {
+        const val TAG = "TimelineViewModel"
     }
 
-    private val repoResult: LiveData<Listing<Status>> = map(params, {
-        Log.d(TAG, "path: ${it.path} , id: ${it.id} , query: ${it.query}")
-        when (it.path) {
-            SEARCH_TIMELINE_PUBLIC, SEARCH_USER_TIMELINE -> tiled.statuses(path = it.path, query = it.query, pageSize = PAGE_SIZE, uniqueId = it.id)
-            TIMELINE_PHOTO -> disk.statuses(path = it.path, pageSize = PHOTO_SIZE, uniqueId = it.id)
-            TIMELINE_PUBLIC, TIMELINE_CONTEXT, TIMELINE_FAVORITES -> tiled.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-            TIMELINE_USER -> disk.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-            TIMELINE_HOME -> disk.statuses(path = it.path, uniqueId = it.id, pageSize = PAGE_SIZE)
-            else -> TODO()
-        }
+    data class RelativeUrl(val path: String, val id: String, val query: String? = null)
+
+    private var relativeUrl: MutableLiveData<RelativeUrl> = MutableLiveData()
+
+    fun setRelativeUrl(path: String, id: String, query: String? = null) {
+        setRelativeUrl(RelativeUrl(path, id, query))
+    }
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun setRelativeUrl(url: RelativeUrl) = if (url == relativeUrl.value) {
+        false
+    } else {
+        relativeUrl.value = url
+        true
+    }
+
+
+    private val repoResult: LiveData<Listing<Status>> = map(relativeUrl, {
+        if (BuildConfig.DEBUG) Log.d(TAG, "Mapping RelativeUrl")
+        repo.statuses(path = it.path, pageSize = PAGE_SIZE, uniqueId = it.id)
     })
 
-    val statuses = Transformations.switchMap(repoResult, { it.pagedList })!!
-    val networkState = Transformations.switchMap(repoResult, { it.networkState })!!
+    val statuses = switchMap(repoResult, { it.pagedList })!!
+    val networkState = switchMap(repoResult, { it.networkState })!!
     val refreshState = switchMap(repoResult, { it.refreshState })!!
 
 
@@ -77,9 +79,9 @@ class TimelineViewModel @Inject constructor(private val disk: TimelineRepository
         repoResult.value?.refresh?.invoke()
     }
 
-    fun createFavorite(id: String) = disk.createFavorite(id)
+    fun createFavorite(id: String) = repo.createFavorite(id)
 
-    fun destroyFavorite(id: String) = disk.destoryFavorite(id)
+    fun destroyFavorite(id: String) = repo.destroyFavorite(id)
 
-    fun delete(id: String) = disk.delete(id)
+    fun delete(id: String) = repo.delete(id)
 }

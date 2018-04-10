@@ -25,8 +25,10 @@ import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
-import com.sinyuk.fanfou.domain.Status;
+import com.sinyuk.fanfou.domain.BuildConfig;
+import com.sinyuk.fanfou.domain.RequestStatus;
 
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link RequestType#BEFORE BEFORE} and {@link RequestType#AFTER AFTER} and runs only 1 request
  * for each of them via {@link #runIfNotRunning(RequestType, Request)}.
  * <p>
- * It tracks a {@link Status} and an {@code error} for each {@link RequestType}.
+ * It tracks a {@link RequestStatus} and an {@code error} for each {@link RequestType}.
  * <p>
  * A sample usage of this class to limit requests looks like this:
  * <pre>
@@ -134,7 +136,7 @@ public class PagingRequestHelper {
     }
 
     /**
-     * Adds a new listener that will be notified when any request changes {@link Status state}.
+     * Adds a new listener that will be notified when any request changes {@link RequestStatus state}.
      *
      * @param listener The listener that will be notified each time a request's status changes.
      * @return True if it is added, false otherwise (e.g. it already exists in the list).
@@ -150,6 +152,7 @@ public class PagingRequestHelper {
      * @param listener The listener that will be removed.
      * @return True if the listener is removed, false otherwise (e.g. it never existed)
      */
+    @SuppressWarnings("unused")
     public boolean removeListener(@NonNull Listener listener) {
         return mListeners.remove(listener);
     }
@@ -173,7 +176,7 @@ public class PagingRequestHelper {
             RequestQueue queue = mRequestQueues[type.ordinal()];
             if (queue.mRunning != null) return false;
             queue.mRunning = request;
-            queue.mStatus = Status.RUNNING;
+            queue.mStatus = RequestStatus.RUNNING;
             queue.mFailed = null;
             queue.mLastError = null;
             if (hasListeners) report = prepareStatusReportLocked();
@@ -193,7 +196,7 @@ public class PagingRequestHelper {
     }
 
     @GuardedBy("mLock")
-    private Status getStatusForLocked(RequestType type) {
+    private RequestStatus getStatusForLocked(RequestType type) {
         return mRequestQueues[type.ordinal()].mStatus;
     }
 
@@ -206,22 +209,13 @@ public class PagingRequestHelper {
         synchronized (mLock) {
             RequestQueue queue = mRequestQueues[wrapper.mType.ordinal()];
             queue.mRunning = null;
+            queue.mLastError = throwable;
             if (success) {
                 queue.mFailed = null;
-                queue.mStatus = Status.SUCCESS;
+                queue.mStatus = RequestStatus.SUCCESS;
             } else {
-                if (throwable instanceof NoMoreDataThrowable) {
-                    queue.mLastError = null;
-                    if (wrapper.mType == RequestType.BEFORE) {
-                        queue.mStatus = Status.REACH_TOP;
-                    } else {
-                        queue.mStatus = Status.REACH_BOTTOM;
-                    }
-                } else {
-                    queue.mLastError = throwable;
-                    queue.mStatus = Status.FAILED;
-                    queue.mFailed = wrapper;
-                }
+                queue.mFailed = wrapper;
+                queue.mStatus = RequestStatus.FAILED;
             }
             if (hasListeners) report = prepareStatusReportLocked();
 
@@ -231,6 +225,7 @@ public class PagingRequestHelper {
     }
 
     private void dispatchReport(StatusReport report) {
+        if (BuildConfig.DEBUG) Log.d("StatusReport", report.toString());
         for (Listener listener : mListeners) {
             listener.onStatusChange(report);
         }
@@ -333,21 +328,6 @@ public class PagingRequestHelper {
                 }
             }
 
-
-            /**
-             * Call this method when the new data is fetched
-             * but we are run out of data.
-             */
-            @SuppressWarnings("unused")
-            public final void recordNoMore() {
-                if (mCalled.compareAndSet(false, true)) {
-                    mHelper.recordResult(mWrapper, new NoMoreDataThrowable());
-                } else {
-                    throw new IllegalStateException(
-                            "already called recordSuccess or recordFailure");
-                }
-            }
-
             /**
              * Call this method with the failure message and the request can be retried via
              * {@link #retryAllFailed()}.
@@ -371,9 +351,6 @@ public class PagingRequestHelper {
         }
     }
 
-    private static class NoMoreDataThrowable extends Throwable {
-    }
-
     /**
      * Data class that holds the information about the current status of the ongoing requests
      * using this helper.
@@ -383,21 +360,21 @@ public class PagingRequestHelper {
          * Status of the latest request that were submitted with {@link RequestType#INITIAL}.
          */
         @NonNull
-        public final Status initial;
+        final RequestStatus initial;
         /**
          * Status of the latest request that were submitted with {@link RequestType#BEFORE}.
          */
         @NonNull
-        public final Status before;
+        final RequestStatus before;
         /**
          * Status of the latest request that were submitted with {@link RequestType#AFTER}.
          */
         @NonNull
-        public final Status after;
+        final RequestStatus after;
         @NonNull
         private final Throwable[] mErrors;
 
-        StatusReport(@NonNull Status initial, @NonNull Status before, @NonNull Status after,
+        StatusReport(@NonNull RequestStatus initial, @NonNull RequestStatus before, @NonNull RequestStatus after,
                      @NonNull Throwable[] errors) {
             this.initial = initial;
             this.before = before;
@@ -411,7 +388,7 @@ public class PagingRequestHelper {
          * @return True if there are any running requests, false otherwise.
          */
         public boolean hasRunning() {
-            return initial == Status.RUNNING || before == Status.RUNNING || after == Status.RUNNING;
+            return initial == RequestStatus.RUNNING || before == RequestStatus.RUNNING || after == RequestStatus.RUNNING;
         }
 
         /**
@@ -420,16 +397,9 @@ public class PagingRequestHelper {
          * @return True if there are any requests that finished with error, false otherwise.
          */
         public boolean hasError() {
-            return initial == Status.FAILED || before == Status.FAILED || after == Status.FAILED;
+            return initial == RequestStatus.FAILED || before == RequestStatus.FAILED || after == RequestStatus.FAILED;
         }
 
-        public boolean hasReachedBottom() {
-            return initial == Status.REACH_BOTTOM || after == Status.REACH_BOTTOM;
-        }
-
-        public boolean hasReachedTop() {
-            return before == Status.REACH_TOP;
-        }
 
         /**
          * Returns the error for the given request type.
@@ -521,7 +491,7 @@ public class PagingRequestHelper {
         @Nullable
         Throwable mLastError;
         @NonNull
-        Status mStatus = Status.SUCCESS;
+        RequestStatus mStatus = RequestStatus.SUCCESS;
 
         RequestQueue(@NonNull RequestType requestType) {
             mRequestType = requestType;

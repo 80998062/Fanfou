@@ -35,8 +35,6 @@ fun PagingRequestHelper.createStatusLiveData(): LiveData<NetworkState> {
         when {
             report.hasRunning() -> liveData.postValue(NetworkState.LOADING)
             report.hasError() -> liveData.postValue(NetworkState.error(getErrorMessage(report)))
-            report.hasReachedBottom() -> liveData.postValue(NetworkState.REACH_BOTTOM)
-            report.hasReachedTop() -> liveData.postValue(NetworkState.REACH_TOP)
             else -> liveData.postValue(NetworkState.LOADED)
         }
     }

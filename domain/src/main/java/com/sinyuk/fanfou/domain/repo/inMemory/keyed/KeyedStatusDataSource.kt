@@ -77,28 +77,21 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                     response.body()!!
                 }
                 retry = null
-                when (items.size) {
-                    params.requestedLoadSize -> {
-                        networkState.postValue(NetworkState.LOADED)
-                    }
-                    else -> {
-                        networkState.postValue(NetworkState.REACH_BOTTOM)
-                    }
-                }
+                networkState.postValue(NetworkState.LOADED)
                 initialLoad.postValue(Resource.success(items))
                 callback.onResult(items)
             } else {
                 retry = { loadInitial(params, callback) }
                 val msg = "error code: ${response.code()}"
                 networkState.postValue(NetworkState.error(msg))
-                initialLoad.postValue(Resource.error(msg,null))
+                initialLoad.postValue(Resource.error(msg, null))
             }
 
         } catch (e: IOException) {
             retry = { loadInitial(params, callback) }
             val msg = e.message ?: "unknown error"
             networkState.postValue(NetworkState.error(msg))
-            initialLoad.postValue(Resource.error(msg,null))
+            initialLoad.postValue(Resource.error(msg, null))
         }
     }
 
@@ -116,10 +109,7 @@ class KeyedStatusDataSource(private val restAPI: RestAPI,
                 }
                 retry = null
                 callback.onResult(items)
-                when (items.size) {
-                    params.requestedLoadSize -> networkState.postValue(NetworkState.LOADED)
-                    else -> networkState.postValue(NetworkState.REACH_BOTTOM)
-                }
+                networkState.postValue(NetworkState.LOADED)
             } else {
                 retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))

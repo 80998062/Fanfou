@@ -26,24 +26,33 @@ import android.content.Context
 import android.net.ConnectivityManager
 
 
-enum class Status {
+enum class RequestStatus {
     RUNNING,
     SUCCESS,
     FAILED,
-    REACH_BOTTOM,
-    REACH_TOP
 }
 
 @Suppress("DataClassPrivateConstructor")
 data class NetworkState private constructor(
-        val status: Status,
+        val status: RequestStatus,
         val msg: String? = null) {
     companion object {
-        val LOADED = NetworkState(Status.SUCCESS)
-        val LOADING = NetworkState(Status.RUNNING)
-        val REACH_BOTTOM = NetworkState(Status.REACH_BOTTOM)
-        val REACH_TOP = NetworkState(Status.REACH_TOP)
-        fun error(msg: String?) = NetworkState(Status.FAILED, msg)
+        val LOADED = NetworkState(RequestStatus.SUCCESS)
+        val LOADING = NetworkState(RequestStatus.RUNNING)
+        fun error(msg: String?) = NetworkState(RequestStatus.FAILED, msg)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is NetworkState) {
+            return other.status == status && other.msg == msg
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = status.hashCode()
+        result = 31 * result + (msg?.hashCode() ?: 0)
+        return result
     }
 }
 

@@ -25,6 +25,7 @@ import android.support.annotation.WorkerThread
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.api.ApiResponse
 import com.sinyuk.fanfou.domain.api.RestAPI
@@ -55,15 +56,11 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
 
     override fun run() {
         val first = db.statusDao().first(convertPathToFlag(path), uniqueId)?.id
-        if (first.isNullOrBlank()) {
-            livedata.postValue(Resource.success(mutableListOf()))
-            return
-        }
         try {
-            val response = if (path == TIMELINE_HOME) {
-                restAPI.fetch_from_path(path = path, count = pageSize, since = first)
-            } else {
-                restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId)
+            val response = when (path) {
+                TIMELINE_HOME -> restAPI.fetch_from_path(path = path, count = pageSize, since = first)
+                TIMELINE_FAVORITES -> TODO()
+                else -> restAPI.fetch_from_path(path = path, count = pageSize, since = first, id = uniqueId)
             }.execute()
 
             val apiResponse = ApiResponse(response)
@@ -78,7 +75,7 @@ class StatusFetchTopTask(private val restAPI: RestAPI,
                 livedata.postValue(Resource.error("error code: ${response.code()}", null))
             }
         } catch (e: IOException) {
-            livedata.postValue(Resource.error("error code: ${e.message}", null))
+            livedata.postValue(Resource.error("error msg: ${e.message}", null))
         }
     }
 

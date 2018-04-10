@@ -25,8 +25,9 @@ import android.support.annotation.MainThread
 import android.util.Log
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
-import com.sinyuk.fanfou.domain.BuildConfig
 import com.sinyuk.fanfou.domain.DO.Status
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.TIMELINE_PHOTO
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
@@ -63,13 +64,12 @@ class StatusBoundaryCallback(
      */
     @MainThread
     override fun onZeroItemsLoaded() {
-        if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded")
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            if (BuildConfig.DEBUG) Log.i(TAG, "onZeroItemsLoaded: true")
-            if (path == TIMELINE_PHOTO) {
-                webservice.photos(count = networkPageSize, id = uniqueId)
-            } else {
-                webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
+            when (path) {
+                TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId)
+                TIMELINE_FAVORITES -> TODO()
+                TIMELINE_HOME -> webservice.fetch_from_path(path = path, count = networkPageSize) // 如果加上id 就会返回 401 Unauthorized
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }
@@ -79,13 +79,12 @@ class StatusBoundaryCallback(
      */
     @MainThread
     override fun onItemAtEndLoaded(itemAtEnd: Status) {
-        if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: " + itemAtEnd.id)
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
-            if (BuildConfig.DEBUG) Log.i(TAG, "onItemAtEndLoaded: true")
-            if (path == TIMELINE_PHOTO) {
-                webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
-            } else {
-                webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
+            when (path) {
+                TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
+                TIMELINE_HOME -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id) // 如果加上id 就会返回401 Unauthorized
+                TIMELINE_FAVORITES -> TODO()
+                else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
     }
@@ -98,8 +97,8 @@ class StatusBoundaryCallback(
             response: Response<MutableList<Status>>,
             it: PagingRequestHelper.Request.Callback) {
         appExecutors.diskIO().execute {
-            if (handleResponse(path, uniqueId, response.body()) == networkPageSize) it.recordSuccess()
-            else it.recordNoMore()
+            handleResponse(path, uniqueId, response.body())
+            it.recordSuccess()
         }
     }
 
@@ -109,11 +108,16 @@ class StatusBoundaryCallback(
             : Callback<MutableList<Status>> {
         return object : Callback<MutableList<Status>> {
             override fun onFailure(call: Call<MutableList<Status>>, t: Throwable) {
+                Log.d("StatusReport", t.message)
                 it.recordFailure(t)
             }
 
             override fun onResponse(call: Call<MutableList<Status>>, response: Response<MutableList<Status>>) {
-                insertItemsIntoDb(response, it)
+                if (response.code() != 200) {
+                    it.recordFailure(Throwable(response.message()))
+                } else {
+                    insertItemsIntoDb(response, it)
+                }
             }
         }
     }

@@ -34,7 +34,7 @@ class TiledStatusDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,
                                    private val uniqueId: String?,
                                    private val query: String?,
-                                   private val appExecutors: AppExecutors) : DataSource.Factory<Int, Status> {
+                                   private val appExecutors: AppExecutors) : DataSource.Factory<Int, Status>() {
     val sourceLiveData = MutableLiveData<TiledStatusDataSource>()
 
     override fun create(): DataSource<Int, Status> {

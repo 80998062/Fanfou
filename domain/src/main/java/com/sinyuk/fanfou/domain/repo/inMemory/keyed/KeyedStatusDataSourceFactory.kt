@@ -38,7 +38,7 @@ import com.sinyuk.fanfou.domain.api.RestAPI
 class KeyedStatusDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,
                                    private val uniqueId: String?,
-                                   private val appExecutors: AppExecutors) : DataSource.Factory<String, Status> {
+                                   private val appExecutors: AppExecutors) : DataSource.Factory<String, Status>() {
     val sourceLiveData = MutableLiveData<KeyedStatusDataSource>()
 
     override fun create(): DataSource<String, Status> {

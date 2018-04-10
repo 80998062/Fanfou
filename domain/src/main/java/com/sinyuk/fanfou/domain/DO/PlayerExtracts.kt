@@ -20,6 +20,7 @@
 
 package com.sinyuk.fanfou.domain.DO
 
+import android.arch.persistence.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
 
@@ -27,14 +28,14 @@ import android.os.Parcelable
  * Created by sinyuk on 2017/12/1.
  *
  */
-data class PlayerExtracts constructor(
+data class PlayerExtracts @JvmOverloads constructor(
         var uniqueId: String = "",
         var id: String = "",
         var screenName: String? = "",
         var profileImageUrl: String? = "",
         var profileImageUrlLarge: String? = "",
         var profileBackgroundImageUrl: String? = "") : Parcelable {
-    constructor(player: Player) : this(
+    @Ignore constructor(player: Player) : this(
             uniqueId = player.uniqueId,
             id = player.id,
             screenName = player.screenName,

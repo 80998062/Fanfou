@@ -68,7 +68,7 @@ class PhotoGridView : AbstractFragment(), Injectable {
 
         arguments?.let {
             val id = it.getString("id")
-            timelineViewModel.setParams(TIMELINE_PHOTO, id)
+            timelineViewModel.setRelativeUrl(TIMELINE_PHOTO, id)
         }
 
         setupRecyclerView()

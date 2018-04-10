@@ -86,7 +86,7 @@ class PlayerRepository @Inject constructor(
 
         val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
 
-        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setBackgroundThreadExecutor(appExecutors.networkIO()).build()
+        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setFetchExecutor(appExecutors.networkIO()).build()
 
         val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {
             it.initialLoad
@@ -110,7 +110,7 @@ class PlayerRepository @Inject constructor(
     @MainThread
     fun savedPlayers(path: String, pageSize: Int): LiveData<PagedList<Player>> {
         val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
-        return LivePagedListBuilder(disk.playerDao().players(convertPlayerPathToFlag(path)), pagedListConfig).setBackgroundThreadExecutor(appExecutors.diskIO()).build()
+        return LivePagedListBuilder(disk.playerDao().players(convertPlayerPathToFlag(path)), pagedListConfig).setFetchExecutor(appExecutors.diskIO()).build()
 
     }
 

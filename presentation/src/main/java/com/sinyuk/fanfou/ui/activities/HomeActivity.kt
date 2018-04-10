@@ -50,7 +50,6 @@ import com.sinyuk.fanfou.ui.home.IndexView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.FetTopEvent
-import com.sinyuk.fanfou.util.ActionButton
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.ActionBarViewModel
@@ -199,7 +198,12 @@ class HomeActivity : AbstractActivity() {
             mutableListOf(findFragment(IndexView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
         }
 
-        loadMultipleRootFragment(R.id.viewPager, currentFragment, *fragments.toTypedArray())
+        if (savedInstanceState == null) {
+            loadMultipleRootFragment(R.id.viewPager, currentFragment, *fragments.toTypedArray())
+        } else {
+            showHideFragment(fragments[currentFragment])
+        }
+
     }
 
 
@@ -222,11 +226,17 @@ class HomeActivity : AbstractActivity() {
         when (to) {
             0 -> {
                 endButton.setOnClickListener { start(EditorView.newInstance(action = StatusCreation.CREATE_NEW)) }
-                ActionButton.Rice
+                R.drawable.ic_rice
             }
-            1 -> ActionButton.AddFriend
-            2 -> ActionButton.Settings
-            3 -> ActionButton.Send
+            1 -> {
+                R.drawable.ic_addfriend
+            }
+            2 -> {
+                R.drawable.ic_settings_ac
+            }
+            3 -> {
+                R.drawable.ic_sendmessage
+            }
             else -> null
         }?.let {
             GlideApp.with(this).load(it).into(endButton)

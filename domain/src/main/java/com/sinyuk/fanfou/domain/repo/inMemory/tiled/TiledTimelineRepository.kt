@@ -56,7 +56,7 @@ class TiledTimelineRepository @Inject constructor(
 
         val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(false).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
 
-        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setBackgroundThreadExecutor(appExecutors.networkIO()).build()
+        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setFetchExecutor(appExecutors.networkIO()).build()
 
         val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {
             it.initialLoad

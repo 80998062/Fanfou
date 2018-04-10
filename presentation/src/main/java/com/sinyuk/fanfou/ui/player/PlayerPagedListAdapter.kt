@@ -94,7 +94,7 @@ class PlayerPagedListAdapter(fragment: Fragment, private val retryCallback: () -
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
         R.layout.player_list_item -> PlayerItemViewHolder.create(parent, glide)
-        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback, path)
+        R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
 

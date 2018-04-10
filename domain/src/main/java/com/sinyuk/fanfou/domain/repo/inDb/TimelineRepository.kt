@@ -29,6 +29,7 @@ import android.arch.paging.PagedList
 import android.content.SharedPreferences
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
+import android.util.Log
 import com.sinyuk.fanfou.domain.*
 import com.sinyuk.fanfou.domain.DO.PlayerExtracts
 import com.sinyuk.fanfou.domain.DO.Resource
@@ -46,6 +47,11 @@ import javax.inject.Singleton
 /**
  * Repository implementation that uses a database PagedList + a boundary callback to return a
  * listing that loads in pages.
+ *
+ * Notice: you may page from local storage, which itself pages additional data from the network.
+ * This is often done to minimize network loads and provide a better low-connectivity experience:
+ * the database is used as a cache of data stored in the backend.
+ *
  */
 @Singleton
 class TimelineRepository @Inject constructor(
@@ -71,9 +77,17 @@ class TimelineRepository @Inject constructor(
      */
     @MainThread
     fun statuses(path: String, pageSize: Int, uniqueId: String): Listing<Status> {
+        // TODO: What if account has updated?
         val account = sharedPreferences.getString(UNIQUE_ID, null)
         // create a data source factory from Room
-        val dataSourceFactory = if (uniqueId == account) {
+        // if we're fetching user's data, loaded it from disk (local storage)
+        // otherwise loaded it from memory (network)
+        val isCached = when (path) {
+            TIMELINE_HOME -> true
+            TIMELINE_USER, TIMELINE_FAVORITES, TIMELINE_PHOTO -> uniqueId == account
+            else -> false
+        }
+        val dataSourceFactory = if (isCached) {
             db.statusDao().loadAll(uniqueId = uniqueId, path = convertPathToFlag(path))
         } else {
             memory.statusDao().loadAll(uniqueId = uniqueId, path = convertPathToFlag(path))
@@ -89,10 +103,9 @@ class TimelineRepository @Inject constructor(
                 appExecutors = appExecutors,
                 networkPageSize = pageSize)
 
-        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(false).setPrefetchDistance(PREFETCH_DISTANCE).setInitialLoadSizeHint(pageSize)
+        val config = PagedList.Config.Builder().setPageSize(pageSize).setEnablePlaceholders(true).setPrefetchDistance(PREFETCH_DISTANCE).setInitialLoadSizeHint(pageSize)
 
-        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setBackgroundThreadExecutor(appExecutors.diskIO())
-
+        val builder = LivePagedListBuilder(dataSourceFactory, config.build()).setBoundaryCallback(boundaryCallback).setFetchExecutor(appExecutors.diskIO())
 
         // we are using a mutable live data to trigger refresh requests which eventually calls
         // refresh method and gets a new live data. Each refresh request by the user becomes a newly
@@ -100,10 +113,8 @@ class TimelineRepository @Inject constructor(
         val trigger = MutableLiveData<Unit>()
         val refreshState = Transformations.switchMap(trigger, { fetchTop(path, pageSize, uniqueId) })
 
-        val pagedList = builder.build()
-
         return Listing(
-                pagedList = pagedList,
+                pagedList = builder.build(),
                 networkState = boundaryCallback.networkState,
                 retry = { boundaryCallback.helper.retryAllFailed() },
                 refresh = { trigger.value = null },
@@ -112,6 +123,7 @@ class TimelineRepository @Inject constructor(
     }
 
     private fun fetchTop(path: String, pageSize: Int, uniqueId: String): LiveData<Resource<MutableList<Status>>> {
+        if (BuildConfig.DEBUG) Log.d(TAG, "fetchTop() path: $path pageSize: $pageSize uniqueId: $uniqueId")
         val task = StatusFetchTopTask(restAPI = restAPI, path = path, pageSize = pageSize, db = db, uniqueId = uniqueId)
         appExecutors.networkIO().execute(task)
         return task.livedata
@@ -181,7 +193,7 @@ class TimelineRepository @Inject constructor(
     /**
      * @param id status id
      */
-    fun destoryFavorite(id: String): LiveData<Resource<Status>> {
+    fun destroyFavorite(id: String): LiveData<Resource<Status>> {
         val liveData = MutableLiveData<Resource<Status>>()
         liveData.postValue(Resource.loading(null))
         appExecutors.networkIO().execute {

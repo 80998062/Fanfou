@@ -28,7 +28,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.Status
+import com.sinyuk.fanfou.domain.RequestStatus
 import com.sinyuk.fanfou.ui.BetterViewAnimator
 
 /**
@@ -46,13 +46,12 @@ class NetworkStateGridViewHolder(view: View, private val retryCallback: () -> Un
 
     fun bind(networkState: NetworkState?) {
         when (networkState?.status) {
-            Status.REACH_BOTTOM -> viewAnimator.displayedChildId = R.id.finishedLayout
-            Status.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
-            Status.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
-            Status.SUCCESS, Status.REACH_TOP -> TODO()
+            RequestStatus.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
+            RequestStatus.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
+            RequestStatus.SUCCESS -> TODO()
         }
 
-        progressBar.isIndeterminate = networkState?.status == Status.RUNNING
+        progressBar.isIndeterminate = networkState?.status == RequestStatus.RUNNING
     }
 
     companion object {

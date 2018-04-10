@@ -32,7 +32,7 @@ import com.sinyuk.fanfou.domain.db.DateConverter
  * Created by sinyuk on 2018/1/3.
  *
  */
-@Entity(tableName = "trends", indices = arrayOf(Index("name")))
+@Entity(tableName = "trends", indices = [(Index("name"))])
 @TypeConverters(DateConverter::class)
 data class Trend @JvmOverloads constructor(
         @PrimaryKey @NonNull @SerializedName("name") var name: String = "",

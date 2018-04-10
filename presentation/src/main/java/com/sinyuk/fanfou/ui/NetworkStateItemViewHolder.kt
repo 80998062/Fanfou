@@ -29,8 +29,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.Status
-import com.sinyuk.fanfou.domain.TIMELINE_CONTEXT
+import com.sinyuk.fanfou.domain.RequestStatus
 
 /**
  * Created by sinyuk on 2017/12/18.
@@ -40,9 +39,7 @@ import com.sinyuk.fanfou.domain.TIMELINE_CONTEXT
 /**
 
  */
-class NetworkStateItemViewHolder(view: View,
-                                 private val retryCallback: () -> Unit,
-                                 private val path: String)
+class NetworkStateItemViewHolder(view: View, private val retryCallback: () -> Unit)
     : RecyclerView.ViewHolder(view) {
     private val viewAnimator = view.findViewById<BetterViewAnimator>(R.id.viewAnimator)
 
@@ -59,28 +56,22 @@ class NetworkStateItemViewHolder(view: View,
 
     fun bind(networkState: NetworkState?) {
         when (networkState?.status) {
-            Status.REACH_BOTTOM -> viewAnimator.displayedChildId = R.id.finishedLayout
-            Status.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
-            Status.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
-            Status.SUCCESS, Status.REACH_TOP -> TODO()
+            RequestStatus.RUNNING -> viewAnimator.displayedChildId = R.id.loadingLayout
+            RequestStatus.FAILED -> viewAnimator.displayedChildId = R.id.errorLayout
+            RequestStatus.SUCCESS -> TODO()
         }
 
-        when (path) {
-            TIMELINE_CONTEXT -> R.string.hint_no_more_context
-            else -> R.string.hint_no_more_home
-        }.apply {
-            finishedMsg.setText(this)
-        }
 
-        progressBar.isIndeterminate = networkState?.status == Status.RUNNING
+        finishedMsg.setText(R.string.hint_no_more_home)
+        progressBar.isIndeterminate = networkState?.status == RequestStatus.RUNNING
         errorMsg.text = networkState?.msg
     }
 
     companion object {
-        fun create(parent: ViewGroup, retryCallback: () -> Unit, path: String): NetworkStateItemViewHolder {
+        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.network_state_item, parent, false)
-            return NetworkStateItemViewHolder(view, retryCallback, path)
+            return NetworkStateItemViewHolder(view, retryCallback)
         }
     }
 }

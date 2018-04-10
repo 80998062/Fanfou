@@ -185,7 +185,7 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
                     override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                         (view.context as AbstractActivity).extraTransaction()
                                 .setCustomAnimations(0, 0, 0, 0)
-                                .startDontHideSelf(PhotoDetailsView.newInstance(status, thumbnailInfo, resource!!))
+                                .loadRootFragment(R.id.fragment_container, PhotoDetailsView.newInstance(status, thumbnailInfo, resource!!))
                         return false
                     }
                 })

@@ -37,22 +37,22 @@ object MyGlideExt {
     @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
-    fun avatar(options: RequestOptions) {
+    fun avatar(options: RequestOptions) =
         options.optionalCircleCrop()
-    }
+
 
     @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
-    fun illustrationThumb(options: RequestOptions, context: Context) {
+    fun illustrationThumb(options: RequestOptions, context: Context) =
         options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 4f), 0)))
-    }
+
 
 
     @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
-    fun illustrationLarge(options: RequestOptions, context: Context) {
+    fun illustrationLarge(options: RequestOptions, context: Context) =
         options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 6f), 0)))
-    }
+
 }

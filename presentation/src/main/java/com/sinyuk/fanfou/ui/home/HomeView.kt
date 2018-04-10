@@ -20,6 +20,11 @@
 
 package com.sinyuk.fanfou.ui.home
 
+import android.os.Bundle
+import android.view.View
+import com.sinyuk.fanfou.R
+import com.sinyuk.fanfou.base.AbstractFragment
+
 /**
  * Created by sinyuk on 2018/3/15.
 ┌──────────────────────────────────────────────────────────────────┐
@@ -33,5 +38,16 @@ package com.sinyuk.fanfou.ui.home
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
  */
-class HomeView {
+class HomeView : AbstractFragment() {
+
+    override fun layoutId() = R.layout.home_view
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState == null) {
+
+        } else {
+
+        }
+    }
 }

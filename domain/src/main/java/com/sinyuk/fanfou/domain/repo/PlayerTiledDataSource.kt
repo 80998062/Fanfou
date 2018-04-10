@@ -62,15 +62,8 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
 
                 if (uniqueId == null) saveResultInDisk(items)
 
-                var next: Int? = null
-                when (items.size) {
-                    params.requestedLoadSize -> {
-                        networkState.postValue(NetworkState.LOADED)
-                        next = params.key + 1
-                    }
-                    else -> networkState.postValue(NetworkState.REACH_BOTTOM)
-                }
-                callback.onResult(items, next)
+                networkState.postValue(NetworkState.LOADED)
+                callback.onResult(items, params.key + 1)
             } else {
                 retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))
@@ -120,7 +113,7 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
                 // publish the error
                 val msg = t?.message ?: "unknown error"
                 networkState.postValue(NetworkState.error(msg))
-                initialLoad.postValue(Resource.error(msg,null))
+                initialLoad.postValue(Resource.error(msg, null))
             }
 
             override fun onResponse(call: Call<MutableList<Player>>?, response: Response<MutableList<Player>>) {
@@ -133,20 +126,9 @@ class PlayerTiledDataSource(private val restAPI: RestAPI,
                     retry = null
 
                     if (uniqueId == null) saveResultInDisk(items)
-
-                    var next: Int? = null
-                    when (items.size) {
-                        params.requestedLoadSize -> {
-                            next = 2
-                            networkState.postValue(NetworkState.LOADED)
-                        }
-                        else -> {
-                            networkState.postValue(NetworkState.REACH_BOTTOM)
-                        }
-
-                    }
+                    networkState.postValue(NetworkState.LOADED)
                     initialLoad.postValue(Resource.success(items))
-                    callback.onResult(items, null, next)
+                    callback.onResult(items, null, 2)
                 } else {
                     retry = {
                         loadInitial(params, callback)
