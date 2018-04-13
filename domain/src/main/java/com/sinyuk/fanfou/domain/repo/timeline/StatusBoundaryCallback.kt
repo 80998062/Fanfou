@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inDb
+package com.sinyuk.fanfou.domain.repo.timeline
 
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
@@ -26,9 +26,9 @@ import android.util.Log
 import com.android.paging.PagingRequestHelper
 import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.domain.TIMELINE_PHOTO
+import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.domain.api.RestAPI
 import com.sinyuk.fanfou.domain.util.createStatusLiveData
 import retrofit2.Call
@@ -67,8 +67,7 @@ class StatusBoundaryCallback(
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
             when (path) {
                 TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId)
-                TIMELINE_FAVORITES -> TODO()
-                TIMELINE_HOME -> webservice.fetch_from_path(path = path, count = networkPageSize) // 如果加上id 就会返回 401 Unauthorized
+                TIMELINE_HOME, TIMELINE_PUBLIC -> webservice.fetch_from_path(path = path, count = networkPageSize) // 如果加上id 就会返回 401 Unauthorized
                 else -> webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
@@ -82,8 +81,7 @@ class StatusBoundaryCallback(
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
             when (path) {
                 TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
-                TIMELINE_HOME -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id) // 如果加上id 就会返回401 Unauthorized
-                TIMELINE_FAVORITES -> TODO()
+                TIMELINE_HOME,TIMELINE_PUBLIC -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id) // 如果加上id 就会返回401 Unauthorized
                 else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }

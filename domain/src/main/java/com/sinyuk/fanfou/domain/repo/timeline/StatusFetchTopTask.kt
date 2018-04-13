@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inDb
+package com.sinyuk.fanfou.domain.repo.timeline
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.WorkerThread

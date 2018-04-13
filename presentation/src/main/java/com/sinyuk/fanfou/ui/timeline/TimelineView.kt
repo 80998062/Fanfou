@@ -45,6 +45,7 @@ import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.viewmodel.ConnectionModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
@@ -71,14 +72,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             }
         }
 
-//        fun search(path: String, query: String, id: String? = null) = TimelineView().apply {
-//            arguments = Bundle().apply {
-//                putString("path", path)
-//                putString("query", query)
-//                putString("id", id)
-//            }
-//        }
-
         const val TAG = "TimelineView"
     }
 
@@ -95,10 +88,18 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     @Inject
     lateinit var toast: ToastUtils
 
+
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
         setupSwipeRefresh()
         setupRecyclerView()
+
+        // Cannot add the same observer with different lifeCycles! So use activity here.
+        activity?.let {
+            ConnectionModel.livedata(it.applicationContext).observe(activity!!, Observer {
+                Log.d(TAG, it.toString())
+            })
+        }
 
         assert(arguments != null)
         arguments!!.apply { timelineViewModel.setRelativeUrl(getString("path"), getString("id"), getString("query")) }

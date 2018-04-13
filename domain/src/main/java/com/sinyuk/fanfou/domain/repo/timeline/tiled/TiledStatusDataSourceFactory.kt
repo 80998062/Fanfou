@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inMemory.keyed
+package com.sinyuk.fanfou.domain.repo.timeline.tiled
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource
@@ -26,23 +26,18 @@ import com.sinyuk.fanfou.domain.AppExecutors
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.api.RestAPI
 
-
 /**
  * Created by sinyuk on 2017/12/29.
- * </p>
  *
- * A simple data source factory which also provides a way to observe the last created data source.
- * This allows us to channel its network request status etc back to the UI. See the Listing creation
- * in the Repository class.
  */
-class KeyedStatusDataSourceFactory(private val restAPI: RestAPI,
+class TiledStatusDataSourceFactory(private val restAPI: RestAPI,
                                    private val path: String,
-                                   private val uniqueId: String?,
-                                   private val appExecutors: AppExecutors) : DataSource.Factory<String, Status>() {
-    val sourceLiveData = MutableLiveData<KeyedStatusDataSource>()
+                                   private val uniqueId: String,
+                                   private val appExecutors: AppExecutors) : DataSource.Factory<Int, Status>() {
+    val sourceLiveData = MutableLiveData<TiledStatusDataSource>()
 
-    override fun create(): DataSource<String, Status> {
-        val source = KeyedStatusDataSource(restAPI, path, uniqueId, appExecutors)
+    override fun create(): DataSource<Int, Status> {
+        val source = TiledStatusDataSource(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
         sourceLiveData.postValue(source)
         return source
     }

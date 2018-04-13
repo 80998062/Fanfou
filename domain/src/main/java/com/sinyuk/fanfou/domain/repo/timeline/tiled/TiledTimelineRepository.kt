@@ -18,10 +18,11 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inMemory.keyed
+package com.sinyuk.fanfou.domain.repo.timeline.tiled
 
 import android.app.Application
 import android.arch.lifecycle.Transformations
+import android.arch.lifecycle.Transformations.switchMap
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.support.annotation.MainThread
@@ -36,39 +37,32 @@ import javax.inject.Singleton
 
 /**
  * Created by sinyuk on 2017/12/29.
- * </p>
- *
- * Repository implementation that returns a Listing that loads data directly from the network
- * and uses the Item's name as the key to discover prev/next pages.
+ *  page from a single source - either local storage or network.
  */
 @Singleton
-class KeyedTimelineRepository @Inject constructor(
+class TiledTimelineRepository @Inject constructor(
         val application: Application,
         url: Endpoint,
         interceptor: Oauth1SigningInterceptor,
         private val appExecutors: AppExecutors) : AbstractRepository(application, url, interceptor) {
+
     @MainThread
-    fun statuses(path: String, uniqueId: String? = null, pageSize: Int): Listing<Status> {
-        val sourceFactory = KeyedStatusDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
+    fun statuses(path: String, uniqueId: String, pageSize: Int): Listing<Status> {
+        val sourceFactory = TiledStatusDataSourceFactory(restAPI = restAPI, path = path, uniqueId = uniqueId, appExecutors = appExecutors)
 
-        val pagedListConfig = PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(pageSize)
-                .setInitialLoadSizeHint(pageSize)
-                .setPageSize(pageSize)
-                .build()
+        val pagedListConfig = PagedList.Config.Builder().setEnablePlaceholders(true).setPrefetchDistance(pageSize).setInitialLoadSizeHint(pageSize).setPageSize(pageSize).build()
 
-        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig)
-                // provide custom executor for network requests, otherwise it will default to
-                // Arch Components' IO pool which is also used for disk access
-                .setFetchExecutor(appExecutors.networkIO())
-                .build()
+        val pagedList = LivePagedListBuilder(sourceFactory, pagedListConfig).setFetchExecutor(appExecutors.networkIO()).build()
 
-        val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) { it.initialLoad }
+        val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {
+            it.initialLoad
+        }
 
         return Listing(
                 pagedList = pagedList,
-                networkState = Transformations.switchMap(sourceFactory.sourceLiveData, { it.networkState }),
+                networkState = switchMap(sourceFactory.sourceLiveData, {
+                    it.networkState
+                }),
                 retry = {
                     sourceFactory.sourceLiveData.value?.retryAllFailed()
                 },
@@ -78,4 +72,6 @@ class KeyedTimelineRepository @Inject constructor(
                 refreshState = refreshState
         )
     }
+
+
 }

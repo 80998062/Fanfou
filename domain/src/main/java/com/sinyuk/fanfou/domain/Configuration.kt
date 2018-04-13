@@ -45,6 +45,9 @@ const val TIMELINE_CONTEXT = "context_timeline"
  */
 const val TIMELINE_PHOTO = "photo_timeline"
 
+
+const val TIMELINE_DRAFT = "draft_timeline"
+
 /**
  * 浏览指定用户已发送消息
  */

@@ -54,18 +54,8 @@ interface StatusDao {
     fun loadInitial(uniqueId: String, path: Int, limit: Int): MutableList<Status>
 
 
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
-            " createdAt < (SELECT createdAt FROM statuses WHERE id = :id)" +
-            " AND uid = :uniqueId" +
-            " ORDER BY createdAt DESC LIMIT :limit")
-    fun loadAfter(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
-
-
-    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +
-            " createdAt > (SELECT createdAt FROM statuses WHERE id = :id)" +
-            " AND uid = :uniqueId" +
-            " ORDER BY createdAt DESC LIMIT :limit")
-    fun loadBefore(uniqueId: String, path: Int, id: String, limit: Int): MutableList<Status>
+    @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND uid = :uniqueId ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    fun loadAfter(uniqueId: String, path: Int, limit: Int, offset: Int): MutableList<Status>
 
 
     @Query("SELECT * FROM statuses WHERE pathFlag & :path = :path AND" +

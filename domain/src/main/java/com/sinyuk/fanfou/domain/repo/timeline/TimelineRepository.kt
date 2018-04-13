@@ -18,7 +18,7 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.repo.inDb
+package com.sinyuk.fanfou.domain.repo.timeline
 
 import android.app.Application
 import android.arch.lifecycle.LiveData
@@ -84,7 +84,7 @@ class TimelineRepository @Inject constructor(
         // otherwise loaded it from memory (network)
         val isCached = when (path) {
             TIMELINE_HOME -> true
-            TIMELINE_USER, TIMELINE_FAVORITES, TIMELINE_PHOTO -> uniqueId == account
+            TIMELINE_USER, TIMELINE_PHOTO -> uniqueId == account
             else -> false
         }
         val dataSourceFactory = if (isCached) {
