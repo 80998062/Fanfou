@@ -153,7 +153,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null))
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, ""))
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)

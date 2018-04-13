@@ -78,6 +78,7 @@ import javax.inject.Inject
  */
 class HomeActivity : AbstractActivity() {
 
+
     companion object {
         const val TAG = "HomeActivity"
     }
@@ -147,7 +148,7 @@ class HomeActivity : AbstractActivity() {
     }
 
     @SuppressLint("Recycle")
-    private fun setupTabLayout(savedInstanceState: Bundle?) {
+    private fun setupTabLayout(@Suppress("UNUSED_PARAMETER") savedInstanceState: Bundle?) {
         val colors = resources.getStringArray(R.array.tab_colors)
         val icons = resources.obtainTypedArray(R.array.tab_icons)
         try {
