@@ -79,7 +79,7 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
                 }
             }
             if (findChildFragment(TimelineView::class.java) == null) {
-                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC, "")
+                val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
                 fragment.refreshCallback = this@TrendingView
                 loadRootFragment(R.id.publicViewContainer, fragment)
                 refreshButton.setOnClickListener {

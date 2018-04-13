@@ -28,6 +28,7 @@ import com.gigamole.navigationtabstrip.NavigationTabStrip
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.domain.TIMELINE_USER
 import com.sinyuk.fanfou.ui.photo.PhotoGridView
@@ -42,17 +43,17 @@ class NavigationView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.navigation_view
 
     companion object {
-        fun newInstance(uniqueId: String) = NavigationView().apply {
-            arguments = Bundle().apply { putString("uniqueId", uniqueId) }
+        fun newInstance(player: Player?) = NavigationView().apply {
+            arguments = Bundle().apply { putParcelable("player", player) }
         }
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val uniqueId = arguments?.getString("uniqueId")!!
-        fragmentList = arrayListOf(TimelineView.newInstance(TIMELINE_USER, uniqueId), PhotoGridView.newInstance(uniqueId), TimelineView.newInstance(TIMELINE_FAVORITES, uniqueId))
+        assert(arguments != null)
+        val player = arguments!!.getParcelable<Player>("player")!!
+        fragmentList = arrayListOf(TimelineView.playerTimeline(TIMELINE_USER, player), PhotoGridView.newInstance(player), TimelineView.playerTimeline(TIMELINE_FAVORITES, player))
         setupViewPager()
     }
 

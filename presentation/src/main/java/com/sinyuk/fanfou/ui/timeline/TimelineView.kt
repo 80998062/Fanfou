@@ -25,30 +25,34 @@ import android.arch.paging.PagedList
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.text.style.ClickableSpan
 import android.util.Log
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.util.FixedPreloadSizeProvider
 import com.sinyuk.fanfou.BuildConfig
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.*
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.DO.Status
-import com.sinyuk.fanfou.domain.NetworkState
-import com.sinyuk.fanfou.domain.PAGE_SIZE
-import com.sinyuk.fanfou.domain.TYPE_GLOBAL
-import com.sinyuk.fanfou.domain.UNIQUE_ID
+import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.refresh.RefreshCallback
+import com.sinyuk.fanfou.util.linkfy.LinkTouchMovementMethod
 import com.sinyuk.fanfou.util.obtainViewModel
-import com.sinyuk.fanfou.util.obtainViewModelFromActivity
-import com.sinyuk.fanfou.viewmodel.AccountViewModel
+import com.sinyuk.fanfou.util.span.AndroidSpan
+import com.sinyuk.fanfou.util.span.SpanOptions
 import com.sinyuk.fanfou.viewmodel.ConnectionModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
 import com.sinyuk.myutils.system.ToastUtils
+import kotlinx.android.synthetic.main.state_layout_empty.view.*
 import kotlinx.android.synthetic.main.timeline_view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -65,10 +69,23 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
 
     companion object {
-        fun newInstance(path: String, id: String) = TimelineView().apply {
+        fun newInstance(path: String) = TimelineView().apply {
             arguments = Bundle().apply {
                 putString("path", path)
-                putString("id", id)
+            }
+        }
+
+        fun contextTimeline(path: String, status: String) = TimelineView().apply {
+            arguments = Bundle().apply {
+                putString("path", path)
+                putString("status", status)
+            }
+        }
+
+        fun playerTimeline(path: String, player: Player) = TimelineView().apply {
+            arguments = Bundle().apply {
+                putString("path", path)
+                putParcelable("player", player)
             }
         }
 
@@ -83,7 +100,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     private val timelineViewModel by lazy { obtainViewModel(factory, TimelineViewModel::class.java) }
 
-    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
+//    private val accountViewModel by lazy { obtainViewModelFromActivity(factory, AccountViewModel::class.java) }
 
     @Inject
     lateinit var toast: ToastUtils
@@ -91,8 +108,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-        setupSwipeRefresh()
-        setupRecyclerView()
 
         // Cannot add the same observer with different lifeCycles! So use activity here.
         activity?.let {
@@ -101,31 +116,41 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             })
         }
 
+        configTimeline()
+    }
+
+    /**
+     * 决定显示什么接口的列表
+     */
+    private fun configTimeline() {
+        var delayLoading = false // 如果是加锁了 不用加载列表
+        val validId: String
+        val path: String
         assert(arguments != null)
-        arguments!!.apply { timelineViewModel.setRelativeUrl(getString("path"), getString("id"), getString("query")) }
-        adapter.submitList(null)
-        recyclerView.scrollToPosition(0)
-    }
 
-
-    var refreshCallback: RefreshCallback? = null
-
-    private fun setupSwipeRefresh() {
-        timelineViewModel.refreshState.observe(this@TimelineView, Observer {
-            val refresh = it?.states == States.LOADING
-            refreshCallback?.toggle(refresh)
-            if (States.ERROR == it?.states) {
-                it.message?.let { refreshCallback?.error(Throwable(it)) }
-            } else if (States.SUCCESS == it?.states) {
-                EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
-//                if ((recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() > 0) { // 列表不是在顶部
-//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
-//                } else {
-//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.format_new_statuses_coming, it.data?.size)))
-//                }
+        if (TIMELINE_PUBLIC == arguments!!.getString("path")) {
+            path = TIMELINE_PUBLIC
+            validId = sharedPreferences.getString(UNIQUE_ID, "")
+        } else if (arguments!!.containsKey("player")) {
+            val player = arguments!!.getParcelable<Player>("player")
+            path = arguments!!.getString("path")!!
+            validId = player.uniqueId
+            if (player.protectedX == true && player.uniqueId != sharedPreferences.getString(UNIQUE_ID, "")) { // 用户加锁了且不是本人
+                delayLoading = true
+                showPrivacyView(player)
             }
-        })
+        } else {
+            path = arguments!!.getString("path")!!
+            validId = arguments!!.getString("status")!!
+        }
+
+        if (!delayLoading) {
+            setupSwipeRefresh()
+            setupRecyclerView()
+            timelineViewModel.setRelativeUrl(path, validId, null)
+        }
     }
+
 
     fun search(q: String) {
 
@@ -143,29 +168,6 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     @field:[Inject Named(TYPE_GLOBAL)]
     lateinit var sharedPreferences: SharedPreferences
 
-    private fun setupRecyclerView() {
-        LinearLayoutManager(context).apply {
-            isItemPrefetchEnabled = true
-            initialPrefetchItemCount = PAGE_SIZE
-            recyclerView.layoutManager = this
-        }
-
-        recyclerView.setHasFixedSize(true)
-        recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
-
-        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, ""))
-
-        val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
-        val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
-        val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
-        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, PAGE_SIZE)
-        recyclerView.addOnScrollListener(preloader)
-        adapter.statusOperationListener = this@TimelineView
-        recyclerView.adapter = adapter
-
-        timelineViewModel.statuses.observe(this, pagedListConsumer)
-        timelineViewModel.networkState.observe(this, networkConsumer)
-    }
 
     override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
         if (favorited) {
@@ -216,5 +218,99 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView?.smoothScrollToPosition(0)
     }
 
+
+    var refreshCallback: RefreshCallback? = null
+
+    private fun setupSwipeRefresh() {
+        timelineViewModel.refreshState.observe(this@TimelineView, Observer {
+            val refresh = it?.states == States.LOADING
+            refreshCallback?.toggle(refresh)
+            if (States.ERROR == it?.states) {
+                it.message?.let { refreshCallback?.error(Throwable(it)) }
+            } else if (States.SUCCESS == it?.states) {
+                EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
+//                if ((recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() > 0) { // 列表不是在顶部
+//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.hint_new_statuses_coming), type = TYPE.TOAST))
+//                } else {
+//                    EventBus.getDefault().post(FetTopEvent(message = getString(R.string.format_new_statuses_coming, it.data?.size)))
+//                }
+            }
+        })
+    }
+
+    private fun setupRecyclerView() {
+//        adapter.submitList(null)
+//        recyclerView.scrollToPosition(0)
+
+        LinearLayoutManager(context).apply {
+            isItemPrefetchEnabled = true
+            initialPrefetchItemCount = PAGE_SIZE
+            recyclerView.layoutManager = this
+        }
+
+        recyclerView.setHasFixedSize(true)
+        recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
+
+        adapter = StatusPagedListAdapter(this@TimelineView, { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, ""))
+
+        val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
+        val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)
+        val sizePreloader = FixedPreloadSizeProvider<Status>(imageWidthPixels, imageWidthPixels)
+        val preloader = RecyclerViewPreloader<Status>(Glide.with(this@TimelineView), modelPreloader, sizePreloader, PAGE_SIZE)
+        recyclerView.addOnScrollListener(preloader)
+        adapter.statusOperationListener = this@TimelineView
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                super.onChanged()
+                if (adapter.itemCount == 0) {
+                    showEmptyView()
+                } else {
+                    viewAnimator.displayedChildId = R.id.recyclerView
+                }
+            }
+        })
+        recyclerView.adapter = adapter
+
+        timelineViewModel.statuses.observe(this, pagedListConsumer)
+        timelineViewModel.networkState.observe(this, networkConsumer)
+    }
+
+    /**
+     * 显示加锁视图
+     */
+    private fun showPrivacyView(player: Player) {
+        viewAnimator.displayedChildId = R.id.layoutPrivacy
+        if (layoutPrivacy.title.text == null) {
+            layoutPrivacy.title.text = getString(R.string.state_title_privacy)
+            val span = AndroidSpan().drawRelativeSizeSpan(getString(R.string.state_description_privacy), 1f)
+                    .drawWithOptions("Follow ${player.gender}", SpanOptions().addTextAppearanceSpan(context!!, R.style.text_bold_primary).addSpan(object : ClickableSpan() {
+                        override fun onClick(v: View?) {
+
+                        }
+                    })).spanText
+            layoutPrivacy.description.movementMethod = LinkTouchMovementMethod.getInstance()
+            layoutPrivacy.description.text = span
+            GlideApp.with(this).load(R.drawable.state_layout_forbidden).transition(withCrossFade()).into(layoutPrivacy.image)
+        }
+    }
+
+    /**
+     * 显示空视图
+     */
+    private fun showEmptyView() {
+        viewAnimator.displayedChildId = R.id.layoutEmpty
+        if (layoutEmpty.title.text == null) {
+            layoutEmpty.title.text = getString(R.string.state_title_empty)
+            val span = AndroidSpan().drawRelativeSizeSpan(getString(R.string.state_description_empty), 1f)
+                    .drawWithOptions("Refresh?", SpanOptions().addTextAppearanceSpan(context!!, R.style.text_bold_primary).addSpan(object : ClickableSpan() {
+                        override fun onClick(v: View?) {
+
+                        }
+                    })).spanText
+            layoutEmpty.description.movementMethod = LinkTouchMovementMethod.getInstance()
+            layoutEmpty.description.text = span
+            GlideApp.with(this).load(R.drawable.state_layout_empty).transition(withCrossFade()).into(layoutEmpty.image)
+        }
+    }
 
 }

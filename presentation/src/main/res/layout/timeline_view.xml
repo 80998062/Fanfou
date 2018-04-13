@@ -17,15 +17,29 @@
   ~  * limitations under the License.
   ~  */
   -->
-
-
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recyclerView"
+<com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/viewAnimator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:overScrollMode="never"
-    android:scrollbarFadeDuration="@android:integer/config_shortAnimTime"
-    android:scrollbarStyle="outsideOverlay"
-    android:scrollbars="vertical"
-    android:verticalScrollbarPosition="defaultPosition" />
+    android:inAnimation="@android:anim/slide_in_left"
+    android:outAnimation="@android:anim/slide_out_right">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbarFadeDuration="@android:integer/config_shortAnimTime"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:verticalScrollbarPosition="defaultPosition" />
+
+    <include
+        android:id="@+id/layoutPrivacy"
+        layout="@layout/state_layout_forbidden" />
+
+    <include
+        android:id="@+id/layoutEmpty"
+        layout="@layout/state_layout_empty" />
+</com.sinyuk.fanfou.ui.BetterViewAnimator>
 

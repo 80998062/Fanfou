@@ -32,6 +32,7 @@ import com.bumptech.glide.util.ViewPreloadSizeProvider
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
+import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
 import com.sinyuk.fanfou.domain.PHOTO_SIZE
@@ -50,8 +51,8 @@ import javax.inject.Inject
 class PhotoGridView : AbstractFragment(), Injectable {
 
     companion object {
-        fun newInstance(id: String) = PhotoGridView().apply {
-            arguments = Bundle().apply { putString("id", id) }
+        fun newInstance(player: Player) = PhotoGridView().apply {
+            arguments = Bundle().apply { putParcelable("player", player) }
         }
 
         const val TAG = "PhotoGridView"
@@ -65,12 +66,9 @@ class PhotoGridView : AbstractFragment(), Injectable {
 
     override fun onLazyInitView(savedInstanceState: Bundle?) {
         super.onLazyInitView(savedInstanceState)
-
-        arguments?.let {
-            val id = it.getString("id")
-            timelineViewModel.setRelativeUrl(TIMELINE_PHOTO, id)
-        }
-
+        assert(arguments != null)
+        val player = arguments!!.getParcelable<Player>("player")
+        timelineViewModel.setRelativeUrl(TIMELINE_PHOTO, player.uniqueId)
         setupRecyclerView()
         setupSwipeRefresh()
     }

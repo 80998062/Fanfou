@@ -21,7 +21,9 @@
 <com.sinyuk.fanfou.ui.BetterViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/viewAnimator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:inAnimation="@android:anim/fade_in"
+    android:outAnimation="@android:anim/fade_out">
 
     <android.support.v4.widget.Space
         android:id="@+id/placeholder"
@@ -39,17 +41,13 @@
             android:layout_height="match_parent" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <FrameLayout
-        android:id="@+id/emptyLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <include
+        android:id="@+id/layout401"
+        layout="@layout/state_layout_forbidden" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="空空如也"
-            android:textSize="30sp" />
-    </FrameLayout>
+    <include
+        android:id="@+id/layoutEmpty"
+        layout="@layout/state_layout_empty" />
+
 
 </com.sinyuk.fanfou.ui.BetterViewAnimator>

@@ -87,6 +87,11 @@
         <item name="android:textSize">@dimen/text_16</item>
     </style>
 
+    <style name="text_bold_primary">
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 
     <dimen name="keyboard_panel_height">200dp</dimen>
 </resources>

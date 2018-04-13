@@ -110,7 +110,7 @@ class StatusView : AbstractSwipeFragment(), Injectable, QueryTokenReceiver, Sugg
         renderUI(status)
 
         if (findChildFragment(TimelineView::class.java) == null) {
-            loadRootFragment(R.id.contextTimelineContainer, TimelineView.newInstance(TIMELINE_CONTEXT, status.id))
+            loadRootFragment(R.id.contextTimelineContainer, TimelineView.contextTimeline(TIMELINE_CONTEXT, status.id))
         } else {
             showHideFragment(findChildFragment(TimelineView::class.java))
         }

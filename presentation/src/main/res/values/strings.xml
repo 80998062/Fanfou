@@ -85,12 +85,22 @@
     <string name="hint_need_sign_in_again">需要重新登录</string>
     <string name="hint_switch_account_before_delete">请先点击完成切换当前账号</string>
     <string name="hint_no_more_home">我是有底线的人</string>
-    <string name="hint_no_more_context"/>
+    <string name="hint_no_more_context" />
     <string name="hint_no_more_user"></string>
     <string name="hint_new_statuses_coming">有新的状态</string>
     <string name="format_new_statuses_coming">%d条新状态</string>
     <string name="name_divider">昏哥线</string>
     <string name="name_blurry">糊糊</string>
     <string name="action_retry">重试</string>
+    <string name="image_401">image_401</string>
+    <string name="state_title_401">No Visitors!</string>
+    <string name="state_description_401">Sorry,you\'re not authorized,either it\'s invalid.</string>
+    <string name="state_title_empty">Sorry,here was all but empty.</string>
+    <string name="state_description_empty">But don\'t feel empty inside.</string>
+    <string name="state_title_nofriends">Seemingly you had no relatives here.</string>
+    <string name="state_description_nofriends">It feels good to open up with others.</string>
+    <string name="state_title_privacy">Not for your eyes</string>
+    <string name="state_description_privacy">Just one way to guard privacy</string>
+    <string name="image_empty">image_empty</string>
 
 </resources>

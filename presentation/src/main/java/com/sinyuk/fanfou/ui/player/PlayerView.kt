@@ -137,13 +137,6 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             // pass NULL to identify yourself
             followerButton.setOnClickListener { (activity as AbstractActivity).start(FollowingView.newInstance(uniqueId)) }
             friendButton.setOnClickListener { (activity as AbstractActivity).start(FriendsView.newInstance(uniqueId)) }
-
-            if (it.protectedX == true) {
-
-            } else {
-                loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(uniqueId))
-            }
-
             if (isSelf) {
                 directMsgButton.visibility = View.GONE
                 followOrEdit.text = getString(R.string.action_edit_profile)
@@ -164,6 +157,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
             }
 
             followOrEdit.visibility = View.VISIBLE
+            loadRootFragment(R.id.navigationContainer, NavigationView.newInstance(player))
         }
     }
 
