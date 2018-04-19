@@ -102,12 +102,12 @@ class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferen
         val consumerKeyValue = UrlEscapeUtils.escape(consumerKey)
         val accessTokenValue = UrlEscapeUtils.escape(accessToken)
 
-        parameters.put(OAUTH_CONSUMER_KEY, consumerKeyValue)
-        parameters.put(OAUTH_ACCESS_TOKEN, accessTokenValue)
-        parameters.put(OAUTH_NONCE, oauthNonce)
-        parameters.put(OAUTH_TIMESTAMP, oauthTimestamp)
-        parameters.put(OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD_VALUE)
-        parameters.put(OAUTH_VERSION, OAUTH_VERSION_VALUE)
+        parameters[OAUTH_CONSUMER_KEY] = consumerKeyValue
+        parameters[OAUTH_ACCESS_TOKEN] = accessTokenValue
+        parameters[OAUTH_NONCE] = oauthNonce
+        parameters[OAUTH_TIMESTAMP] = oauthTimestamp
+        parameters[OAUTH_SIGNATURE_METHOD] = OAUTH_SIGNATURE_METHOD_VALUE
+        parameters[OAUTH_VERSION] = OAUTH_VERSION_VALUE
 
 
         val httpUrl = request.url()

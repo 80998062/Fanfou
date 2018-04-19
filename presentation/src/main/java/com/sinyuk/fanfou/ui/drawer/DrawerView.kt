@@ -79,7 +79,14 @@ class DrawerView : AbstractFragment(), Injectable {
 
         setupNightButton()
 
-        accountButton.setOnClickListener { (activity as AbstractActivity).start(AccountManageView()) }
+        accountButton.setOnClickListener {
+            closeDrawerAndPost(accountButton, { startFragmentInActivity(AccountManageView()) })
+        }
+    }
+
+    private fun startFragmentInActivity(fragment: AbstractFragment) {
+        (activity as AbstractActivity).extraTransaction()
+                .loadRootFragment(R.id.fragment_container, fragment, true, true)
     }
 
 
@@ -94,7 +101,7 @@ class DrawerView : AbstractFragment(), Injectable {
                 friendCount.text = it.friendsCount.toString()
                 friendButton.setOnClickListener {
                     closeDrawerAndPost(friendButton, {
-                        (activity as AbstractActivity).start(FriendsView.newInstance(data.uniqueId))
+                        startFragmentInActivity(FriendsView.newInstance(data.uniqueId))
                     })
                 }
             }
@@ -105,13 +112,13 @@ class DrawerView : AbstractFragment(), Injectable {
                 followerCount.text = it.followersCount.toString()
                 followerButton.setOnClickListener {
                     closeDrawerAndPost(followerButton, {
-                        (activity as AbstractActivity).start(FollowingView.newInstance(data.uniqueId))
+                        startFragmentInActivity(FollowingView.newInstance(data.uniqueId))
                     })
                 }
             }
 
             mineButton.setOnClickListener {
-                closeDrawerAndPost(mineButton, { (activity as AbstractActivity).start(PlayerView.newInstance(uniqueId = data.uniqueId)) })
+                closeDrawerAndPost(mineButton, { startFragmentInActivity(PlayerView.newInstance(uniqueId = data.uniqueId)) })
             }
 
         }
@@ -149,8 +156,10 @@ class DrawerView : AbstractFragment(), Injectable {
     }
 
     private fun closeDrawerAndPost(view: View, action: () -> Unit) {
-        toggleDrawer(false)
-        view.postDelayed(action, 500)
+        view.post(action)
+        view.postDelayed({
+            toggleDrawer(false)
+        }, 1000)
     }
 
     private fun toggleDrawer(open: Boolean? = null) {

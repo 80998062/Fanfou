@@ -39,6 +39,7 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
 import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.domain.StatusCreation
+import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.colormatchtabs.adapter.ColorTabAdapter
@@ -46,10 +47,9 @@ import com.sinyuk.fanfou.ui.colormatchtabs.listeners.OnColorTabSelectedListener
 import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
 import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.fanfou.ui.editor.EditorView
-import com.sinyuk.fanfou.ui.home.IndexView
 import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.search.SearchView
-import com.sinyuk.fanfou.ui.timeline.FetTopEvent
+import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
 import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.ActionBarViewModel
@@ -58,7 +58,6 @@ import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.home_activity.*
 import me.yokeyword.fragmentation.anim.DefaultHorizontalAnimator
 import me.yokeyword.fragmentation.anim.FragmentAnimator
-import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 /**
@@ -111,11 +110,12 @@ class HomeActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        SystemBarUtils.setLightStatusBar(fragment_container)
+//        SystemBarUtils.setColor(this, Color.WHITE)
 
         setupDrawerLayout(savedInstanceState)
         setupTabLayout(savedInstanceState)
         setupViewPager(savedInstanceState)
-
         onGlobalLayoutListener = KeyboardUtil.attach(this@HomeActivity, panelRoot, {
 
         })
@@ -193,10 +193,10 @@ class HomeActivity : AbstractActivity() {
 
     private fun setupViewPager(savedInstanceState: Bundle?) {
         fragments = if (savedInstanceState == null) {
-            mutableListOf(IndexView(), SearchView(), SignInView(), MessageView())
+            mutableListOf(TimelineView.newInstance(TIMELINE_HOME), SearchView(), SignInView(), MessageView())
         } else {
             currentFragment = savedInstanceState.getInt("currentFragment", 0)
-            mutableListOf(findFragment(IndexView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
+            mutableListOf(findFragment(TimelineView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
         }
 
         if (savedInstanceState == null) {
@@ -247,28 +247,6 @@ class HomeActivity : AbstractActivity() {
         currentFragment = to
     }
 
-
-    fun onFetchTop(event: FetTopEvent) {
-//        when (event.type) {
-//            TYPE.TOAST -> {
-//                val toast = View.inflate(context, R.layout.toast_fetch_top, null)
-//                toast.textView.text = event.message
-//                val popup = PopupWindow(toast, WRAP_CONTENT, WRAP_CONTENT)
-//                toast.textView.setOnClickListener {
-//                    EventBus.getDefault().post(ScrollToTopEvent())
-//                    popup.dismiss()
-//                }
-//                popup.isFocusable = false
-//                popup.showAtLocation(coordinator, Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, ConvertUtils.dp2px(context, 72f))
-//                handler.postDelayed({ popup.dismiss() }, 10000)
-//            }
-//            TYPE.ACTIONBAR -> {
-//                toastSwitcher.setCurrentText(event.message)
-//                handler.postDelayed({ toastSwitcher.setCurrentText("") }, 2000)
-//            }
-//        }
-    }
-
     override fun dispatchKeyEvent(event: KeyEvent?) = if (event?.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK) {
         if (panelRoot.visibility == View.VISIBLE) {
             KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
@@ -281,12 +259,6 @@ class HomeActivity : AbstractActivity() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this)
-    }
-
-
     private var renderingRunnable: Runnable? = Runnable {
         renderingRunnable = null
         accountViewModel.profile.observe(this@HomeActivity, Observer {
@@ -294,14 +266,6 @@ class HomeActivity : AbstractActivity() {
                 GlideApp.with(navImageView).load(profileImageUrlLarge).avatar().transition(withCrossFade()).into(navImageView)
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
-        if (renderingRunnable != null) {
-            window.decorView.post { delayHandler.post(renderingRunnable) }
-        }
     }
 
     override fun onDestroy() {

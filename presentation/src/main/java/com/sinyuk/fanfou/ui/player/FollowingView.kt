@@ -22,7 +22,7 @@ package com.sinyuk.fanfou.ui.player
 
 import android.os.Bundle
 import com.sinyuk.fanfou.R
-import com.sinyuk.fanfou.base.AbstractSwipeFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.USERS_FOLLOWERS
 import kotlinx.android.synthetic.main.friends_view.*
@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.friends_view.*
  * Created by sinyuk on 2018/1/10.
  *
  */
-class FollowingView : AbstractSwipeFragment(), Injectable {
+class FollowingView : AbstractFragment(), Injectable {
     companion object {
         fun newInstance(uniqueId: String? = null) = FollowingView().apply {
             arguments = Bundle().apply { putString("uniqueId", uniqueId) }

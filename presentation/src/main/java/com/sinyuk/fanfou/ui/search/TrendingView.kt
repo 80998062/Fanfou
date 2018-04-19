@@ -32,7 +32,6 @@ import com.sinyuk.fanfou.domain.DO.States
 import com.sinyuk.fanfou.domain.TIMELINE_PUBLIC
 import com.sinyuk.fanfou.ui.MarginDecoration
 import com.sinyuk.fanfou.ui.NestedScrollCoordinatorLayout
-import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
@@ -46,7 +45,7 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/9.
  *
  */
-class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
+class TrendingView : AbstractFragment(), Injectable {
 
 
     override fun layoutId() = R.layout.trending_view
@@ -80,7 +79,6 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
             }
             if (findChildFragment(TimelineView::class.java) == null) {
                 val fragment = TimelineView.newInstance(TIMELINE_PUBLIC)
-                fragment.refreshCallback = this@TrendingView
                 loadRootFragment(R.id.publicViewContainer, fragment)
                 refreshButton.setOnClickListener {
                     toggleRefreshButton(false)
@@ -123,14 +121,5 @@ class TrendingView : AbstractFragment(), Injectable, RefreshCallback {
             setOnItemClickListener { _, _, _ -> }
             trendList.adapter = this
         }
-    }
-
-
-    override fun toggle(enable: Boolean) {
-        toggleRefreshButton(!enable)
-    }
-
-    override fun error(throwable: Throwable) {
-        toggleRefreshButton(false)
     }
 }

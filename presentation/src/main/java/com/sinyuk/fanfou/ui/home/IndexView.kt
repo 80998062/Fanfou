@@ -35,7 +35,6 @@ import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.TIMELINE_HOME
 import com.sinyuk.fanfou.glide.GlideApp
-import com.sinyuk.fanfou.ui.refresh.RefreshCallback
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModelFromActivity
 import com.sinyuk.fanfou.util.span.AndroidSpan
@@ -44,7 +43,6 @@ import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.index_view.*
-import kotlinx.android.synthetic.main.layout_expand_button.view.*
 import kotlinx.android.synthetic.main.state_layout_forbidden.view.*
 import javax.inject.Inject
 
@@ -52,7 +50,8 @@ import javax.inject.Inject
  * Created by sinyuk on 2018/1/30.
  *
  */
-class IndexView : AbstractFragment(), Injectable, RefreshCallback {
+@Deprecated("废物")
+class IndexView : AbstractFragment(), Injectable {
 
 
     override fun layoutId() = R.layout.index_view
@@ -88,7 +87,7 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
     }
 
     private fun setup401View() {
-        if (layout401.text == null) {
+        if (layout401.title.text.isNullOrEmpty()) {
             layout401.title.text = getString(R.string.state_title_401)
             val span = AndroidSpan().drawRelativeSizeSpan(getString(R.string.state_description_401), 1f)
                     .drawWithOptions("Sign in", SpanOptions().addTextAppearanceSpan(context!!, R.style.text_bold_primary).addSpan(object : ClickableSpan() {
@@ -106,7 +105,7 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
     private var stateDrawableTarget: ViewTarget<ImageView, Drawable>? = null
 
     private fun setupNoFriendsView(data: Player) {
-        if (layoutEmpty.title.text == null) {
+        if (layoutEmpty.title.text.isNullOrEmpty()) {
             layoutEmpty.title.text = getString(R.string.state_title_nofriends)
             val span = AndroidSpan().drawRelativeSizeSpan(getString(R.string.state_description_nofriends), 1f)
                     .drawWithOptions("Look around", SpanOptions().addTextAppearanceSpan(context!!, R.style.text_bold_primary).addSpan(object : ClickableSpan() {
@@ -125,7 +124,6 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
         setStateDrawableTarget(null)
         if (findChildFragment(TimelineView::class.java) == null) {
             val fragment = TimelineView.playerTimeline(TIMELINE_HOME, data)
-            fragment.refreshCallback = this@IndexView
             loadRootFragment(R.id.homeTimelineViewContainer, fragment)
         } else {
             showHideFragment(findChildFragment(TimelineView::class.java))
@@ -142,14 +140,5 @@ class IndexView : AbstractFragment(), Injectable, RefreshCallback {
     private fun setStateDrawableTarget(target: ViewTarget<ImageView, Drawable>?) {
         if (stateDrawableTarget != null) stateDrawableTarget!!.request?.clear()
         stateDrawableTarget = target
-    }
-
-
-    override fun toggle(enable: Boolean) {
-        pullRefreshLayout.isRefreshing = enable
-    }
-
-    override fun error(throwable: Throwable) {
-        pullRefreshLayout.isRefreshing = false
     }
 }

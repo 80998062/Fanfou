@@ -25,8 +25,6 @@ import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import com.sinyuk.fanfou.domain.DO.Player
-import com.sinyuk.fanfou.domain.USERS_ADMIN
-import com.sinyuk.fanfou.domain.convertPlayerPathToFlag
 
 
 /**
@@ -49,7 +47,7 @@ interface PlayerDao {
     fun insert(player: Player?): Long?
 
     @Insert(onConflict = REPLACE)
-    fun inserts(items: MutableList<Player>)
+    fun inserts(items: MutableList<Player>): List<Long>
 
     @Update(onConflict = REPLACE)
     fun update(player: Player)
@@ -61,5 +59,5 @@ interface PlayerDao {
     fun filter(query: String): LiveData<MutableList<Player>>
 
     @Query("SELECT * FROM players WHERE pathFlag & :path = :path ORDER BY updatedAt DESC")
-    fun admin(path: Int = convertPlayerPathToFlag(USERS_ADMIN)): LiveData<MutableList<Player>>
+    fun byPath(path: Int): LiveData<MutableList<Player>>
 }

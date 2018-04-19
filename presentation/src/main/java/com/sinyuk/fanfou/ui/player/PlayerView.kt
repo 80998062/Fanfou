@@ -28,7 +28,7 @@ import android.view.View
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
-import com.sinyuk.fanfou.base.AbstractSwipeFragment
+import com.sinyuk.fanfou.base.AbstractFragment
 import com.sinyuk.fanfou.di.Injectable
 import com.sinyuk.fanfou.domain.DO.Player
 import com.sinyuk.fanfou.domain.DO.States
@@ -53,7 +53,7 @@ import javax.inject.Named
  * Created by sinyuk on 2017/12/7.
  *
  */
-class PlayerView : AbstractSwipeFragment(), Injectable {
+class PlayerView : AbstractFragment(), Injectable {
     override fun layoutId() = R.layout.player_view
 
     companion object {
@@ -78,7 +78,7 @@ class PlayerView : AbstractSwipeFragment(), Injectable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        closeButton.setOnClickListener { activity?.onBackPressed() }
+        closeButton.setOnClickListener { pop() }
     }
 
     @field:[Inject Named(TYPE_GLOBAL)]

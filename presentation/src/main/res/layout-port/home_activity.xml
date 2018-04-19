@@ -38,16 +38,16 @@
             android:layout_height="match_parent"
             android:tag="menu" />
 
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/contentViewContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:tag="content">
 
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/status_bar_height" />
+            <!--<Space-->
+                <!--android:id="@+id/statusBarSpace"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/status_bar_height" />-->
 
             <LinearLayout
                 android:id="@+id/actionBar"
@@ -56,7 +56,6 @@
                 android:background="?android:colorPrimary"
                 android:orientation="horizontal"
                 android:transitionName="@string/transition_toolbar">
-
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/navImageView"
@@ -166,17 +165,19 @@
             <FrameLayout
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="match_parent"
+                android:layout_above="@+id/tabLayout"
+                android:layout_below="@+id/actionBar" />
 
             <com.sinyuk.fanfou.ui.colormatchtabs.colortabs.ColorMatchTabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/action_bar_height"
+                android:layout_alignParentBottom="true"
                 android:background="?android:colorPrimary"
                 android:elevation="1dp"
                 android:minHeight="@dimen/action_bar_height" />
-        </LinearLayout>
+        </RelativeLayout>
 
 
     </com.sinyuk.fanfou.ui.DuoDrawerLayout>

@@ -18,18 +18,23 @@
   ~  */
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#B0B0B0"
     android:orientation="vertical">
 
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/description"
         android:layout_marginBottom="@dimen/gap_4"
         android:gravity="center"
         android:shadowColor="@color/scrim"
@@ -44,20 +49,17 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/image"
         android:layout_marginBottom="@dimen/gap_8"
         android:gravity="center"
         android:textColor="@color/textColorSecondary"
         android:textSize="@dimen/text_14"
         tools:text="Sorry,you're not authorized to view this page." />
 
-    <ImageView
+    <com.sinyuk.fanfou.ui.FourThreeImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:adjustViewBounds="true"
         android:contentDescription="@string/image_empty"
-        android:scaleType="centerInside"
+        android:scaleType="centerCrop"
         tools:src="@drawable/state_layout_empty" />
-</RelativeLayout>
+</LinearLayout>

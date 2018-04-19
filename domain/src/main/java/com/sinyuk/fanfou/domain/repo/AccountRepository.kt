@@ -54,9 +54,9 @@ class AccountRepository
         @Named(TYPE_GLOBAL) private val sharedPreferences: SharedPreferences) : AbstractRepository(application, url, interceptor) {
 
 
-    fun accessToken(): String? = sharedPreferences.getString(ACCESS_TOKEN, null)
+    private fun accessToken(): String? = sharedPreferences.getString(ACCESS_TOKEN, null)
 
-    fun accessSecret(): String? = sharedPreferences.getString(ACCESS_SECRET, null)
+    private fun accessSecret(): String? = sharedPreferences.getString(ACCESS_SECRET, null)
 
     /**
      * authorization
@@ -92,7 +92,7 @@ class AccountRepository
     /**
      * 返回所有登录过的用户
      */
-    fun admins() = db.playerDao().admin()
+    fun admins() = db.playerDao().byPath(convertPlayerPathToFlag(USERS_ADMIN))
 
 
     fun logout() {

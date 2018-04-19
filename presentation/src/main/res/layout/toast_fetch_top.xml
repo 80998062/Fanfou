@@ -29,7 +29,6 @@
         android:layout_height="24dp"
         android:layout_gravity="center"
         android:background="@drawable/toast_bg"
-        android:drawableEnd="@drawable/ic_up"
         android:drawablePadding="1dp"
         android:elevation="2dp"
         android:gravity="center_vertical"
