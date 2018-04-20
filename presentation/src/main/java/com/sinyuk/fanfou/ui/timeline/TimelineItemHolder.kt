@@ -60,19 +60,20 @@ import kotlinx.android.synthetic.main.timeline_view_list_item.view.*
  *
  * A RecyclerView ViewHolder that displays a status.
  */
-class StatusViewHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String) : BaseViewHolder(view) {
+class TimelineItemHolder(private val view: View, private val glide: GlideRequests, private val uniqueId: String?) : BaseViewHolder(view) {
 
     private val roundedCornersTransformation = RoundedCornersTransformation(ConvertUtils.dp2px(view.context, 4f), 0)
     fun bind(status: Status) {
         view.swipeLayout.isRightSwipeEnabled = true
         view.swipeLayout.isClickToClose = true
-        glide.asDrawable().load(status.playerExtracts?.profileImageUrl).avatar().transition(withCrossFade()).into(view.avatar)
+        glide.asDrawable().load(status.playerExtracts?.profileImageUrl).avatar()
+                .transition(withCrossFade()).into(view.avatar)
 
         when (status.playerExtracts?.uniqueId) {
-            null -> view.avatar.setOnClickListener(null)
-            uniqueId -> view.avatar.setOnClickListener { }
+            null, uniqueId -> view.avatar.setOnClickListener(null)
             else -> view.avatar.setOnClickListener {
-                (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container, PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
+                (view.context as AbstractActivity).loadRootFragment(R.id.fragment_container,
+                        PlayerView.newInstance(uniqueId = status.playerExtracts!!.uniqueId))
             }
         }
 
@@ -208,10 +209,10 @@ class StatusViewHolder(private val view: View, private val glide: GlideRequests,
     }
 
     companion object {
-        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String): StatusViewHolder {
+        fun create(parent: ViewGroup, glide: GlideRequests, uniqueId: String?): TimelineItemHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.timeline_view_list_item, parent, false)
-            return StatusViewHolder(view, glide, uniqueId)
+            return TimelineItemHolder(view, glide, uniqueId)
         }
     }
 
