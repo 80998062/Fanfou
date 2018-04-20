@@ -21,8 +21,6 @@
 package com.sinyuk.fanfou.ui.editor
 
 import android.app.Activity
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -210,15 +208,10 @@ class EditorView : AbstractFragment(), Injectable, QueryTokenReceiver, Suggestio
     @Suppress("PrivatePropertyName")
     private val BUCKET = "player-mentioned"
 
-    private var playerLiveData: LiveData<MutableList<Player>>? = null
 
     override fun onQueryReceived(queryToken: QueryToken): MutableList<String> {
-        playerLiveData = playerViewModel.filter(queryToken.keywords).apply {
-            observe(this@EditorView, Observer<MutableList<Player>> { t ->
-                playerLiveData?.removeObservers(this@EditorView)
-                onReceiveSuggestionsResult(SuggestionsResult(queryToken, t), BUCKET)
-            })
-        }
+        val data = playerViewModel.filter(queryToken.keywords)
+        onReceiveSuggestionsResult(SuggestionsResult(queryToken, data), BUCKET)
         return arrayOf(BUCKET).toMutableList()
     }
 
@@ -245,7 +238,7 @@ class EditorView : AbstractFragment(), Injectable, QueryTokenReceiver, Suggestio
         } else {
             findChildFragment(MentionListView::class.java)?.apply {
                 showHideFragment(this)
-                updateListView(data = data)
+                setData(data = data)
             }
         }
     }

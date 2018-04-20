@@ -21,6 +21,7 @@
 package com.sinyuk.fanfou.ui.timeline
 
 import android.arch.paging.PagedListAdapter
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
@@ -54,17 +55,23 @@ import java.util.*
 class StatusPagedListAdapter(
         fragment: Fragment,
         private val retryCallback: () -> Unit,
-        private val uniqueId: String) : PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
+        var currentAccount: String?) :
+        PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
     private val glide: GlideRequests = GlideApp.with(fragment)
 
+    var contextStatus: String? = null
+    var contextStatusPhotoExtra: Bundle? = null
 
     override fun getItemViewType(position: Int) = if (hasExtraRow() && position == itemCount - 1) {
         R.layout.network_state_item
     } else {
-        R.layout.timeline_view_list_item
+        if (getItem(position)?.id == contextStatus)
+            R.layout.status_list_item
+        else
+            R.layout.timeline_view_list_item
     }
 
 
@@ -88,7 +95,8 @@ class StatusPagedListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.timeline_view_list_item -> StatusViewHolder.create(parent, glide, uniqueId)
+        R.layout.timeline_view_list_item -> TimelineItemHolder.create(parent, glide, currentAccount)
+        R.layout.status_list_item -> StatusItemHolder.create(parent, glide, currentAccount, contextStatusPhotoExtra)
         R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
         else -> throw IllegalArgumentException("unknown view type $viewType")
     }
@@ -105,7 +113,7 @@ class StatusPagedListAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.timeline_view_list_item -> {
-                holder as StatusViewHolder
+                holder as TimelineItemHolder
                 if (getItem(position) == null) {
                     // Null defines a placeholder item - PagedListAdapter will automatically invalidate
                     // this row when the actual object is loaded from the database
@@ -113,13 +121,12 @@ class StatusPagedListAdapter(
                 } else {
                     val status = getItem(position)!!
                     holder.bind(status)
-                    if (uniqueId == status.playerExtracts?.uniqueId) {
+                    if (currentAccount == status.playerExtracts?.uniqueId) {
                         glide.load(R.drawable.ic_empty).into(holder.itemView.actionButton)
                         holder.itemView.actionButton.setOnClickListener { v ->
                             statusOperationListener?.onDeleted(v, position, status)
                         }
                     } else {
-
                         holder.itemView.actionButton.setImageResource(R.drawable.trimclip_heart)
                         val checked = status.favorited
                         val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
@@ -133,8 +140,6 @@ class StatusPagedListAdapter(
                         }
                     }
 
-                    //
-
                     holder.itemView.swipeLayout.addSwipeListener(object : QuickSwipeListener() {
                         override fun onClose(layout: SwipeLayout?) {
                         }
@@ -145,12 +150,21 @@ class StatusPagedListAdapter(
                     })
                 }
             }
+            R.layout.status_list_item -> {
+                holder as StatusItemHolder
+                if (getItem(position) == null) {
+                    // TODO: clear
+                } else {
+                    val status = getItem(position)!!
+                    holder.bind(status)
+                }
+            }
             R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bind(networkState)
         }
     }
 
 
-    private fun setFavorited(checked: Boolean, holder: StatusViewHolder) {
+    private fun setFavorited(checked: Boolean, holder: TimelineItemHolder) {
         val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
         holder.itemView?.actionButton?.setImageState(stateSet, true)
         getItem(holder.adapterPosition)?.favorited = checked

@@ -38,7 +38,8 @@ import javax.inject.Inject
  * Created by sinyuk on 2017/12/6.
  *
  */
-class TimelineViewModel @Inject constructor(private val repo: TimelineRepository, private val remote: TiledTimelineRepository) : ViewModel() {
+class TimelineViewModel @Inject constructor(private val repo: TimelineRepository,
+                                            private val remote: TiledTimelineRepository) : ViewModel() {
 
     companion object {
         const val TAG = "TimelineViewModel"

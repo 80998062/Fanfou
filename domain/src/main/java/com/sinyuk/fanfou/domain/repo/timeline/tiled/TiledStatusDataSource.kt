@@ -76,11 +76,15 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
             override fun onResponse(call: Call<MutableList<Status>>?, response: Response<MutableList<Status>>) {
                 if (response.isSuccessful) {
                     val items = mapResponse(response.body())
-                    if (path == TIMELINE_CONTEXT && items.isNotEmpty()) items.removeAt(0)  // 上下文消息会返回原文本身,过滤掉
                     retry = null
                     networkState.postValue(NetworkState.LOADED)
                     initialLoad.postValue(Resource.success(items))
-                    callback.onResult(items, null, 2)
+                    val nextPageKey = if (items.size < params.requestedLoadSize) {
+                        null
+                    } else {
+                        2
+                    }
+                    callback.onResult(items, null, nextPageKey)
                 } else {
                     retry = {
                         loadInitial(params, callback)
@@ -136,7 +140,12 @@ class TiledStatusDataSource(private val restAPI: RestAPI,
                 val items = mapResponse(response.body())
                 retry = null
                 networkState.postValue(NetworkState.LOADED)
-                callback.onResult(items, params.key + 1)
+                val nextPageKey = if (items.size < params.requestedLoadSize) {
+                    null
+                } else {
+                    params.key + 1
+                }
+                callback.onResult(items, nextPageKey)
             } else {
                 retry = { loadAfter(params, callback) }
                 networkState.postValue(NetworkState.error("error code: ${response.code()}"))

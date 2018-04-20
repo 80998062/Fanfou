@@ -22,6 +22,7 @@ package com.sinyuk.fanfou.ui.editor
 
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractFragment
@@ -38,9 +39,7 @@ class MentionListView : AbstractFragment(), Injectable {
 
     companion object {
         fun newInstance(data: Array<Suggestible>) = MentionListView().apply {
-            arguments = Bundle().apply {
-                putParcelableArray("data", data)
-            }
+            arguments = Bundle().apply { putParcelableArray("data", data) }
         }
     }
 
@@ -49,17 +48,20 @@ class MentionListView : AbstractFragment(), Injectable {
     }
 
     var onItemClickListener: OnItemClickListener? = null
-
-    override fun onEnterAnimationEnd(savedInstanceState: Bundle?) {
-        super.onEnterAnimationEnd(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
     }
 
+    override fun onLazyInitView(savedInstanceState: Bundle?) {
+        super.onLazyInitView(savedInstanceState)
+        arguments?.let {
+            @Suppress("UNCHECKED_CAST")
+            setData(it.getParcelableArray("data") as MutableList<out Suggestible>)
+        }
+    }
 
-    /**
-     *
-     */
-    fun updateListView(data: MutableList<out Suggestible>) {
+    fun setData(data: MutableList<out Suggestible>) {
         adapter.setNewData(data)
     }
 
@@ -69,7 +71,6 @@ class MentionListView : AbstractFragment(), Injectable {
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
             initialPrefetchItemCount = 10
-            isAutoMeasureEnabled = true
             recyclerView.layoutManager = this
         }
 

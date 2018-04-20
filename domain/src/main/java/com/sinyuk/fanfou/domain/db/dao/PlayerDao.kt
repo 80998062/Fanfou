@@ -56,7 +56,10 @@ interface PlayerDao {
     fun players(path: Int): DataSource.Factory<Int, Player>
 
     @Query("SELECT * FROM players WHERE screenName LIKE '%' || :query || '%' ORDER BY mentionedAt DESC")
-    fun filter(query: String): LiveData<MutableList<Player>>
+    fun filterAsLive(query: String): LiveData<MutableList<Player>>
+
+    @Query("SELECT * FROM players WHERE screenName LIKE '%' || :query || '%' ORDER BY mentionedAt DESC")
+    fun filter(query: String): MutableList<Player>
 
     @Query("SELECT * FROM players WHERE pathFlag & :path = :path ORDER BY updatedAt DESC")
     fun byPath(path: Int): LiveData<MutableList<Player>>

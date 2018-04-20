@@ -27,10 +27,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.PopupWindow
+import cn.dreamtobe.kpswitch.util.KeyboardUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.FixedPreloadSizeProvider
@@ -52,10 +51,8 @@ import com.sinyuk.fanfou.viewmodel.AccountViewModel
 import com.sinyuk.fanfou.viewmodel.ConnectionModel
 import com.sinyuk.fanfou.viewmodel.FanfouViewModelFactory
 import com.sinyuk.fanfou.viewmodel.TimelineViewModel
-import com.sinyuk.myutils.ConvertUtils
 import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.timeline_view.*
-import kotlinx.android.synthetic.main.toast_fetch_top.view.*
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -74,10 +71,11 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
             }
         }
 
-        fun contextTimeline(path: String, status: String) = TimelineView().apply {
+        fun contextTimeline(path: String, status: Status, photoExtra: Bundle?) = TimelineView().apply {
             arguments = Bundle().apply {
                 putString("path", path)
-                putString("status", status)
+                putBundle("photoExtra", photoExtra)
+                putParcelable("status", status)
             }
         }
 
@@ -124,7 +122,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
     private fun configTimeline() {
         val path: String = arguments!!.getString("path")
         val validId: String = when {
-            arguments!!.containsKey("status") -> arguments!!.getString("status")
+            arguments!!.containsKey("status") -> arguments!!.getParcelable<Status>("status").id
             arguments!!.containsKey("player") -> arguments!!.getParcelable<Player>("player").uniqueId
             else -> sharedPreferences.getString(UNIQUE_ID, "")
         }
@@ -142,6 +140,7 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         if (isRefreshing) return
         if (BuildConfig.DEBUG) Log.d(TAG, "trigger refresh fromUser")
         timelineViewModel.refresh()
+//        adapter.currentAccount = sharedPreferences.getString(UNIQUE_ID, null)
     }
 
 
@@ -193,30 +192,36 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
                 Observer {
                     isRefreshing = it?.states == States.LOADING
                     if (!isRefreshing) {
-                        val toastView = View.inflate(context, R.layout.toast_fetch_top, null)
-                        val popup = PopupWindow(toastView, WRAP_CONTENT, WRAP_CONTENT)
-                        popup.isFocusable = false
-                        if (States.ERROR == it?.states) {
-                            toastView.textView.text = it.message
-                            toastView.textView.setOnClickListener {
-                                popup.dismiss()
-                            }
-                        } else if (States.SUCCESS == it?.states) {
-                            toastView.textView.text = "Succeed"
-                            toastView.textView.setOnClickListener {
-                                recyclerView?.scrollToPosition(0)
-                                popup.dismiss()
-                            }
-                            popup.showAtLocation(container,
-                                    Gravity.TOP or Gravity.CENTER_HORIZONTAL,
-                                    0, ConvertUtils.dp2px(context, 16f))
-                            handler.postDelayed({ popup.dismiss() }, 5000)
-                        }
+//                        val toastView = View.inflate(context, R.layout.toast_fetch_top, null)
+//                        val popup = PopupWindow(toastView, WRAP_CONTENT, WRAP_CONTENT)
+//                        popup.isFocusable = false
+//                        if (States.ERROR == it?.states) {
+//                            toastView.textView.text = it.message
+//                            toastView.textView.setOnClickListener {
+//                                popup.dismiss()
+//                            }
+//                        } else if (States.SUCCESS == it?.states) {
+//                            toastView.textView.text = "Succeed"
+//                            toastView.textView.setOnClickListener {
+//                                recyclerView?.scrollToPosition(0)
+//                                popup.dismiss()
+//                            }
+//                            popup.showAtLocation(container,
+//                                    Gravity.TOP or Gravity.CENTER_HORIZONTAL,
+//                                    0, ConvertUtils.dp2px(context, 16f))
+//                            handler.postDelayed({ popup.dismiss() }, 5000)
+//                        }
                     }
                 })
     }
 
     private fun setupRecyclerView() {
+        recyclerView.setOnTouchListener { view, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP || motionEvent.action == MotionEvent.ACTION_CANCEL)
+                KeyboardUtil.hideKeyboard(view)
+            return@setOnTouchListener false
+        }
+
         LinearLayoutManager(context).apply {
             isItemPrefetchEnabled = true
             initialPrefetchItemCount = PAGE_SIZE
@@ -227,7 +232,12 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
         adapter = StatusPagedListAdapter(this@TimelineView,
-                { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, ""))
+                { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null))
+
+        if (arguments!!.containsKey("status")) {
+            adapter.contextStatus = arguments!!.getParcelable<Status>("status").id
+            adapter.contextStatusPhotoExtra = arguments!!.getBundle("photoExtra")
+        }
 
         val imageWidthPixels = resources.getDimensionPixelSize(R.dimen.timeline_illustration_size)
         val modelPreloader = StatusPagedListAdapter.StatusPreloadProvider(adapter, this, imageWidthPixels)

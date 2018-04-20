@@ -102,5 +102,6 @@
     <string name="state_title_privacy">Not for your eyes</string>
     <string name="state_description_privacy">Just one way to guard privacy</string>
     <string name="image_empty">image_empty</string>
+    <string name="label_avatar">avatar</string>
 
 </resources>

@@ -21,7 +21,7 @@
 
 <resources>
     <color name="colorAccent">#3FADEC</color>
-    <color name="colorAccentLt">#25A0F2</color>
+    <color name="colorAccentLt">#4db7fd</color>
     <color name="textColorSecondary">#687783</color>
     <color name="textColorHint">#CED9E0</color>
     <color name="colorControlNormal">#647888</color>

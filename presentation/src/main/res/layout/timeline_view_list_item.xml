@@ -58,7 +58,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:scaleType="centerCrop"
-                tools:src="@mipmap/ic_launcher_round" />
+                tools:src="@mipmap/ic_launcher_round"
+                android:contentDescription="@string/label_avatar" />
 
             <TextView
                 android:id="@+id/screenName"

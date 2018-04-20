@@ -24,10 +24,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/gap_16"
-    android:paddingRight="@dimen/gap_16"
+    android:paddingStart="@dimen/gap_16"
+    android:paddingEnd="@dimen/gap_16"
     android:paddingTop="@dimen/gap_16"
-    tools:background="?android:colorPrimary"
+    android:background="@color/itemBackground"
     tools:layout_gravity="center_vertical">
 
     <LinearLayout
@@ -196,8 +196,4 @@
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/divider_size"
-        android:background="@color/divider_color" />
 </LinearLayout>

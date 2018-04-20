@@ -111,7 +111,7 @@ class PlayerDaoTest {
     @Test
     fun testFilter() {
         // verify search
-        playerDao.filter("S").observeForever({
+        playerDao.filterAsLive("S").observeForever({
             assert(it?.isNotEmpty() ?: false)
         })
     }

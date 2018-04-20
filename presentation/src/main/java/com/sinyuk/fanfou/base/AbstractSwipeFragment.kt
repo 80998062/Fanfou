@@ -30,6 +30,7 @@ import me.yokeyword.fragmentation_swipeback.SwipeBackFragment
  * Created by sinyuk on 2018/1/5.
  *
  */
+@Deprecated("废物")
 abstract class AbstractSwipeFragment : SwipeBackFragment() {
 
     protected abstract fun layoutId(): Int?
