@@ -45,10 +45,13 @@ import java.util.concurrent.TimeUnit
  * Created by sinyuk on 2017/11/28.
  *
  */
-abstract class AbstractRepository constructor(application: Application, endpoint: Endpoint, interceptor: Oauth1SigningInterceptor) {
+abstract class AbstractRepository constructor(
+        application: Application,
+        endpoint: Endpoint,
+        interceptor: Oauth1SigningInterceptor) {
 
     private val MAX_HTTP_CACHE = (1024 * 1024 * 100).toLong()
-    private val TIMEOUT: Long = 10
+    private val TIMEOUT: Long = 30
     val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
                 .addNetworkInterceptor(interceptor)
@@ -71,7 +74,7 @@ abstract class AbstractRepository constructor(application: Application, endpoint
                 }.build()
     }
 
-    val cacheClient: OkHttpClient by lazy {
+    private val cacheClient: OkHttpClient by lazy {
         val cache = Cache(File("okhttp"), 1024 * 1024 * 10)
         OkHttpClient.Builder()
                 .addNetworkInterceptor(interceptor)

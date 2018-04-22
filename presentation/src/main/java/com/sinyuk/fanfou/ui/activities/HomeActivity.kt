@@ -26,6 +26,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.widget.DrawerLayout
 import android.util.Log
 import android.view.KeyEvent
@@ -45,9 +46,9 @@ import com.sinyuk.fanfou.ui.account.SignInView
 import com.sinyuk.fanfou.ui.colormatchtabs.adapter.ColorTabAdapter
 import com.sinyuk.fanfou.ui.colormatchtabs.listeners.OnColorTabSelectedListener
 import com.sinyuk.fanfou.ui.colormatchtabs.model.ColorTab
+import com.sinyuk.fanfou.ui.drawer.DrawerToggleEvent
 import com.sinyuk.fanfou.ui.drawer.DrawerView
 import com.sinyuk.fanfou.ui.editor.EditorView
-import com.sinyuk.fanfou.ui.message.MessageView
 import com.sinyuk.fanfou.ui.search.SearchView
 import com.sinyuk.fanfou.ui.timeline.TimelineView
 import com.sinyuk.fanfou.util.obtainViewModel
@@ -58,6 +59,9 @@ import com.sinyuk.myutils.system.ToastUtils
 import kotlinx.android.synthetic.main.home_activity.*
 import me.yokeyword.fragmentation.anim.DefaultHorizontalAnimator
 import me.yokeyword.fragmentation.anim.FragmentAnimator
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import javax.inject.Inject
 
 /**
@@ -110,10 +114,7 @@ class HomeActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        SystemBarUtils.setLightStatusBar(fragment_container)
-//        SystemBarUtils.setColor(this, Color.WHITE)
-
-        setupDrawerLayout(savedInstanceState)
+        setupDrawerLayout()
         setupTabLayout(savedInstanceState)
         setupViewPager(savedInstanceState)
         onGlobalLayoutListener = KeyboardUtil.attach(this@HomeActivity, panelRoot, {
@@ -122,7 +123,7 @@ class HomeActivity : AbstractActivity() {
     }
 
 
-    private fun setupDrawerLayout(savedInstanceState: Bundle?) {
+    private fun setupDrawerLayout() {
         drawerLayout.setDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
 
@@ -136,14 +137,39 @@ class HomeActivity : AbstractActivity() {
 
             override fun onDrawerOpened(drawerView: View) {
                 KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
+                delayLoadDrawerView()
             }
         })
 
-        navImageView.setOnClickListener {
-            if (findFragment(DrawerView::class.java) == null) {
-                loadRootFragment(R.id.drawerViewContainer, DrawerView(), false, false)
+
+        accountViewModel.profile.observe(this@HomeActivity, Observer {
+            it?.apply {
+                GlideApp.with(navImageView)
+                        .load(profileImageUrlLarge).avatar()
+                        .transition(withCrossFade())
+                        .into(navImageView)
             }
+        })
+        navImageView.setOnClickListener {
+            delayLoadDrawerView()
             drawerLayout.openDrawer()
+        }
+
+    }
+
+    private fun delayLoadDrawerView() {
+        if (findFragment(DrawerView::class.java) == null) {
+            loadRootFragment(R.id.drawerViewContainer, DrawerView(), false, false)
+        }
+    }
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onDrawerToggleEvent(event: DrawerToggleEvent) {
+        if (event.open == true) {
+            drawerLayout.openDrawer()
+        } else {
+            drawerLayout.closeDrawer()
         }
     }
 
@@ -171,7 +197,6 @@ class HomeActivity : AbstractActivity() {
 
             override fun onDoubleClick(tab: ColorTab?) {
                 if (BuildConfig.DEBUG) Log.i("onDoubleClick", "position: " + tab?.position)
-
             }
 
             override fun onSelectedTab(tab: ColorTab?) {
@@ -189,36 +214,32 @@ class HomeActivity : AbstractActivity() {
 
     private val titles by lazy { resources.getStringArray(R.array.tab_titles) }
 
-    private var currentFragment: Int = 0
 
     private fun setupViewPager(savedInstanceState: Bundle?) {
         fragments = if (savedInstanceState == null) {
-            mutableListOf(TimelineView.newInstance(TIMELINE_HOME), SearchView(), SignInView(), MessageView())
+            mutableListOf(TimelineView.newInstance(TIMELINE_HOME), SearchView(), SignInView())
         } else {
-            currentFragment = savedInstanceState.getInt("currentFragment", 0)
-            mutableListOf(findFragment(TimelineView::class.java), findFragment(SearchView::class.java), findFragment(SignInView::class.java), findFragment(MessageView::class.java))
+            mutableListOf(findFragment(TimelineView::class.java),
+                    findFragment(SearchView::class.java),
+                    findFragment(SignInView::class.java))
         }
 
-        if (savedInstanceState == null) {
-            loadMultipleRootFragment(R.id.viewPager, currentFragment, *fragments.toTypedArray())
-        } else {
-            showHideFragment(fragments[currentFragment])
+        viewPager.setPagingEnabled(false)
+        viewPager.offscreenPageLimit = fragments.size - 1
+        viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
+            override fun getItem(position: Int) = fragments[position]
+            override fun getCount() = fragments.size
         }
 
     }
 
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState?.putInt("currentFragment", currentFragment)
-    }
 
     private fun onPageSwitched(to: Int) {
-        if (to == currentFragment) return
+        if (to == viewPager.currentItem) return
         KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
         if (to == 1) {
             actionBarSwitcher.displayedChildId = searchView.id
-        } else if (currentFragment == 1) {
+        } else if (viewPager.currentItem == 1) {
             actionBarSwitcher.displayedChildId = titleView.id
         }
 
@@ -226,7 +247,9 @@ class HomeActivity : AbstractActivity() {
 
         when (to) {
             0 -> {
-                endButton.setOnClickListener { start(EditorView.newInstance(action = StatusCreation.CREATE_NEW)) }
+                endButton.setOnClickListener {
+                    start(EditorView.newInstance(action = StatusCreation.CREATE_NEW))
+                }
                 R.drawable.ic_rice
             }
             1 -> {
@@ -243,11 +266,11 @@ class HomeActivity : AbstractActivity() {
             GlideApp.with(this).load(it).into(endButton)
         }
 
-        showHideFragment(fragments[to], fragments[currentFragment])
-        currentFragment = to
+        viewPager.currentItem = to
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent?) = if (event?.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK) {
+    override fun dispatchKeyEvent(event: KeyEvent?) = if (event?.action == KeyEvent.ACTION_UP
+            && event.keyCode == KeyEvent.KEYCODE_BACK) {
         if (panelRoot.visibility == View.VISIBLE) {
             KPSwitchConflictUtil.hidePanelAndKeyboard(panelRoot)
             true
@@ -258,14 +281,16 @@ class HomeActivity : AbstractActivity() {
         super.dispatchKeyEvent(event)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this)
+    }
 
-    private var renderingRunnable: Runnable? = Runnable {
-        renderingRunnable = null
-        accountViewModel.profile.observe(this@HomeActivity, Observer {
-            it?.apply {
-                GlideApp.with(navImageView).load(profileImageUrlLarge).avatar().transition(withCrossFade()).into(navImageView)
-            }
-        })
+    override fun onPause() {
+        super.onPause()
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this)
     }
 
     override fun onDestroy() {

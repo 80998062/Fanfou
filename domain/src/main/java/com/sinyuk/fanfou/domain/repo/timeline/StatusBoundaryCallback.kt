@@ -69,7 +69,7 @@ class StatusBoundaryCallback(
                 TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId)
                 TIMELINE_HOME, TIMELINE_PUBLIC ->
                     webservice.fetch_from_path(path = path, count = networkPageSize)
-                // 如果加上id 就会返回 401 Unauthorized
+            // 如果加上id 就会返回 401 Unauthorized
                 else -> webservice.fetch_from_path(path = path, count = networkPageSize, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }
@@ -83,9 +83,9 @@ class StatusBoundaryCallback(
         helper.runIfNotRunning(PagingRequestHelper.RequestType.AFTER) {
             when (path) {
                 TIMELINE_PHOTO -> webservice.photos(count = networkPageSize, id = uniqueId, max = itemAtEnd.id)
+            // 如果加上id 就会返回401 Unauthorized
                 TIMELINE_HOME, TIMELINE_PUBLIC ->
                     webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id)
-                // 如果加上id 就会返回401 Unauthorized
                 else -> webservice.fetch_from_path(path = path, count = networkPageSize, max = itemAtEnd.id, id = uniqueId)
             }.enqueue(createWebserviceCallback(it))
         }

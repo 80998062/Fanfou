@@ -30,10 +30,8 @@
         <item>主页</item>
         <item>搜索</item>
         <item>消息</item>
-        <item>私信</item>
     </string-array>
     <string-array name="tab_colors">
-        <item>#3FADEC</item>
         <item>#3FADEC</item>
         <item>#3FADEC</item>
         <item>#3FADEC</item>
@@ -43,7 +41,6 @@
         <item>@drawable/ic_tab_homepage</item>
         <item>@drawable/ic_tab_search</item>
         <item>@drawable/ic_tab_message</item>
-        <item>@drawable/ic_tab_mail</item>
     </integer-array>
     <string-array name="tab_titles_search">
         <item>状态</item>

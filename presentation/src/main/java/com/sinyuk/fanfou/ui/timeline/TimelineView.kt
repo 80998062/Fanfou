@@ -153,23 +153,33 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
 
     override fun onFavorited(favorited: Boolean, v: View?, p: Int, status: Status) {
         if (favorited) {
-            timelineViewModel.createFavorite(status.id).observe(this@TimelineView, Observer {
-                if (it?.states == States.ERROR) {
-                    it.message?.let { toast.toastShort(it) }
-                }
-            })
+            timelineViewModel.createFavorite(status.id)
+                    .observe(this@TimelineView, Observer {
+                        if (it?.states == States.ERROR) {
+                            it.message?.let { toast.toastShort(it) }
+                            adapter.setFavorited(p, false)
+                        }
+                    })
         } else {
-            timelineViewModel.destroyFavorite(status.id).observe(this@TimelineView, Observer {
-
-            })
+            timelineViewModel.destroyFavorite(status.id)
+                    .observe(this@TimelineView, Observer {
+                        if (it?.states == States.ERROR) {
+                            it.message?.let { toast.toastShort(it) }
+                            adapter.setFavorited(p, true)
+                        }
+                    })
         }
     }
 
 
     override fun onDeleted(v: View?, p: Int, status: Status) {
-        timelineViewModel.delete(status.id).observe(this@TimelineView, Observer {
-
-        })
+        timelineViewModel.delete(status.id)
+                .observe(this@TimelineView, Observer {
+                    if (it?.states == States.ERROR) {
+                        it.message?.let { toast.toastShort(it) }
+                        adapter.setDeleted(p, false)
+                    }
+                })
     }
 
 
@@ -231,8 +241,13 @@ class TimelineView : AbstractFragment(), Injectable, StatusPagedListAdapter.Stat
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(MarginDecoration(R.dimen.divider_size, false, context!!))
 
-        adapter = StatusPagedListAdapter(this@TimelineView,
-                { timelineViewModel.retry() }, sharedPreferences.getString(UNIQUE_ID, null))
+        val path: String = arguments!!.getString("path")
+
+        adapter = StatusPagedListAdapter(
+                this@TimelineView,
+                { timelineViewModel.retry() },
+                path,
+                sharedPreferences.getString(UNIQUE_ID, null))
 
         if (arguments!!.containsKey("status")) {
             adapter.contextStatus = arguments!!.getParcelable<Status>("status").id

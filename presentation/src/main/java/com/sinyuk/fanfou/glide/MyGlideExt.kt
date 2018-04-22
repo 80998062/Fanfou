@@ -25,6 +25,7 @@ import android.content.Context
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.request.RequestOptions
+import com.sinyuk.fanfou.R
 import com.sinyuk.myutils.ConvertUtils
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
@@ -38,21 +39,23 @@ object MyGlideExt {
     @GlideOption
     @JvmStatic
     fun avatar(options: RequestOptions) =
-        options.optionalCircleCrop()
+            options.optionalCircleCrop()
+                    .placeholder(R.drawable.ic_avatar_bg)
+                    .error(R.drawable.ic_avatar_bg)
+                    .fallback(R.drawable.ic_avatar_bg)
 
 
     @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
     fun illustrationThumb(options: RequestOptions, context: Context) =
-        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 4f), 0)))
-
+            options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 4f), 0)))
 
 
     @SuppressLint("CheckResult")
     @GlideOption
     @JvmStatic
     fun illustrationLarge(options: RequestOptions, context: Context) =
-        options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 6f), 0)))
+            options.centerCrop().apply(RequestOptions.bitmapTransform(RoundedCornersTransformation(ConvertUtils.dp2px(context, 6f), 0)))
 
 }

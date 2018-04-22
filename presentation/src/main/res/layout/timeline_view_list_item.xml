@@ -46,7 +46,7 @@
         <LinearLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_marginEnd="@dimen/gap_16"
             android:layout_marginStart="@dimen/gap_16"
             android:layout_marginTop="@dimen/gap_8"
@@ -56,22 +56,45 @@
             <ImageView
                 android:id="@+id/avatar"
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/label_avatar"
                 android:scaleType="centerCrop"
-                tools:src="@mipmap/ic_launcher_round"
-                android:contentDescription="@string/label_avatar" />
+                tools:src="@mipmap/ic_launcher_round" />
 
             <TextView
                 android:id="@+id/screenName"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/gap_8"
                 android:ellipsize="end"
+                android:gravity="bottom"
                 android:minWidth="56dp"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="@dimen/text_16"
                 android:textStyle="bold"
-                tools:background="?android:textColorHint" />
+                tools:background="?android:textColorHint"
+                tools:text="Sinyuk" />
+
+            <ImageView
+                android:id="@+id/likedFlag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/gap_8"
+                android:contentDescription="@string/hint_liked"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_collection_fill"
+                android:visibility="invisible" />
+
+
+            <ImageView
+                android:id="@+id/repostFlag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/gap_4"
+                android:contentDescription="@string/hint_reposted"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_collection_fill"
+                android:visibility="invisible" />
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
@@ -82,11 +105,12 @@
             <TextView
                 android:id="@+id/createdAt"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="bottom"
                 android:minWidth="36dp"
                 android:textColor="?android:textColorHint"
                 android:textSize="@dimen/text_12"
-                tools:background="?android:textColorHint" />
+                tools:text="dsadas" />
         </LinearLayout>
 
 
@@ -106,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:lineSpacingExtra="3dp"
+                android:lineSpacingExtra="4dp"
                 android:minHeight="56dp"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="@dimen/text_14"

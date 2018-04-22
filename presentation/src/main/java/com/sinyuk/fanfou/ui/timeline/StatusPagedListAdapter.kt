@@ -38,6 +38,7 @@ import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.domain.DO.Photos
 import com.sinyuk.fanfou.domain.DO.Status
 import com.sinyuk.fanfou.domain.NetworkState
+import com.sinyuk.fanfou.domain.TIMELINE_FAVORITES
 import com.sinyuk.fanfou.glide.GlideApp
 import com.sinyuk.fanfou.glide.GlideRequests
 import com.sinyuk.fanfou.ui.NetworkStateItemViewHolder
@@ -55,6 +56,7 @@ import java.util.*
 class StatusPagedListAdapter(
         fragment: Fragment,
         private val retryCallback: () -> Unit,
+        val path: String?,
         var currentAccount: String?) :
         PagedListAdapter<Status, RecyclerView.ViewHolder>(COMPARATOR), SwipeItemMangerInterface, SwipeAdapterInterface {
     private var networkState: NetworkState? = null
@@ -124,19 +126,22 @@ class StatusPagedListAdapter(
                     if (currentAccount == status.playerExtracts?.uniqueId) {
                         glide.load(R.drawable.ic_empty).into(holder.itemView.actionButton)
                         holder.itemView.actionButton.setOnClickListener { v ->
+                            setDeleted(holder.adapterPosition, true)
                             statusOperationListener?.onDeleted(v, position, status)
                         }
                     } else {
                         holder.itemView.actionButton.setImageResource(R.drawable.trimclip_heart)
-                        val checked = status.favorited
-                        val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
+                        val checked = TIMELINE_FAVORITES == path || status.favorited
+                        val stateSet =
+                                intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
                         holder.itemView.actionButton.setImageState(stateSet, true)
-
+                        val flagVisible = if (checked) View.VISIBLE else View.INVISIBLE
+                        holder.itemView.likedFlag.visibility = flagVisible
                         @Suppress("NAME_SHADOWING")
                         holder.itemView.actionButton.setOnClickListener { _ ->
-                            val checked = !status.favorited
-                            setFavorited(checked, holder)
-                            statusOperationListener?.onFavorited(checked, holder.itemView, holder.adapterPosition, status)
+                            val reversed = !checked
+                            setFavorited(holder.adapterPosition, reversed)
+                            statusOperationListener?.onFavorited(reversed, holder.itemView, holder.adapterPosition, status)
                         }
                     }
 
@@ -163,11 +168,28 @@ class StatusPagedListAdapter(
         }
     }
 
+    fun setDeleted(position: Int, deleted: Boolean) {
+        if (deleted) {
+            currentList?.removeAt(position)
+            notifyItemRemoved(position)
+        } else {
+            notifyDataSetChanged()
+        }
+    }
 
-    private fun setFavorited(checked: Boolean, holder: TimelineItemHolder) {
-        val stateSet = intArrayOf(android.R.attr.state_checked * if (checked) 1 else -1)
-        holder.itemView?.actionButton?.setImageState(stateSet, true)
-        getItem(holder.adapterPosition)?.favorited = checked
+
+    fun setFavorited(position: Int, checked: Boolean) {
+        if (TIMELINE_FAVORITES == path) {
+            if (!checked) {
+                currentList?.removeAt(position)
+                notifyItemRemoved(position)
+            } else {
+                notifyDataSetChanged()
+            }
+        } else {
+            getItem(position)?.favorited = checked
+            notifyItemChanged(position)
+        }
     }
 
     companion object {

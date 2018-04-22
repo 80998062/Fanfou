@@ -163,19 +163,17 @@ class TimelineRepository @Inject constructor(
         liveData.postValue(Resource.loading(null))
         appExecutors.networkIO().execute {
             val uniqueId = sharedPreferences.getString(UNIQUE_ID, null)
-            if (uniqueId == null) {
-                liveData.postValue(Resource.error("error msg: not logged", null))
-                return@execute
-            }
             try {
                 val response = restAPI.createFavorite(id).execute()
                 if (response.isSuccessful || response.body() != null) {
                     val data = response.body()!!
                     appExecutors.diskIO().execute {
                         db.runInTransaction {
-                            db.statusDao().query(id, uniqueId)?.let { data.pathFlag = it.pathFlag }
-                            data.user?.let { data.playerExtracts = PlayerExtracts(it) }
-                            db.statusDao().update(data)
+                            db.statusDao().query(id, uniqueId)?.let {
+                                it.addPathFlag(TIMELINE_FAVORITES)
+                                it.favorited = true
+                                db.statusDao().update(it)
+                            }
                         }
                     }
                     liveData.postValue(Resource.success(data))
@@ -198,19 +196,18 @@ class TimelineRepository @Inject constructor(
         liveData.postValue(Resource.loading(null))
         appExecutors.networkIO().execute {
             val uniqueId = sharedPreferences.getString(UNIQUE_ID, null)
-            if (uniqueId == null) {
-                liveData.postValue(Resource.error("error msg: not logged", null))
-                return@execute
-            }
             try {
                 val response = restAPI.deleteFavorite(id).execute()
                 if (response.isSuccessful || response.body() != null) {
                     val data = response.body()!!
                     appExecutors.diskIO().execute {
-                        db.runInTransaction {
-                            db.statusDao().query(id, uniqueId)?.let {
+                        db.statusDao().query(id, uniqueId)?.let {
+                            it.removePath(convertPathToFlag(TIMELINE_FAVORITES))
+                            if (it.pathFlag == NO_FLAG) {
+                                db.runInTransaction { db.statusDao().delete(it) }
+                            } else {
                                 it.favorited = false
-                                db.statusDao().update(it)
+                                db.runInTransaction { db.statusDao().update(it) }
                             }
                         }
                     }
@@ -222,11 +219,15 @@ class TimelineRepository @Inject constructor(
                 liveData.postValue(Resource.error("error msg: ${e.message}", null))
             }
         }
+
+
+
         return liveData
     }
 
     /**
      * 删除某条状态，只能删除自己的
+     *
      * @param id status id
      */
     fun delete(id: String): MutableLiveData<Resource<Status>> {

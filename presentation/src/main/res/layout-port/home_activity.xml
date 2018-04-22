@@ -45,9 +45,9 @@
             android:tag="content">
 
             <!--<Space-->
-                <!--android:id="@+id/statusBarSpace"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="@dimen/status_bar_height" />-->
+            <!--android:id="@+id/statusBarSpace"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/status_bar_height" />-->
 
             <LinearLayout
                 android:id="@+id/actionBar"
@@ -162,12 +162,22 @@
 
             </LinearLayout>
 
-            <FrameLayout
-                android:id="@+id/viewPager"
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@+id/tabLayout"
-                android:layout_below="@+id/actionBar" />
+                android:layout_below="@+id/actionBar"
+                android:clipToPadding="false"
+                android:overScrollMode="ifContentScrolls">
+
+                <com.sinyuk.fanfou.ui.FreezeViewPager
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never" />
+            </android.support.v4.widget.SwipeRefreshLayout>
+
 
             <com.sinyuk.fanfou.ui.colormatchtabs.colortabs.ColorMatchTabLayout
                 android:id="@+id/tabLayout"

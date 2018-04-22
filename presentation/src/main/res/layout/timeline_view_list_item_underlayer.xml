@@ -55,7 +55,8 @@
         android:layout_height="44dp"
         android:layout_marginEnd="@dimen/gap_8"
         android:scaleType="centerInside"
-        tools:src="@drawable/ic_empty" />
+        tools:src="@drawable/ic_empty"
+        android:contentDescription="@string/action_like" />
 
 
 </LinearLayout>

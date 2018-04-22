@@ -28,7 +28,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatDelegate
 import android.view.View
-import com.bumptech.glide.request.RequestOptions
 import com.sinyuk.fanfou.NIGHT_MODE
 import com.sinyuk.fanfou.R
 import com.sinyuk.fanfou.base.AbstractActivity
@@ -92,7 +91,7 @@ class DrawerView : AbstractFragment(), Injectable {
 
     private fun renderPlayer(data: Player?) {
         data?.let {
-            GlideApp.with(avatar).asBitmap().load(it.profileImageUrlLarge).apply(RequestOptions().centerCrop()).apply(RequestOptions.circleCropTransform()).into(avatar)
+            GlideApp.with(avatar).asDrawable().avatar().load(it.profileImageUrlLarge).into(avatar)
             screenName.text = it.screenName
             setUserId(userId, it.id)
             if (it.friendsCount == 0) {
@@ -159,7 +158,7 @@ class DrawerView : AbstractFragment(), Injectable {
         view.post(action)
         view.postDelayed({
             toggleDrawer(false)
-        }, 1000)
+        }, 500)
     }
 
     private fun toggleDrawer(open: Boolean? = null) {

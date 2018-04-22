@@ -48,7 +48,6 @@ data class Status constructor(
         @SerializedName("created_at") var createdAt: Date? = null,
         @Embedded(prefix = "player_") var playerExtracts: PlayerExtracts? = null,
         @Embedded(prefix = "photo_") @SerializedName("photo") var photos: Photos? = null,
-        @SerializedName("isSelf") var isSelf: Boolean = false,
         @SerializedName("favorited") var favorited: Boolean = false,
         var pathFlag: Int = 0
 ) : Parcelable {
@@ -64,16 +63,6 @@ data class Status constructor(
         addPath(convertPathToFlag(path))
     }
 
-    override fun equals(other: Any?) = if (other is Status) {
-        id == other.id && favorited == other.favorited
-    } else {
-        false
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
-
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),
@@ -84,7 +73,6 @@ data class Status constructor(
             source.readSerializable() as Date?,
             source.readParcelable<PlayerExtracts>(PlayerExtracts::class.java.classLoader),
             source.readParcelable<Photos>(Photos::class.java.classLoader),
-            1 == source.readInt(),
             1 == source.readInt(),
             source.readInt()
     )
@@ -101,7 +89,6 @@ data class Status constructor(
         writeSerializable(createdAt)
         writeParcelable(playerExtracts, 0)
         writeParcelable(photos, 0)
-        writeInt((if (isSelf) 1 else 0))
         writeInt((if (favorited) 1 else 0))
         writeInt(pathFlag)
     }
