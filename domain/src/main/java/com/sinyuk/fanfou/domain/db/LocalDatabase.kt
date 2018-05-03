@@ -39,7 +39,7 @@ import com.sinyuk.fanfou.domain.db.dao.TrendDao
  * Created by sinyuk on 2017/11/27.
  *
  */
-@Database(entities = arrayOf(Player::class, Status::class, Keyword::class, Trend::class),
+@Database(entities = [(Player::class), (Status::class), (Keyword::class), (Trend::class)],
         version = BuildConfig.VERSION_CODE, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao

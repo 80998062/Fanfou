@@ -72,7 +72,7 @@ const val SEARCH_USERS = "search_users"
 
 const val SEARCH_USER_TIMELINE = "search_user_timeline"
 
-const val USERS_ADMIN = "byPath"
+const val USERS_ADMIN = "admin"
 
 const val USERS_FRIENDS = "friends"
 

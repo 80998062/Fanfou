@@ -30,7 +30,7 @@ import javax.inject.Singleton
  * Created by sinyuk on 2017/11/28.
  */
 @Singleton
-@Component(modules = arrayOf(AppModule::class, AndroidSupportInjectionModule::class, ActivityBuildersModule::class))
+@Component(modules = [(AppModule::class), (AndroidSupportInjectionModule::class), (ActivityBuildersModule::class)])
 interface AppComponent {
     fun inject(instance: App)
 }

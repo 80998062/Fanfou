@@ -18,15 +18,11 @@
  *
  */
 
-package com.sinyuk.fanfou.domain.api
+package com.sinyuk.fanfou.util
 
 
-import android.content.SharedPreferences
 import android.util.Log
-import com.sinyuk.fanfou.domain.ACCESS_SECRET
-import com.sinyuk.fanfou.domain.ACCESS_TOKEN
 import com.sinyuk.fanfou.domain.BuildConfig
-import com.sinyuk.fanfou.domain.TYPE_GLOBAL
 import com.sinyuk.fanfou.domain.util.UrlEscapeUtils
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -41,7 +37,6 @@ import java.security.SecureRandom
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import javax.inject.Named
 import javax.inject.Singleton
 
 
@@ -49,7 +44,7 @@ import javax.inject.Singleton
  * The type Oauth 1 signing interceptor.
  */
 @Singleton
-class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferences) : Interceptor {
+class Oauth1SigningInterceptor(private val token: String?, private val secret: String?) : Interceptor {
     private val consumerKey = BuildConfig.CONSUMER_KEY
     private val consumerSecret = BuildConfig.CONSUMER_SECRET
     private val random = SecureRandom()
@@ -58,9 +53,6 @@ class Oauth1SigningInterceptor(@Named(TYPE_GLOBAL) private val p: SharedPreferen
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = p.getString(ACCESS_TOKEN, null)
-        val secret = p.getString(ACCESS_SECRET, null)
-
         return if (token == null || secret == null) {
             chain.proceed(chain.request().newBuilder().removeHeader("Authorization").build())
         } else {

@@ -53,7 +53,7 @@ class FanfouSearchManager @Inject constructor(
         val live = MutableLiveData<Resource<MutableList<Trend>>>()
         appExecutors.networkIO().execute {
             try {
-                val response = cacheAPI.trends().execute()
+                val response = restAPI.trends().execute()
                 if (response.isSuccessful && response.body() != null) {
                     live.postValue(Resource.success(response.body()!!.data))
                 } else {
